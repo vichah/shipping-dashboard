@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>出貨量分析 Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
@@ -427,8 +426,6 @@
 const SUPABASE_URL = 'https://mugkjtiagmahipotekmr.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Z2tqdGlhZ21haGlwb3Rla21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mzc3MjEsImV4cCI6MjA5NTQxMzcyMX0.xI8-bUL5b1tPJOJiV5awvCQwduCgcnrgpmDkjYi-lP8';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 // Index 0 = 2017-01, index 111 = 2026-04
 function idxToYM(idx) {
   const year = 2017 + Math.floor(idx / 12);
@@ -804,12 +801,16 @@ const EMBEDDED_DATA = [
 async function init() {
   let data = null;
   try {
-    const res = await Promise.race([
-      supabase.from('shipping_monthly').select('year,month,quantity_mt').order('year').order('month'),
-      new Promise((_,reject) => setTimeout(() => reject(new Error('timeout')), 5000))
-    ]);
-    if (!res.error && res.data && res.data.length > 0) {
-      data = res.data;
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/shipping_monthly?select=year,month,quantity_mt&order=year.asc,month.asc`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }, signal: controller.signal }
+    );
+    clearTimeout(tid);
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json) && json.length > 0) data = json;
     }
   } catch(e) { /* fall through to embedded data */ }
 
