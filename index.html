@@ -8,8 +8,8 @@
 <style>
   :root {
     --bg-primary: #050b18;
-    --bg-card: rgba(10, 20, 40, 0.85);
-    --bg-card2: rgba(6, 15, 32, 0.9);
+    --bg-card: rgba(10,20,40,0.85);
+    --bg-card2: rgba(6,15,32,0.9);
     --accent-cyan: #00e5ff;
     --accent-blue: #2979ff;
     --accent-purple: #7c4dff;
@@ -23,276 +23,222 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    font-family: 'Segoe UI','PingFang TC','Microsoft JhengHei',sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
   }
-
-  /* Animated grid background */
   body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
+    content:''; position:fixed; inset:0;
+    background: linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);
+    background-size:48px 48px; pointer-events:none; z-index:0;
   }
   body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at 20% 50%, rgba(41,121,255,0.07) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(124,77,255,0.07) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+    content:''; position:fixed; inset:0;
+    background: radial-gradient(ellipse at 20% 50%,rgba(41,121,255,0.07) 0%,transparent 60%),
+                radial-gradient(ellipse at 80% 20%,rgba(124,77,255,0.07) 0%,transparent 60%);
+    pointer-events:none; z-index:0;
   }
-
-  .container { position: relative; z-index: 1; max-width: 1600px; margin: 0 auto; padding: 0 24px 40px; }
+  .container { position:relative; z-index:1; max-width:1600px; margin:0 auto; padding:0 24px 40px; }
 
   /* Header */
   header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 28px 0 24px;
-    border-bottom: 1px solid var(--border-glow);
-    margin-bottom: 28px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:28px 0 24px; border-bottom:1px solid var(--border-glow); margin-bottom:28px;
   }
-  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-left { display:flex; align-items:center; gap:16px; }
   .logo-box {
-    width: 44px; height: 44px;
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; font-weight: 900; color: #fff;
-    box-shadow: 0 0 20px rgba(0,229,255,0.4);
+    width:44px; height:44px; background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));
+    border-radius:10px; display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:900; color:#fff; box-shadow:0 0 20px rgba(0,229,255,0.4);
   }
-  .header-title h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: var(--text-primary); }
-  .header-title p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; letter-spacing: 2px; text-transform: uppercase; }
+  .header-title h1 { font-size:22px; font-weight:700; letter-spacing:1px; }
+  .header-title p { font-size:12px; color:var(--text-secondary); margin-top:2px; letter-spacing:2px; text-transform:uppercase; }
   .header-badge {
-    background: rgba(0,229,255,0.1);
-    border: 1px solid rgba(0,229,255,0.3);
-    border-radius: 20px;
-    padding: 6px 16px;
-    font-size: 12px;
-    color: var(--accent-cyan);
-    letter-spacing: 1px;
+    background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3);
+    border-radius:20px; padding:6px 16px; font-size:12px; color:var(--accent-cyan); letter-spacing:1px;
   }
 
-  /* Range Slider Panel */
+  /* Slider Panel */
   .slider-panel {
-    background: var(--bg-card);
-    border: 1px solid var(--border-glow);
-    border-radius: 16px;
-    padding: 24px 32px;
-    margin-bottom: 28px;
-    backdrop-filter: blur(12px);
-    position: relative;
-    overflow: hidden;
+    background:var(--bg-card); border:1px solid var(--border-glow); border-radius:16px;
+    padding:24px 32px; margin-bottom:28px; backdrop-filter:blur(12px);
+    position:relative; overflow:hidden;
   }
   .slider-panel::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan),var(--accent-purple));
   }
-  .slider-panel-title {
-    font-size: 11px; letter-spacing: 3px; color: var(--accent-cyan);
-    text-transform: uppercase; margin-bottom: 20px; font-weight: 600;
-  }
-  .slider-row { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
-  .slider-group { flex: 1; min-width: 280px; }
-  .slider-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 1px; }
-  .slider-value {
-    font-size: 18px; font-weight: 700; color: var(--accent-cyan);
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 12px rgba(0,229,255,0.5);
-  }
-  .slider-track-wrap { position: relative; margin-top: 10px; height: 6px; }
+  .slider-panel-title { font-size:11px; letter-spacing:3px; color:var(--accent-cyan); text-transform:uppercase; margin-bottom:20px; font-weight:600; }
+  .slider-row { display:flex; align-items:center; gap:32px; flex-wrap:wrap; }
+  .slider-group { flex:1; min-width:280px; }
+  .slider-label { font-size:12px; color:var(--text-secondary); margin-bottom:8px; letter-spacing:1px; }
+  .slider-value { font-size:18px; font-weight:700; color:var(--accent-cyan); text-shadow:0 0 12px rgba(0,229,255,0.5); }
   input[type=range] {
-    -webkit-appearance: none; appearance: none;
-    width: 100%; height: 6px;
-    border-radius: 3px;
-    background: rgba(0,229,255,0.15);
-    outline: none; cursor: pointer;
+    -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:3px;
+    background:rgba(0,229,255,0.15); outline:none; cursor:pointer; margin-top:10px;
   }
   input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 20px; height: 20px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-    box-shadow: 0 0 12px rgba(0,229,255,0.7);
-    cursor: pointer; border: 2px solid rgba(255,255,255,0.3);
-    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));
+    box-shadow:0 0 12px rgba(0,229,255,0.7); cursor:pointer;
+    border:2px solid rgba(255,255,255,0.3); transition:transform .15s,box-shadow .15s;
   }
-  input[type=range]::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 20px rgba(0,229,255,0.9);
-  }
-  .slider-ticks { display: flex; justify-content: space-between; margin-top: 6px; }
-  .slider-ticks span { font-size: 10px; color: var(--text-secondary); }
+  input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); box-shadow:0 0 20px rgba(0,229,255,0.9); }
+  .slider-ticks { display:flex; justify-content:space-between; margin-top:6px; }
+  .slider-ticks span { font-size:10px; color:var(--text-secondary); }
   .range-display {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px 24px;
-    background: rgba(0,229,255,0.06);
-    border: 1px solid rgba(0,229,255,0.15);
-    border-radius: 10px;
-    white-space: nowrap;
+    display:flex; align-items:center; gap:12px; padding:14px 24px;
+    background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.15); border-radius:10px; white-space:nowrap;
   }
-  .range-display .sep { color: var(--text-secondary); }
-  .range-display .val { font-size: 16px; font-weight: 700; color: var(--accent-cyan); }
-  .range-display .lbl { font-size: 11px; color: var(--text-secondary); display: block; }
+  .range-display .sep { color:var(--text-secondary); }
+  .range-display .val { font-size:16px; font-weight:700; color:var(--accent-cyan); }
+  .range-display .lbl { font-size:11px; color:var(--text-secondary); display:block; }
 
-  /* KPI Cards */
+  /* KPI Grids */
   .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-    margin-bottom: 28px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:18px;
+  }
+  .kpi-grid-3 {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:28px;
   }
   .kpi-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-glow2);
-    border-radius: 14px;
-    padding: 22px 24px;
-    backdrop-filter: blur(12px);
-    position: relative; overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    background:var(--bg-card); border:1px solid var(--border-glow2); border-radius:14px;
+    padding:22px 24px; backdrop-filter:blur(12px); position:relative; overflow:hidden;
+    transition:transform .2s,box-shadow .2s;
   }
-  .kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 32px rgba(0,229,255,0.15);
-  }
-  .kpi-card::after {
-    content: '';
-    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-  }
-  .kpi-card.max::after { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue)); }
-  .kpi-card.min::after { background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink)); }
-  .kpi-card.avg::after { background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); }
-  .kpi-card.top5::after { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+  .kpi-card:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(0,229,255,0.15); }
+  .kpi-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; }
+  .kpi-card.max::after { background:linear-gradient(90deg,var(--accent-cyan),var(--accent-blue)); }
+  .kpi-card.min::after { background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink)); }
+  .kpi-card.avg::after { background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple)); }
+  .kpi-card.top5::after { background:linear-gradient(90deg,var(--accent-green),var(--accent-cyan)); }
+  .kpi-card.yoy::after { background:linear-gradient(90deg,var(--accent-orange),#ffab40); }
+  .kpi-card.mom::after { background:linear-gradient(90deg,#ff6090,var(--accent-purple)); }
+  .kpi-card.peak::after { background:linear-gradient(90deg,var(--accent-green),#69f0ae); }
+  .kpi-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:14px; }
+  .kpi-card.max .kpi-icon { background:rgba(0,229,255,0.12); }
+  .kpi-card.min .kpi-icon { background:rgba(245,0,87,0.12); }
+  .kpi-card.avg .kpi-icon { background:rgba(41,121,255,0.12); }
+  .kpi-card.top5 .kpi-icon { background:rgba(0,230,118,0.12); }
+  .kpi-card.yoy .kpi-icon { background:rgba(255,109,0,0.12); }
+  .kpi-card.mom .kpi-icon { background:rgba(245,0,87,0.1); }
+  .kpi-card.peak .kpi-icon { background:rgba(0,230,118,0.12); }
+  .kpi-label { font-size:11px; color:var(--text-secondary); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+  .kpi-value { font-size:28px; font-weight:800; letter-spacing:-.5px; line-height:1; }
+  .kpi-card.max .kpi-value { color:var(--accent-cyan); text-shadow:0 0 20px rgba(0,229,255,0.4); }
+  .kpi-card.min .kpi-value { color:#ff6b9d; text-shadow:0 0 20px rgba(245,0,87,0.3); }
+  .kpi-card.avg .kpi-value { color:var(--accent-blue); text-shadow:0 0 20px rgba(41,121,255,0.4); }
+  .kpi-card.top5 .kpi-value { color:var(--accent-green); }
+  .kpi-unit { font-size:13px; color:var(--text-secondary); margin-left:4px; font-weight:400; }
+  .kpi-sub { font-size:12px; color:var(--text-secondary); margin-top:8px; }
+  .kpi-sub span { color:var(--text-primary); font-weight:600; }
 
-  .kpi-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; margin-bottom: 14px;
-  }
-  .kpi-card.max .kpi-icon { background: rgba(0,229,255,0.12); }
-  .kpi-card.min .kpi-icon { background: rgba(245,0,87,0.12); }
-  .kpi-card.avg .kpi-icon { background: rgba(41,121,255,0.12); }
-  .kpi-card.top5 .kpi-icon { background: rgba(0,230,118,0.12); }
+  /* YoY / MoM KPI */
+  .yoy-value { font-size:30px; font-weight:800; letter-spacing:-.5px; }
+  .yoy-value.up { color:#00e676; text-shadow:0 0 20px rgba(0,230,118,0.4); }
+  .yoy-value.down { color:#ff5252; text-shadow:0 0 20px rgba(255,82,82,0.4); }
+  .yoy-value.flat { color:var(--text-secondary); }
+  .yoy-arrow { font-size:18px; margin-right:4px; }
+  .yoy-detail { font-size:11px; color:var(--text-secondary); margin-top:8px; line-height:1.6; }
+  .yoy-detail strong { color:var(--text-primary); }
 
-  .kpi-label { font-size: 11px; color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-  .kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
-  .kpi-card.max .kpi-value { color: var(--accent-cyan); text-shadow: 0 0 20px rgba(0,229,255,0.4); }
-  .kpi-card.min .kpi-value { color: #ff6b9d; text-shadow: 0 0 20px rgba(245,0,87,0.3); }
-  .kpi-card.avg .kpi-value { color: var(--accent-blue); text-shadow: 0 0 20px rgba(41,121,255,0.4); }
-  .kpi-card.top5 .kpi-value { color: var(--accent-green); text-shadow: 0 0 20px rgba(0,230,118,0.3); }
-
-  .kpi-unit { font-size: 13px; color: var(--text-secondary); margin-left: 4px; font-weight: 400; }
-  .kpi-sub { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
-  .kpi-sub span { color: var(--text-primary); font-weight: 600; }
-
-  .top5-list { margin-top: 10px; }
-  .top5-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .top5-item:last-child { border-bottom: none; }
-  .top5-rank {
-    width: 22px; height: 22px; border-radius: 6px;
-    background: rgba(0,230,118,0.15); color: var(--accent-green);
-    font-size: 11px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .top5-rank.r1 { background: rgba(0,229,255,0.2); color: var(--accent-cyan); }
-  .top5-rank.r2 { background: rgba(41,121,255,0.2); color: var(--accent-blue); }
-  .top5-rank.r3 { background: rgba(124,77,255,0.2); color: var(--accent-purple); }
-  .top5-date { font-size: 12px; color: var(--text-secondary); flex: 1; margin: 0 8px; }
-  .top5-val { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  /* Top5 list */
+  .top5-list { margin-top:10px; }
+  .top5-item { display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .top5-item:last-child { border-bottom:none; }
+  .top5-rank { width:22px; height:22px; border-radius:6px; background:rgba(0,230,118,0.15); color:var(--accent-green); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .top5-rank.r1 { background:rgba(0,229,255,0.2); color:var(--accent-cyan); }
+  .top5-rank.r2 { background:rgba(41,121,255,0.2); color:var(--accent-blue); }
+  .top5-rank.r3 { background:rgba(124,77,255,0.2); color:var(--accent-purple); }
+  .top5-date { font-size:12px; color:var(--text-secondary); flex:1; margin:0 8px; }
+  .top5-val { font-size:12px; font-weight:700; color:var(--text-primary); }
 
   /* Charts Grid */
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin-bottom: 18px;
-  }
+  .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
   .chart-card {
-    background: var(--bg-card2);
-    border: 1px solid var(--border-glow2);
-    border-radius: 14px;
-    padding: 24px;
-    backdrop-filter: blur(12px);
-    position: relative; overflow: hidden;
+    background:var(--bg-card2); border:1px solid var(--border-glow2); border-radius:14px;
+    padding:24px; backdrop-filter:blur(12px); position:relative; overflow:hidden;
   }
-  .chart-card.full-width { grid-column: 1 / -1; }
+  .chart-card.full-width { grid-column:1/-1; }
   .chart-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent-blue),transparent);
   }
-  .chart-title {
-    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
-    color: var(--accent-cyan); margin-bottom: 4px; font-weight: 600;
+  .chart-title { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--accent-cyan); margin-bottom:4px; font-weight:600; }
+  .chart-subtitle { font-size:11px; color:var(--text-secondary); margin-bottom:18px; }
+  .chart-wrap { position:relative; }
+
+  /* Heatmap */
+  .heatmap-wrap { overflow-x:auto; }
+  .heatmap-table { border-collapse:separate; border-spacing:3px; width:100%; }
+  .heatmap-table th {
+    font-size:10px; color:var(--text-secondary); font-weight:600; letter-spacing:1px;
+    padding:4px 6px; text-align:center; white-space:nowrap;
   }
-  .chart-subtitle { font-size: 11px; color: var(--text-secondary); margin-bottom: 18px; }
-  .chart-wrap { position: relative; }
+  .heatmap-table th.row-label { text-align:right; padding-right:10px; color:var(--accent-cyan); }
+  .heatmap-cell {
+    border-radius:5px; padding:6px 4px; text-align:center;
+    font-size:11px; font-weight:600; cursor:default;
+    transition:transform .15s, box-shadow .15s;
+    min-width:68px;
+  }
+  .heatmap-cell:hover { transform:scale(1.08); box-shadow:0 0 10px rgba(0,229,255,0.5); z-index:2; position:relative; }
+  .heatmap-cell.empty { background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.15); }
+  .heatmap-cell.out-of-range { opacity:0.28; }
+  .heatmap-legend {
+    display:flex; align-items:center; gap:8px; margin-top:14px; justify-content:flex-end;
+  }
+  .heatmap-legend-bar {
+    width:160px; height:8px; border-radius:4px;
+    background:linear-gradient(90deg, #0d2b6e, #1565c0, #00acc1, #00e5ff);
+  }
+  .heatmap-legend span { font-size:10px; color:var(--text-secondary); }
 
   /* Data Table */
-  .table-scroll { overflow-x: auto; max-height: 360px; overflow-y: auto; }
-  .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .table-scroll { overflow-x:auto; max-height:360px; overflow-y:auto; }
+  .data-table { width:100%; border-collapse:collapse; font-size:12px; }
   .data-table th {
-    background: rgba(0,229,255,0.08);
-    color: var(--accent-cyan);
-    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-    padding: 10px 12px; text-align: right; white-space: nowrap;
-    position: sticky; top: 0; z-index: 2;
-    border-bottom: 1px solid rgba(0,229,255,0.2);
+    background:rgba(0,229,255,0.08); color:var(--accent-cyan);
+    font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    padding:10px 12px; text-align:right; white-space:nowrap;
+    position:sticky; top:0; z-index:2; border-bottom:1px solid rgba(0,229,255,0.2);
   }
-  .data-table th:first-child { text-align: left; }
-  .data-table td {
-    padding: 9px 12px; text-align: right; color: var(--text-primary);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    transition: background 0.15s;
-  }
-  .data-table td:first-child { text-align: left; color: var(--text-secondary); font-weight: 600; }
-  .data-table tr:hover td { background: rgba(0,229,255,0.04); }
-  .data-table .total-row td { color: var(--accent-cyan); font-weight: 700; background: rgba(0,229,255,0.06); }
-  .cell-bar-wrap { position: relative; display: inline-block; width: 100%; }
+  .data-table th:first-child { text-align:left; }
+  .data-table td { padding:9px 12px; text-align:right; color:var(--text-primary); border-bottom:1px solid rgba(255,255,255,0.04); transition:background .15s; }
+  .data-table td:first-child { text-align:left; color:var(--text-secondary); font-weight:600; }
+  .data-table tr:hover td { background:rgba(0,229,255,0.04); }
+  .data-table .total-row td { color:var(--accent-cyan); font-weight:700; background:rgba(0,229,255,0.06); }
 
-  /* Loading overlay */
-  #loading {
-    position: fixed; inset: 0; background: var(--bg-primary);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 9999; flex-direction: column; gap: 20px;
-  }
-  .loader-ring {
-    width: 56px; height: 56px; border-radius: 50%;
-    border: 3px solid rgba(0,229,255,0.15);
-    border-top-color: var(--accent-cyan);
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loader-text { font-size: 13px; color: var(--text-secondary); letter-spacing: 3px; text-transform: uppercase; }
+  /* Loading */
+  #loading { position:fixed; inset:0; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; z-index:9999; flex-direction:column; gap:20px; }
+  .loader-ring { width:56px; height:56px; border-radius:50%; border:3px solid rgba(0,229,255,0.15); border-top-color:var(--accent-cyan); animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loader-text { font-size:13px; color:var(--text-secondary); letter-spacing:3px; text-transform:uppercase; }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
-  ::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.25); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.45); }
-
-  @media (max-width: 1024px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .charts-grid { grid-template-columns: 1fr; }
-    .chart-card.full-width { grid-column: auto; }
+  /* Section divider */
+  .section-label {
+    font-size:10px; letter-spacing:4px; text-transform:uppercase; color:rgba(0,229,255,0.5);
+    margin-bottom:14px; margin-top:4px; padding-left:2px;
+    display:flex; align-items:center; gap:10px;
   }
-  @media (max-width: 600px) {
-    .kpi-grid { grid-template-columns: 1fr; }
-    .slider-row { flex-direction: column; gap: 20px; }
+  .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(0,229,255,0.2),transparent); }
+
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:rgba(255,255,255,0.03); }
+  ::-webkit-scrollbar-thumb { background:rgba(0,229,255,0.25); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:rgba(0,229,255,0.45); }
+
+  @media (max-width:1024px) {
+    .kpi-grid,.kpi-grid-3 { grid-template-columns:repeat(2,1fr); }
+    .charts-grid { grid-template-columns:1fr; }
+    .chart-card.full-width { grid-column:auto; }
+  }
+  @media (max-width:600px) {
+    .kpi-grid,.kpi-grid-3 { grid-template-columns:1fr; }
+    .slider-row { flex-direction:column; gap:20px; }
   }
 </style>
 </head>
@@ -317,45 +263,32 @@
     <div class="header-badge">EXECUTIVE VIEW</div>
   </header>
 
-  <!-- Slider Panel -->
+  <!-- Slider -->
   <div class="slider-panel">
     <div class="slider-panel-title">▍ 時間範圍篩選</div>
     <div class="slider-row">
       <div class="slider-group">
         <div class="slider-label">起始年月</div>
         <div class="slider-value" id="startLabel">2017年 01月</div>
-        <div class="slider-track-wrap">
-          <input type="range" id="startSlider" min="0" max="111" value="0">
-        </div>
-        <div class="slider-ticks">
-          <span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span>
-        </div>
+        <input type="range" id="startSlider" min="0" max="111" value="0">
+        <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
       </div>
       <div class="range-display">
-        <div>
-          <span class="lbl">起</span>
-          <span class="val" id="rangeStart">2017-01</span>
-        </div>
+        <div><span class="lbl">起</span><span class="val" id="rangeStart">2017-01</span></div>
         <div class="sep">→</div>
-        <div>
-          <span class="lbl">迄</span>
-          <span class="val" id="rangeEnd">2026-04</span>
-        </div>
+        <div><span class="lbl">迄</span><span class="val" id="rangeEnd">2026-04</span></div>
       </div>
       <div class="slider-group">
         <div class="slider-label">結束年月</div>
         <div class="slider-value" id="endLabel">2026年 04月</div>
-        <div class="slider-track-wrap">
-          <input type="range" id="endSlider" min="0" max="111" value="111">
-        </div>
-        <div class="slider-ticks">
-          <span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span>
-        </div>
+        <input type="range" id="endSlider" min="0" max="111" value="111">
+        <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
       </div>
     </div>
   </div>
 
-  <!-- KPI Cards -->
+  <!-- KPI Row 1 -->
+  <div class="section-label">基礎指標</div>
   <div class="kpi-grid">
     <div class="kpi-card max">
       <div class="kpi-icon">🔺</div>
@@ -382,40 +315,81 @@
     </div>
   </div>
 
+  <!-- KPI Row 2: 新增三個洞察指標 -->
+  <div class="section-label">深度洞察</div>
+  <div class="kpi-grid-3">
+    <div class="kpi-card yoy">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-label">年同比 YoY</div>
+      <div class="yoy-value" id="kpiYoyVal">—</div>
+      <div class="yoy-detail" id="kpiYoyDetail">計算中...</div>
+    </div>
+    <div class="kpi-card mom">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">月環比 MoM</div>
+      <div class="yoy-value" id="kpiMomVal">—</div>
+      <div class="yoy-detail" id="kpiMomDetail">計算中...</div>
+    </div>
+    <div class="kpi-card peak">
+      <div class="kpi-icon">🌟</div>
+      <div class="kpi-label">旺季月份</div>
+      <div class="kpi-value" style="color:var(--accent-green);font-size:24px"><span id="kpiPeakMonth">—</span></div>
+      <div class="yoy-detail" id="kpiPeakDetail">計算中...</div>
+    </div>
+  </div>
+
   <!-- Charts -->
+  <div class="section-label">圖表分析</div>
   <div class="charts-grid">
+
+    <!-- 趨勢圖 -->
     <div class="chart-card full-width">
       <div class="chart-title">出貨量趨勢圖</div>
       <div class="chart-subtitle">月度出貨量 (公噸) — 選定時間範圍內完整趨勢</div>
-      <div class="chart-wrap" style="height:280px">
-        <canvas id="trendChart"></canvas>
+      <div class="chart-wrap" style="height:280px"><canvas id="trendChart"></canvas></div>
+    </div>
+
+    <!-- ★ 熱力圖 -->
+    <div class="chart-card full-width">
+      <div class="chart-title">季節性熱力圖</div>
+      <div class="chart-subtitle">年 × 月出貨量分布 — 顏色越亮代表出貨量越高，框線範圍為選定區間</div>
+      <div class="heatmap-wrap">
+        <table class="heatmap-table" id="heatmapTable"></table>
+      </div>
+      <div class="heatmap-legend">
+        <span>低</span>
+        <div class="heatmap-legend-bar"></div>
+        <span>高</span>
       </div>
     </div>
 
+    <!-- ★ 月份結構排名 -->
+    <div class="chart-card">
+      <div class="chart-title">月份結構排名</div>
+      <div class="chart-subtitle">各月份歷年平均出貨量 — 找出系統性淡旺季</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="monthRankChart"></canvas></div>
+    </div>
+
+    <!-- Top 5 -->
     <div class="chart-card">
       <div class="chart-title">出貨量排名 Top 5</div>
       <div class="chart-subtitle">選定區間內最高出貨月份 (公噸)</div>
-      <div class="chart-wrap" style="height:260px">
-        <canvas id="top5Chart"></canvas>
-      </div>
+      <div class="chart-wrap" style="height:280px"><canvas id="top5Chart"></canvas></div>
     </div>
 
-    <div class="chart-card">
+    <!-- CAGR -->
+    <div class="chart-card full-width">
       <div class="chart-title">年度複合成長率 (CAGR)</div>
       <div class="chart-subtitle">各年度合計出貨量及年增率 (%)</div>
-      <div class="chart-wrap" style="height:260px">
-        <canvas id="cagrChart"></canvas>
-      </div>
+      <div class="chart-wrap" style="height:260px"><canvas id="cagrChart"></canvas></div>
     </div>
 
+    <!-- 資料表 -->
     <div class="chart-card full-width">
       <div class="chart-title">出貨量資料表</div>
       <div class="chart-subtitle">各年各月詳細數據 (公噸) — 選定時間範圍</div>
       <div class="table-scroll">
-        <table class="data-table" id="dataTable">
-          <thead id="tableHead"></thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+        <table class="data-table"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
       </div>
     </div>
   </div>
@@ -426,364 +400,6 @@
 const SUPABASE_URL = 'https://mugkjtiagmahipotekmr.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Z2tqdGlhZ21haGlwb3Rla21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mzc3MjEsImV4cCI6MjA5NTQxMzcyMX0.xI8-bUL5b1tPJOJiV5awvCQwduCgcnrgpmDkjYi-lP8';
 
-// Index 0 = 2017-01, index 111 = 2026-04
-function idxToYM(idx) {
-  const year = 2017 + Math.floor(idx / 12);
-  const month = (idx % 12) + 1;
-  return { year, month };
-}
-function ymToIdx(year, month) { return (year - 2017) * 12 + (month - 1); }
-function fmtYM(year, month) { return `${year}年 ${String(month).padStart(2,'0')}月`; }
-function fmtYMShort(year, month) { return `${year}-${String(month).padStart(2,'0')}`; }
-function fmt(n) { return n.toLocaleString('zh-TW', {minimumFractionDigits:1, maximumFractionDigits:1}); }
-
-let allData = [];
-let charts = {};
-
-const rankColors = ['#00e5ff','#2979ff','#7c4dff','#00e676','#ff6d00'];
-
-function getFilteredData(startIdx, endIdx) {
-  return allData.filter(r => {
-    const idx = ymToIdx(r.year, r.month);
-    return idx >= startIdx && idx <= endIdx;
-  }).sort((a,b) => ymToIdx(a.year,a.month) - ymToIdx(b.year,b.month));
-}
-
-function updateDashboard(startIdx, endIdx) {
-  const data = getFilteredData(startIdx, endIdx);
-  if (!data.length) return;
-
-  // KPI
-  const maxRow = data.reduce((a,b) => b.quantity_mt > a.quantity_mt ? b : a);
-  const minRow = data.reduce((a,b) => b.quantity_mt < a.quantity_mt ? b : a);
-  const total = data.reduce((s,r) => s + r.quantity_mt, 0);
-  const avg = total / data.length;
-
-  document.getElementById('kpiMaxVal').textContent = fmt(maxRow.quantity_mt);
-  document.getElementById('kpiMaxDate').textContent = fmtYM(maxRow.year, maxRow.month);
-  document.getElementById('kpiMinVal').textContent = fmt(minRow.quantity_mt);
-  document.getElementById('kpiMinDate').textContent = fmtYM(minRow.year, minRow.month);
-  document.getElementById('kpiAvgVal').textContent = fmt(avg);
-  document.getElementById('kpiTotal').textContent = fmt(total);
-
-  const sorted = [...data].sort((a,b) => b.quantity_mt - a.quantity_mt).slice(0,5);
-  const rankCls = ['r1','r2','r3','',''];
-  document.getElementById('kpiTop5List').innerHTML = sorted.map((r,i) => `
-    <div class="top5-item">
-      <div class="top5-rank ${rankCls[i]}">${i+1}</div>
-      <div class="top5-date">${fmtYMShort(r.year,r.month)}</div>
-      <div class="top5-val">${fmt(r.quantity_mt)}</div>
-    </div>`).join('');
-
-  updateTrendChart(data);
-  updateTop5Chart(sorted);
-  updateCAGRChart(data, startIdx, endIdx);
-  updateTable(data, startIdx, endIdx);
-}
-
-// ─── Trend Chart ───
-function updateTrendChart(data) {
-  const labels = data.map(r => fmtYMShort(r.year, r.month));
-  const values = data.map(r => r.quantity_mt);
-
-  const grad = charts.trend ? null : null;
-
-  if (charts.trend) {
-    charts.trend.data.labels = labels;
-    charts.trend.data.datasets[0].data = values;
-    charts.trend.update('none');
-    return;
-  }
-
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-  gradient.addColorStop(0, 'rgba(0,229,255,0.3)');
-  gradient.addColorStop(1, 'rgba(0,229,255,0.0)');
-
-  charts.trend = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        borderColor: '#00e5ff',
-        backgroundColor: gradient,
-        borderWidth: 2,
-        pointRadius: data.length > 60 ? 0 : 3,
-        pointHoverRadius: 6,
-        pointBackgroundColor: '#00e5ff',
-        pointBorderColor: '#050b18',
-        pointBorderWidth: 2,
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: {
-        backgroundColor: 'rgba(5,11,24,0.95)',
-        borderColor: 'rgba(0,229,255,0.3)', borderWidth: 1,
-        titleColor: '#00e5ff', bodyColor: '#e8f0fe',
-        callbacks: {
-          label: ctx => `${ctx.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`
-        }
-      }},
-      scales: {
-        x: {
-          ticks: { color: '#8faabe', font: {size:10}, maxTicksLimit: 24, maxRotation: 45 },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          border: { color: 'rgba(255,255,255,0.1)' }
-        },
-        y: {
-          ticks: { color: '#8faabe', font: {size:10},
-            callback: v => v.toLocaleString('zh-TW') },
-          grid: { color: 'rgba(0,229,255,0.06)' },
-          border: { color: 'rgba(255,255,255,0.1)', dash: [4,4] }
-        }
-      },
-      interaction: { mode: 'index', intersect: false }
-    }
-  });
-}
-
-// ─── Top5 Chart ───
-function updateTop5Chart(sorted) {
-  const labels = sorted.map(r => fmtYMShort(r.year, r.month));
-  const values = sorted.map(r => r.quantity_mt);
-
-  if (charts.top5) {
-    charts.top5.data.labels = labels;
-    charts.top5.data.datasets[0].data = values;
-    charts.top5.update('none');
-    return;
-  }
-
-  const ctx = document.getElementById('top5Chart').getContext('2d');
-  charts.top5 = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: rankColors.map(c => c + '33'),
-        borderColor: rankColors,
-        borderWidth: 2,
-        borderRadius: 8,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: {
-        backgroundColor: 'rgba(5,11,24,0.95)',
-        borderColor: 'rgba(0,229,255,0.3)', borderWidth: 1,
-        titleColor: '#00e5ff', bodyColor: '#e8f0fe',
-        callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸` }
-      }},
-      scales: {
-        x: { ticks: { color: '#8faabe', font:{size:11} }, grid: { display:false }, border: { color: 'rgba(255,255,255,0.1)' } },
-        y: { ticks: { color: '#8faabe', font:{size:10}, callback: v => v.toLocaleString('zh-TW') },
-             grid: { color: 'rgba(0,229,255,0.06)' }, border: { color: 'rgba(255,255,255,0.1)' } }
-      }
-    }
-  });
-}
-
-// ─── CAGR Chart ───
-function updateCAGRChart(data, startIdx, endIdx) {
-  // Group by year, only full data
-  const yearTotals = {};
-  data.forEach(r => {
-    if (!yearTotals[r.year]) yearTotals[r.year] = 0;
-    yearTotals[r.year] += r.quantity_mt;
-  });
-
-  const years = Object.keys(yearTotals).map(Number).sort();
-  const totals = years.map(y => yearTotals[y]);
-  const yoyRates = years.map((y, i) => {
-    if (i === 0) return null;
-    return ((yearTotals[y] - yearTotals[years[i-1]]) / yearTotals[years[i-1]]) * 100;
-  });
-
-  // Overall CAGR
-  let cagrLabel = '';
-  if (years.length >= 2) {
-    const n = years.length - 1;
-    const cagr = (Math.pow(totals[totals.length-1] / totals[0], 1/n) - 1) * 100;
-    cagrLabel = `整體CAGR: ${cagr >= 0 ? '+' : ''}${cagr.toFixed(1)}%`;
-  }
-
-  if (charts.cagr) {
-    charts.cagr.data.labels = years.map(String);
-    charts.cagr.data.datasets[0].data = totals;
-    charts.cagr.data.datasets[1].data = yoyRates;
-    charts.cagr.options.plugins.title.text = cagrLabel;
-    charts.cagr.update('none');
-    return;
-  }
-
-  const ctx = document.getElementById('cagrChart').getContext('2d');
-  charts.cagr = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: years.map(String),
-      datasets: [
-        {
-          label: '年度合計 (公噸)',
-          data: totals,
-          backgroundColor: 'rgba(41,121,255,0.25)',
-          borderColor: '#2979ff',
-          borderWidth: 2,
-          borderRadius: 6,
-          yAxisID: 'y',
-          order: 2
-        },
-        {
-          label: '年增率 (%)',
-          data: yoyRates,
-          type: 'line',
-          borderColor: '#00e676',
-          backgroundColor: 'rgba(0,230,118,0.1)',
-          borderWidth: 2.5,
-          pointRadius: 5,
-          pointBackgroundColor: '#00e676',
-          pointBorderColor: '#050b18',
-          pointBorderWidth: 2,
-          tension: 0.3,
-          yAxisID: 'y2',
-          order: 1,
-          spanGaps: true
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: { color: '#8faabe', font:{size:11}, boxWidth: 14 },
-          position: 'top'
-        },
-        title: {
-          display: true,
-          text: cagrLabel,
-          color: '#00e676',
-          font: { size: 12, weight: '600' },
-          padding: { bottom: 8 }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(5,11,24,0.95)',
-          borderColor: 'rgba(0,229,255,0.3)', borderWidth: 1,
-          titleColor: '#00e5ff', bodyColor: '#e8f0fe',
-          callbacks: {
-            label: ctx => ctx.datasetIndex === 0
-              ? `${ctx.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`
-              : ctx.parsed.y != null ? `${ctx.parsed.y >= 0 ? '+' : ''}${ctx.parsed.y.toFixed(1)}%` : 'N/A'
-          }
-        }
-      },
-      scales: {
-        x: { ticks: { color: '#8faabe', font:{size:11} }, grid: { display:false }, border: { color: 'rgba(255,255,255,0.1)' } },
-        y: {
-          ticks: { color: '#8faabe', font:{size:10}, callback: v => (v/1000).toFixed(0)+'K' },
-          grid: { color: 'rgba(41,121,255,0.08)' },
-          border: { color: 'rgba(255,255,255,0.1)' },
-          title: { display: true, text: '公噸', color: '#8faabe', font:{size:10} }
-        },
-        y2: {
-          position: 'right',
-          ticks: { color: '#00e676', font:{size:10}, callback: v => v != null ? v.toFixed(0)+'%' : '' },
-          grid: { display: false },
-          border: { color: 'rgba(0,230,118,0.2)' },
-          title: { display: true, text: '年增率', color: '#00e676', font:{size:10} }
-        }
-      }
-    }
-  });
-}
-
-// ─── Data Table ───
-function updateTable(data, startIdx, endIdx) {
-  const { year: sy } = idxToYM(startIdx);
-  const { year: ey } = idxToYM(endIdx);
-  const years = [...new Set(data.map(r => r.year))].sort();
-  const months = [1,2,3,4,5,6,7,8,9,10,11,12];
-
-  // Build lookup
-  const lookup = {};
-  data.forEach(r => { lookup[`${r.year}-${r.month}`] = r.quantity_mt; });
-
-  const head = document.getElementById('tableHead');
-  const body = document.getElementById('tableBody');
-
-  head.innerHTML = `<tr><th>月份</th>${years.map(y=>`<th>${y}</th>`).join('')}<th>月均值</th></tr>`;
-
-  let rows = '';
-  let yearTotals = {};
-  years.forEach(y => { yearTotals[y] = 0; });
-
-  months.forEach(m => {
-    const mVals = years.map(y => lookup[`${y}-${m}`]);
-    const defined = mVals.filter(v => v != null);
-    const mAvg = defined.length ? defined.reduce((a,b)=>a+b,0)/defined.length : null;
-    years.forEach((y,i) => { if (mVals[i] != null) yearTotals[y] += mVals[i]; });
-
-    rows += `<tr>
-      <td>${m}月</td>
-      ${years.map((y,i) => {
-        const v = mVals[i];
-        if (v == null) return '<td style="color:#444">—</td>';
-        const max = Math.max(...defined);
-        const pct = (v/max*100).toFixed(0);
-        return `<td style="position:relative">
-          <div style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:rgba(0,229,255,0.06);border-radius:2px"></div>
-          <span style="position:relative">${fmt(v)}</span>
-        </td>`;
-      }).join('')}
-      <td style="color:#8faabe">${mAvg != null ? fmt(mAvg) : '—'}</td>
-    </tr>`;
-  });
-
-  // Year total row
-  const totalAvg = Object.values(yearTotals).filter(v=>v>0);
-  const grandAvg = totalAvg.length ? totalAvg.reduce((a,b)=>a+b,0)/totalAvg.length : 0;
-  rows += `<tr class="total-row">
-    <td>年合計</td>
-    ${years.map(y => `<td>${yearTotals[y] > 0 ? fmt(yearTotals[y]) : '—'}</td>`).join('')}
-    <td>${fmt(grandAvg)}</td>
-  </tr>`;
-
-  body.innerHTML = rows;
-}
-
-// ─── Sliders ───
-function updateSliderLabels(startIdx, endIdx) {
-  const s = idxToYM(startIdx), e = idxToYM(endIdx);
-  document.getElementById('startLabel').textContent = fmtYM(s.year, s.month);
-  document.getElementById('endLabel').textContent = fmtYM(e.year, e.month);
-  document.getElementById('rangeStart').textContent = fmtYMShort(s.year, s.month);
-  document.getElementById('rangeEnd').textContent = fmtYMShort(e.year, e.month);
-}
-
-function updateSliderTrack(slider) {
-  const max = parseInt(slider.max), min = parseInt(slider.min), val = parseInt(slider.value);
-  const pct = ((val - min) / (max - min)) * 100;
-  slider.style.background = `linear-gradient(90deg, rgba(0,229,255,0.5) ${pct}%, rgba(0,229,255,0.1) ${pct}%)`;
-}
-
-let debounceTimer;
-function onSliderChange() {
-  const startSlider = document.getElementById('startSlider');
-  const endSlider = document.getElementById('endSlider');
-  let s = parseInt(startSlider.value), e = parseInt(endSlider.value);
-  if (s > e) { if (this === startSlider) { startSlider.value = e; s = e; } else { endSlider.value = s; e = s; } }
-  updateSliderTrack(startSlider);
-  updateSliderTrack(endSlider);
-  updateSliderLabels(s, e);
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => updateDashboard(s, e), 80);
-}
-
-// ─── Embedded fallback data ───
 const EMBEDDED_DATA = [
   {year:2017,month:1,quantity_mt:1420.8},{year:2017,month:2,quantity_mt:1362.9},{year:2017,month:3,quantity_mt:1995.4},{year:2017,month:4,quantity_mt:1619.7},{year:2017,month:5,quantity_mt:1231.2},{year:2017,month:6,quantity_mt:1792.2},{year:2017,month:7,quantity_mt:1401.4},{year:2017,month:8,quantity_mt:1671.3},{year:2017,month:9,quantity_mt:1001.2},{year:2017,month:10,quantity_mt:909.8},{year:2017,month:11,quantity_mt:1660.0},{year:2017,month:12,quantity_mt:1504.2},
   {year:2018,month:1,quantity_mt:1611.5},{year:2018,month:2,quantity_mt:1098.1},{year:2018,month:3,quantity_mt:1780.5},{year:2018,month:4,quantity_mt:1607.6},{year:2018,month:5,quantity_mt:1670.3},{year:2018,month:6,quantity_mt:1729.8},{year:2018,month:7,quantity_mt:1810.1},{year:2018,month:8,quantity_mt:1661.4},{year:2018,month:9,quantity_mt:1985.7},{year:2018,month:10,quantity_mt:1933.6},{year:2018,month:11,quantity_mt:1660.3},{year:2018,month:12,quantity_mt:2015.7},
@@ -797,36 +413,390 @@ const EMBEDDED_DATA = [
   {year:2026,month:1,quantity_mt:2737.6},{year:2026,month:2,quantity_mt:1999.4},{year:2026,month:3,quantity_mt:2618.3},{year:2026,month:4,quantity_mt:2336.8}
 ];
 
+// ─── Helpers ───
+function idxToYM(idx) { return { year: 2017+Math.floor(idx/12), month: (idx%12)+1 }; }
+function ymToIdx(year, month) { return (year-2017)*12+(month-1); }
+function fmtYM(y,m) { return `${y}年 ${String(m).padStart(2,'0')}月`; }
+function fmtYMShort(y,m) { return `${y}-${String(m).padStart(2,'0')}`; }
+function fmt(n) { return n.toLocaleString('zh-TW',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+function lerp(a,b,t) { return a+(b-a)*t; }
+
+// Heatmap color: dark navy → ocean blue → bright cyan
+function heatColor(t) {
+  if (t <= 0.5) {
+    const s = t*2;
+    return `rgb(${Math.round(lerp(13,0,s))},${Math.round(lerp(43,121,s))},${Math.round(lerp(110,172,s))})`;
+  } else {
+    const s = (t-0.5)*2;
+    return `rgb(${Math.round(lerp(0,0,s))},${Math.round(lerp(121,229,s))},${Math.round(lerp(172,255,s))})`;
+  }
+}
+function textOnHeat(t) { return t > 0.55 ? '#050b18' : '#e8f0fe'; }
+
+let allData = [], charts = {};
+const rankColors = ['#00e5ff','#2979ff','#7c4dff','#00e676','#ff6d00'];
+const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+function getFiltered(si, ei) {
+  return allData.filter(r => { const i=ymToIdx(r.year,r.month); return i>=si&&i<=ei; })
+    .sort((a,b) => ymToIdx(a.year,a.month)-ymToIdx(b.year,b.month));
+}
+
+// ─── Dashboard Update ───
+function updateDashboard(si, ei) {
+  const data = getFiltered(si, ei);
+  if (!data.length) return;
+
+  // Basic KPI
+  const maxR = data.reduce((a,b)=>b.quantity_mt>a.quantity_mt?b:a);
+  const minR = data.reduce((a,b)=>b.quantity_mt<a.quantity_mt?b:a);
+  const total = data.reduce((s,r)=>s+r.quantity_mt,0);
+  const avg = total/data.length;
+  document.getElementById('kpiMaxVal').textContent = fmt(maxR.quantity_mt);
+  document.getElementById('kpiMaxDate').textContent = fmtYM(maxR.year,maxR.month);
+  document.getElementById('kpiMinVal').textContent = fmt(minR.quantity_mt);
+  document.getElementById('kpiMinDate').textContent = fmtYM(minR.year,minR.month);
+  document.getElementById('kpiAvgVal').textContent = fmt(avg);
+  document.getElementById('kpiTotal').textContent = fmt(total);
+
+  const sorted = [...data].sort((a,b)=>b.quantity_mt-a.quantity_mt).slice(0,5);
+  const rCls = ['r1','r2','r3','',''];
+  document.getElementById('kpiTop5List').innerHTML = sorted.map((r,i)=>`
+    <div class="top5-item">
+      <div class="top5-rank ${rCls[i]}">${i+1}</div>
+      <div class="top5-date">${fmtYMShort(r.year,r.month)}</div>
+      <div class="top5-val">${fmt(r.quantity_mt)}</div>
+    </div>`).join('');
+
+  // YoY / MoM
+  updateYoYMoM(data);
+
+  // Peak month
+  updatePeakMonth(data);
+
+  // Charts
+  updateTrendChart(data);
+  updateHeatmap(si, ei);
+  updateMonthRankChart(data);
+  updateTop5Chart(sorted);
+  updateCAGRChart(data);
+  updateTable(data);
+}
+
+// ─── YoY & MoM ───
+function updateYoYMoM(data) {
+  // MoM: last 2 months in range
+  const lastTwo = data.slice(-2);
+  const momEl = document.getElementById('kpiMomVal');
+  const momDet = document.getElementById('kpiMomDetail');
+  if (lastTwo.length === 2) {
+    const [prev, curr] = lastTwo;
+    const pct = ((curr.quantity_mt - prev.quantity_mt) / prev.quantity_mt) * 100;
+    const up = pct >= 0;
+    momEl.className = 'yoy-value ' + (up ? 'up' : 'down');
+    momEl.innerHTML = `<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
+    momDet.innerHTML = `<strong>${fmtYMShort(curr.year,curr.month)}</strong> ${fmt(curr.quantity_mt)} 噸<br>vs 上月 <strong>${fmtYMShort(prev.year,prev.month)}</strong> ${fmt(prev.quantity_mt)} 噸`;
+  } else {
+    momEl.textContent = 'N/A'; momDet.textContent = '資料不足';
+  }
+
+  // YoY: compare annual totals of last 2 complete years
+  const yearTotals = {};
+  data.forEach(r => { yearTotals[r.year] = (yearTotals[r.year]||0) + r.quantity_mt; });
+  const years = Object.keys(yearTotals).map(Number).sort();
+  const yoyEl = document.getElementById('kpiYoyVal');
+  const yoyDet = document.getElementById('kpiYoyDetail');
+  if (years.length >= 2) {
+    const cy = years[years.length-1], py = years[years.length-2];
+    const pct = ((yearTotals[cy]-yearTotals[py])/yearTotals[py])*100;
+    const up = pct >= 0;
+    yoyEl.className = 'yoy-value ' + (up ? 'up' : 'down');
+    yoyEl.innerHTML = `<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
+    yoyDet.innerHTML = `<strong>${cy}年</strong> ${fmt(yearTotals[cy])} 噸<br>vs <strong>${py}年</strong> ${fmt(yearTotals[py])} 噸`;
+  } else {
+    yoyEl.textContent = 'N/A'; yoyDet.textContent = '需至少兩年資料';
+  }
+}
+
+// ─── Peak Month ───
+function updatePeakMonth(data) {
+  const monthAvg = {};
+  const monthCnt = {};
+  data.forEach(r => {
+    monthAvg[r.month] = (monthAvg[r.month]||0) + r.quantity_mt;
+    monthCnt[r.month] = (monthCnt[r.month]||0) + 1;
+  });
+  const avgs = Object.keys(monthAvg).map(m => ({ month:+m, avg: monthAvg[m]/monthCnt[m] }));
+  if (!avgs.length) return;
+  avgs.sort((a,b)=>b.avg-a.avg);
+  const top3 = avgs.slice(0,3);
+  document.getElementById('kpiPeakMonth').textContent = MONTHS[top3[0].month-1];
+  document.getElementById('kpiPeakDetail').innerHTML =
+    `歷年平均 <strong>${fmt(top3[0].avg)}</strong> 噸<br>` +
+    `次高：${top3[1]?MONTHS[top3[1].month-1]:'—'}、${top3[2]?MONTHS[top3[2].month-1]:'—'}`;
+}
+
+// ─── Trend Chart ───
+function updateTrendChart(data) {
+  const labels = data.map(r=>fmtYMShort(r.year,r.month));
+  const values = data.map(r=>r.quantity_mt);
+  if (charts.trend) {
+    charts.trend.data.labels = labels;
+    charts.trend.data.datasets[0].data = values;
+    charts.trend.data.datasets[0].pointRadius = data.length>60?0:3;
+    charts.trend.update('none'); return;
+  }
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  const gr = ctx.createLinearGradient(0,0,0,280);
+  gr.addColorStop(0,'rgba(0,229,255,0.3)'); gr.addColorStop(1,'rgba(0,229,255,0.0)');
+  charts.trend = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{ data:values, borderColor:'#00e5ff', backgroundColor:gr, borderWidth:2,
+      pointRadius:data.length>60?0:3, pointHoverRadius:6,
+      pointBackgroundColor:'#00e5ff', pointBorderColor:'#050b18', pointBorderWidth:2,
+      tension:0.3, fill:true }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{
+        backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1,
+        titleColor:'#00e5ff', bodyColor:'#e8f0fe',
+        callbacks:{ label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸` }
+      }},
+      scales:{
+        x:{ ticks:{color:'#8faabe',font:{size:10},maxTicksLimit:24,maxRotation:45}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.1)'} },
+        y:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>v.toLocaleString('zh-TW')}, grid:{color:'rgba(0,229,255,0.06)'}, border:{color:'rgba(255,255,255,0.1)',dash:[4,4]} }
+      },
+      interaction:{mode:'index',intersect:false}
+    }
+  });
+}
+
+// ─── ★ Heatmap ───
+function updateHeatmap(si, ei) {
+  const allVals = allData.map(r=>r.quantity_mt);
+  const gMin = Math.min(...allVals), gMax = Math.max(...allVals);
+  const years = [2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
+  const lookup = {};
+  allData.forEach(r=>{ lookup[`${r.year}-${r.month}`]=r.quantity_mt; });
+
+  let html = '<tr><th class="row-label">年份</th>';
+  for (let m=1; m<=12; m++) html += `<th>${m}月</th>`;
+  html += '</tr>';
+
+  years.forEach(y => {
+    html += `<tr><th class="row-label">${y}</th>`;
+    for (let m=1; m<=12; m++) {
+      const idx = ymToIdx(y,m);
+      const val = lookup[`${y}-${m}`];
+      const inRange = idx >= si && idx <= ei;
+      if (val == null) {
+        html += `<td class="heatmap-cell empty ${inRange?'':'out-of-range'}">—</td>`;
+      } else {
+        const t = (val-gMin)/(gMax-gMin);
+        const bg = heatColor(t);
+        const txtColor = textOnHeat(t);
+        const border = inRange ? 'outline:2px solid rgba(0,229,255,0.7);outline-offset:-2px;' : '';
+        html += `<td class="heatmap-cell ${inRange?'':'out-of-range'}" style="background:${bg};color:${txtColor};${border}" title="${y}年${m}月: ${fmt(val)} 公噸">${fmt(val)}</td>`;
+      }
+    }
+    html += '</tr>';
+  });
+
+  document.getElementById('heatmapTable').innerHTML = html;
+}
+
+// ─── ★ Monthly Structural Ranking ───
+function updateMonthRankChart(data) {
+  const sums = new Array(12).fill(0), cnts = new Array(12).fill(0);
+  data.forEach(r => { sums[r.month-1]+=r.quantity_mt; cnts[r.month-1]++; });
+  const avgs = sums.map((s,i)=>cnts[i]>0?s/cnts[i]:null);
+
+  // Sort months by avg descending
+  const indexed = avgs.map((v,i)=>({month:i+1,avg:v})).filter(x=>x.avg!=null).sort((a,b)=>b.avg-a.avg);
+  const labels = indexed.map(x=>MONTHS[x.month-1]);
+  const values = indexed.map(x=>x.avg);
+
+  // Color by rank
+  const maxV = Math.max(...values), minV = Math.min(...values);
+  const bgColors = values.map(v=>{
+    const t=(v-minV)/(maxV-minV||1);
+    return heatColor(t)+'cc';
+  });
+  const bdColors = values.map(v=>{
+    const t=(v-minV)/(maxV-minV||1);
+    return heatColor(t);
+  });
+
+  if (charts.monthRank) {
+    charts.monthRank.data.labels = labels;
+    charts.monthRank.data.datasets[0].data = values;
+    charts.monthRank.data.datasets[0].backgroundColor = bgColors;
+    charts.monthRank.data.datasets[0].borderColor = bdColors;
+    charts.monthRank.update('none'); return;
+  }
+  const ctx = document.getElementById('monthRankChart').getContext('2d');
+  charts.monthRank = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data:values, backgroundColor:bgColors, borderColor:bdColors, borderWidth:2, borderRadius:8, borderSkipped:false }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{
+        backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1,
+        titleColor:'#00e5ff', bodyColor:'#e8f0fe',
+        callbacks:{ label:c=>`平均 ${c.parsed.x.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸` }
+      }},
+      scales:{
+        x:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>v.toLocaleString('zh-TW')}, grid:{color:'rgba(0,229,255,0.06)'}, border:{color:'rgba(255,255,255,0.1)'} },
+        y:{ ticks:{color:'#e8f0fe',font:{size:11,weight:'600'}}, grid:{display:false}, border:{color:'rgba(255,255,255,0.1)'} }
+      }
+    }
+  });
+}
+
+// ─── Top5 Chart ───
+function updateTop5Chart(sorted) {
+  const labels = sorted.map(r=>fmtYMShort(r.year,r.month));
+  const values = sorted.map(r=>r.quantity_mt);
+  if (charts.top5) {
+    charts.top5.data.labels=labels; charts.top5.data.datasets[0].data=values; charts.top5.update('none'); return;
+  }
+  const ctx = document.getElementById('top5Chart').getContext('2d');
+  charts.top5 = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data:values, backgroundColor:rankColors.map(c=>c+'33'), borderColor:rankColors, borderWidth:2, borderRadius:8, borderSkipped:false }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{
+        backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1,
+        titleColor:'#00e5ff', bodyColor:'#e8f0fe',
+        callbacks:{ label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸` }
+      }},
+      scales:{
+        x:{ ticks:{color:'#8faabe',font:{size:11}}, grid:{display:false}, border:{color:'rgba(255,255,255,0.1)'} },
+        y:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>v.toLocaleString('zh-TW')}, grid:{color:'rgba(0,229,255,0.06)'}, border:{color:'rgba(255,255,255,0.1)'} }
+      }
+    }
+  });
+}
+
+// ─── CAGR Chart ───
+function updateCAGRChart(data) {
+  const yt = {};
+  data.forEach(r=>{ yt[r.year]=(yt[r.year]||0)+r.quantity_mt; });
+  const years = Object.keys(yt).map(Number).sort();
+  const totals = years.map(y=>yt[y]);
+  const yoy = years.map((y,i)=>i===0?null:((yt[y]-yt[years[i-1]])/yt[years[i-1]])*100);
+  let cagrTxt='';
+  if (years.length>=2) {
+    const n=years.length-1;
+    const cagr=(Math.pow(totals[n]/totals[0],1/n)-1)*100;
+    cagrTxt=`整體CAGR: ${cagr>=0?'+':''}${cagr.toFixed(1)}%`;
+  }
+  if (charts.cagr) {
+    charts.cagr.data.labels=years.map(String);
+    charts.cagr.data.datasets[0].data=totals;
+    charts.cagr.data.datasets[1].data=yoy;
+    charts.cagr.options.plugins.title.text=cagrTxt;
+    charts.cagr.update('none'); return;
+  }
+  const ctx = document.getElementById('cagrChart').getContext('2d');
+  charts.cagr = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:years.map(String), datasets:[
+      { label:'年度合計 (公噸)', data:totals, backgroundColor:'rgba(41,121,255,0.25)', borderColor:'#2979ff', borderWidth:2, borderRadius:6, yAxisID:'y', order:2 },
+      { label:'年增率 (%)', data:yoy, type:'line', borderColor:'#00e676', backgroundColor:'rgba(0,230,118,0.1)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#00e676', pointBorderColor:'#050b18', pointBorderWidth:2, tension:0.3, yAxisID:'y2', order:1, spanGaps:true }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ labels:{color:'#8faabe',font:{size:11},boxWidth:14}, position:'top' },
+        title:{ display:true, text:cagrTxt, color:'#00e676', font:{size:12,weight:'600'}, padding:{bottom:8} },
+        tooltip:{ backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1, titleColor:'#00e5ff', bodyColor:'#e8f0fe',
+          callbacks:{ label:c=>c.datasetIndex===0?`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`:c.parsed.y!=null?`${c.parsed.y>=0?'+':''}${c.parsed.y.toFixed(1)}%`:'N/A' }
+        }
+      },
+      scales:{
+        x:{ ticks:{color:'#8faabe',font:{size:11}}, grid:{display:false}, border:{color:'rgba(255,255,255,0.1)'} },
+        y:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>(v/1000).toFixed(0)+'K'}, grid:{color:'rgba(41,121,255,0.08)'}, border:{color:'rgba(255,255,255,0.1)'}, title:{display:true,text:'公噸',color:'#8faabe',font:{size:10}} },
+        y2:{ position:'right', ticks:{color:'#00e676',font:{size:10},callback:v=>v!=null?v.toFixed(0)+'%':''}, grid:{display:false}, border:{color:'rgba(0,230,118,0.2)'}, title:{display:true,text:'年增率',color:'#00e676',font:{size:10}} }
+      }
+    }
+  });
+}
+
+// ─── Data Table ───
+function updateTable(data) {
+  const years = [...new Set(data.map(r=>r.year))].sort();
+  const lookup = {};
+  data.forEach(r=>{ lookup[`${r.year}-${r.month}`]=r.quantity_mt; });
+  const yt = {};
+  years.forEach(y=>{yt[y]=0;});
+  let rows='';
+  for (let m=1; m<=12; m++) {
+    const mVals=years.map(y=>lookup[`${y}-${m}`]);
+    const def=mVals.filter(v=>v!=null);
+    const mAvg=def.length?def.reduce((a,b)=>a+b,0)/def.length:null;
+    years.forEach((y,i)=>{ if(mVals[i]!=null) yt[y]+=mVals[i]; });
+    const mx=def.length?Math.max(...def):1;
+    rows+=`<tr><td>${m}月</td>${years.map((y,i)=>{
+      const v=mVals[i];
+      if(v==null) return '<td style="color:#444">—</td>';
+      const pct=(v/mx*100).toFixed(0);
+      return `<td style="position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:rgba(0,229,255,0.06);border-radius:2px"></div><span style="position:relative">${fmt(v)}</span></td>`;
+    }).join('')}<td style="color:#8faabe">${mAvg!=null?fmt(mAvg):'—'}</td></tr>`;
+  }
+  const grandVals=Object.values(yt).filter(v=>v>0);
+  const grandAvg=grandVals.length?grandVals.reduce((a,b)=>a+b,0)/grandVals.length:0;
+  rows+=`<tr class="total-row"><td>年合計</td>${years.map(y=>`<td>${yt[y]>0?fmt(yt[y]):'—'}</td>`).join('')}<td>${fmt(grandAvg)}</td></tr>`;
+  document.getElementById('tableHead').innerHTML=`<tr><th>月份</th>${years.map(y=>`<th>${y}</th>`).join('')}<th>月均值</th></tr>`;
+  document.getElementById('tableBody').innerHTML=rows;
+}
+
+// ─── Sliders ───
+function updateSliderLabels(si,ei) {
+  const s=idxToYM(si),e=idxToYM(ei);
+  document.getElementById('startLabel').textContent=fmtYM(s.year,s.month);
+  document.getElementById('endLabel').textContent=fmtYM(e.year,e.month);
+  document.getElementById('rangeStart').textContent=fmtYMShort(s.year,s.month);
+  document.getElementById('rangeEnd').textContent=fmtYMShort(e.year,e.month);
+}
+function updateTrack(sl) {
+  const p=((+sl.value-+sl.min)/(+sl.max-+sl.min))*100;
+  sl.style.background=`linear-gradient(90deg,rgba(0,229,255,0.5) ${p}%,rgba(0,229,255,0.1) ${p}%)`;
+}
+let debounce;
+function onSliderChange() {
+  const ss=document.getElementById('startSlider'),es=document.getElementById('endSlider');
+  let s=+ss.value,e=+es.value;
+  if(s>e){ if(this===ss){ss.value=e;s=e;}else{es.value=s;e=s;} }
+  updateTrack(ss); updateTrack(es); updateSliderLabels(s,e);
+  clearTimeout(debounce); debounce=setTimeout(()=>updateDashboard(s,e),80);
+}
+
 // ─── Init ───
 async function init() {
-  let data = null;
+  let data=null;
   try {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 4000);
-    const res = await fetch(
+    const controller=new AbortController();
+    const tid=setTimeout(()=>controller.abort(),4000);
+    const res=await fetch(
       `${SUPABASE_URL}/rest/v1/shipping_monthly?select=year,month,quantity_mt&order=year.asc,month.asc`,
-      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }, signal: controller.signal }
+      { headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, signal:controller.signal }
     );
     clearTimeout(tid);
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json) && json.length > 0) data = json;
-    }
-  } catch(e) { /* fall through to embedded data */ }
-
+    if(res.ok){ const json=await res.json(); if(Array.isArray(json)&&json.length>0) data=json; }
+  } catch(e) {}
   allData = data || EMBEDDED_DATA;
 
-  const startSlider = document.getElementById('startSlider');
-  const endSlider = document.getElementById('endSlider');
-  startSlider.addEventListener('input', onSliderChange);
-  endSlider.addEventListener('input', onSliderChange);
-  updateSliderTrack(startSlider);
-  updateSliderTrack(endSlider);
-  updateSliderLabels(0, 111);
-  updateDashboard(0, 111);
-
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('app').style.opacity = '1';
+  const ss=document.getElementById('startSlider'),es=document.getElementById('endSlider');
+  ss.addEventListener('input',onSliderChange);
+  es.addEventListener('input',onSliderChange);
+  updateTrack(ss); updateTrack(es);
+  updateSliderLabels(0,111);
+  updateDashboard(0,111);
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.opacity='1';
 }
 
 init();
