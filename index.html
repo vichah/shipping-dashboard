@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>出貨量分析 Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
-  --bg:#050b18; --card:rgba(10,20,40,.88); --card2:rgba(6,15,32,.92);
-  --cyan:#00e5ff; --blue:#2979ff; --purple:#7c4dff; --green:#00e676;
-  --orange:#ff6d00; --pink:#f50057; --us:#00e5ff; --eu:#ff6d00;
-  --txt:#e8f0fe; --txt2:#8faabe;
-  --bord:rgba(0,229,255,.2); --bord2:rgba(41,121,255,.25);
+  --bg:#050b18;--card:rgba(10,20,40,.88);--card2:rgba(6,15,32,.92);
+  --cyan:#00e5ff;--blue:#2979ff;--purple:#7c4dff;--green:#00e676;
+  --orange:#ff6d00;--pink:#f50057;
+  --txt:#e8f0fe;--txt2:#8faabe;
+  --bord:rgba(0,229,255,.2);--bord2:rgba(41,121,255,.25);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI','PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;font-size:15px}
@@ -28,7 +28,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:28p
 .header-title p{font-size:13px;color:var(--txt2);margin-top:3px;letter-spacing:2px;text-transform:uppercase}
 .header-badge{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:20px;padding:7px 18px;font-size:13px;color:var(--cyan);letter-spacing:1px}
 
-/* Slider Panel */
+/* Slider */
 .slider-panel{background:var(--card);border:1px solid var(--bord);border-radius:16px;padding:24px 32px;margin-bottom:28px;backdrop-filter:blur(12px);position:relative;overflow:hidden}
 .slider-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--purple))}
 .slider-panel-title{font-size:12px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:20px;font-weight:600}
@@ -36,16 +36,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:28p
 .slider-group{flex:1;min-width:280px}
 .slider-label{font-size:13px;color:var(--txt2);margin-bottom:6px;letter-spacing:1px}
 .slider-value{font-size:20px;font-weight:700;color:var(--cyan);text-shadow:0 0 12px rgba(0,229,255,.5)}
-.date-input-row{display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:6px}
-.date-input{
-  background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.3);border-radius:8px;
-  color:var(--cyan);font-size:14px;font-weight:600;padding:6px 12px;width:110px;
-  outline:none;letter-spacing:1px;font-family:inherit;
-  transition:border-color .2s,box-shadow .2s
-}
+.date-input-row{display:flex;align-items:center;gap:8px;margin:8px 0 6px}
+.date-input{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.3);border-radius:8px;color:var(--cyan);font-size:14px;font-weight:600;padding:6px 12px;width:112px;outline:none;letter-spacing:1px;font-family:inherit;transition:border-color .2s,box-shadow .2s}
 .date-input:focus{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,229,255,.3)}
+.date-input.err{border-color:rgba(255,82,82,.7) !important}
 .date-input::placeholder{color:rgba(0,229,255,.3);font-weight:400}
-.date-input-hint{font-size:11px;color:rgba(0,229,255,.4)}
+.date-hint{font-size:11px;color:rgba(0,229,255,.4)}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:rgba(0,229,255,.15);outline:none;cursor:pointer;display:block}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--blue));box-shadow:0 0 14px rgba(0,229,255,.7);cursor:pointer;border:2px solid rgba(255,255,255,.3);transition:transform .15s,box-shadow .15s}
 input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 0 22px rgba(0,229,255,.9)}
@@ -56,12 +52,12 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 .range-display .val{font-size:18px;font-weight:700;color:var(--cyan)}
 .range-display .lbl{font-size:12px;color:var(--txt2);display:block;margin-bottom:2px}
 
-/* Section label */
+/* Section */
 .section-label{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(0,229,255,.5);margin-bottom:14px;margin-top:4px;padding-left:2px;display:flex;align-items:center;gap:10px}
 .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,229,255,.2),transparent)}
 
 /* KPI */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:18px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
 .kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
 .kpi-card{background:var(--card);border:1px solid var(--bord2);border-radius:14px;padding:22px 24px;backdrop-filter:blur(12px);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
 .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,229,255,.18)}
@@ -69,7 +65,6 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 .kpi-card.max::after{background:linear-gradient(90deg,var(--cyan),var(--blue))}
 .kpi-card.min::after{background:linear-gradient(90deg,var(--purple),var(--pink))}
 .kpi-card.avg::after{background:linear-gradient(90deg,var(--blue),var(--purple))}
-.kpi-card.top5::after{background:linear-gradient(90deg,var(--green),var(--cyan))}
 .kpi-card.yoy::after{background:linear-gradient(90deg,var(--orange),#ffab40)}
 .kpi-card.mom::after{background:linear-gradient(90deg,#ff6090,var(--purple))}
 .kpi-card.peak::after{background:linear-gradient(90deg,var(--green),#69f0ae)}
@@ -77,7 +72,6 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 .kpi-card.max .kpi-icon{background:rgba(0,229,255,.12)}
 .kpi-card.min .kpi-icon{background:rgba(245,0,87,.12)}
 .kpi-card.avg .kpi-icon{background:rgba(41,121,255,.12)}
-.kpi-card.top5 .kpi-icon{background:rgba(0,230,118,.12)}
 .kpi-card.yoy .kpi-icon{background:rgba(255,109,0,.12)}
 .kpi-card.mom .kpi-icon{background:rgba(245,0,87,.1)}
 .kpi-card.peak .kpi-icon{background:rgba(0,230,118,.12)}
@@ -86,10 +80,15 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 .kpi-card.max .kpi-value{color:var(--cyan);text-shadow:0 0 22px rgba(0,229,255,.4)}
 .kpi-card.min .kpi-value{color:#ff6b9d;text-shadow:0 0 22px rgba(245,0,87,.3)}
 .kpi-card.avg .kpi-value{color:var(--blue);text-shadow:0 0 22px rgba(41,121,255,.4)}
-.kpi-card.top5 .kpi-value{color:var(--green)}
 .kpi-unit{font-size:14px;color:var(--txt2);margin-left:4px;font-weight:400}
-.kpi-sub{font-size:13px;color:var(--txt2);margin-top:9px}
+.kpi-sub{font-size:13px;color:var(--txt2);margin-top:8px}
 .kpi-sub span{color:var(--txt);font-weight:600}
+.kpi-route{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.kpi-route-item{font-size:12px}
+.kpi-route-item .r-label{color:var(--txt2)}
+.kpi-route-item .r-val{font-weight:700}
+.kpi-route-item.us .r-val{color:var(--cyan)}
+.kpi-route-item.eu .r-val{color:var(--orange)}
 .yoy-value{font-size:32px;font-weight:800;letter-spacing:-.5px}
 .yoy-value.up{color:#00e676;text-shadow:0 0 20px rgba(0,230,118,.4)}
 .yoy-value.down{color:#ff5252;text-shadow:0 0 20px rgba(255,82,82,.4)}
@@ -97,15 +96,6 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 .yoy-arrow{font-size:20px;margin-right:4px}
 .yoy-detail{font-size:12px;color:var(--txt2);margin-top:9px;line-height:1.7}
 .yoy-detail strong{color:var(--txt)}
-.top5-list{margin-top:10px}
-.top5-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.top5-item:last-child{border-bottom:none}
-.top5-rank{width:24px;height:24px;border-radius:6px;background:rgba(0,230,118,.15);color:var(--green);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.top5-rank.r1{background:rgba(0,229,255,.2);color:var(--cyan)}
-.top5-rank.r2{background:rgba(41,121,255,.2);color:var(--blue)}
-.top5-rank.r3{background:rgba(124,77,255,.2);color:var(--purple)}
-.top5-date{font-size:13px;color:var(--txt2);flex:1;margin:0 8px}
-.top5-val{font-size:13px;font-weight:700;color:var(--txt)}
 
 /* Charts */
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
@@ -113,11 +103,22 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 .chart-card.full-width{grid-column:1/-1}
 .chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent)}
 .chart-title{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:4px;font-weight:600}
-.chart-subtitle{font-size:12px;color:var(--txt2);margin-bottom:18px}
+.chart-subtitle{font-size:12px;color:var(--txt2);margin-bottom:14px}
 .chart-wrap{position:relative}
 
-/* Route section (shows when 2021+ in range) */
-#routeSection{display:none;margin-bottom:18px}
+/* Trend toggles */
+.trend-toggles{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.trend-toggle-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;cursor:pointer;border:1.5px solid;font-size:13px;font-weight:600;transition:background .2s,opacity .2s;user-select:none}
+.trend-toggle-btn.total{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.1)}
+.trend-toggle-btn.us{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.08)}
+.trend-toggle-btn.eu{border-color:var(--orange);color:var(--orange);background:rgba(255,109,0,.08)}
+.trend-toggle-btn.off{opacity:.35;background:transparent !important}
+.trend-toggle-btn .dot{width:9px;height:9px;border-radius:50%}
+.trend-toggle-btn.total .dot{background:var(--cyan)}
+.trend-toggle-btn.us .dot{background:var(--cyan)}
+.trend-toggle-btn.eu .dot{background:var(--orange)}
+.trend-toggle-btn.us .dot{background:linear-gradient(135deg,#00e5ff,#40c4ff)}
+.trend-toggle-btn.total .dot{box-shadow:0 0 6px var(--cyan)}
 .route-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 12px;border-radius:12px;font-weight:600;letter-spacing:1px}
 .route-badge.us{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:var(--cyan)}
 .route-badge.eu{background:rgba(255,109,0,.1);border:1px solid rgba(255,109,0,.3);color:var(--orange)}
@@ -136,9 +137,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 .heatmap-legend-bar{width:180px;height:8px;border-radius:4px;background:linear-gradient(90deg,#0d2b6e,#1565c0,#00acc1,#00e5ff)}
 .heatmap-legend span{font-size:12px;color:var(--txt2)}
 
-/* Data Table */
+/* Table */
 .table-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-.export-btn{display:flex;align-items:center;gap:8px;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.35);color:var(--green);font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;cursor:pointer;transition:background .2s,box-shadow .2s;letter-spacing:.5px}
+.export-btn{display:flex;align-items:center;gap:8px;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.4);color:var(--green);font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;cursor:pointer;transition:background .2s,box-shadow .2s;letter-spacing:.5px;font-family:inherit}
 .export-btn:hover{background:rgba(0,230,118,.2);box-shadow:0 0 14px rgba(0,230,118,.3)}
 .table-scroll{overflow-x:auto;max-height:380px;overflow-y:auto}
 .data-table{width:100%;border-collapse:collapse;font-size:13px}
@@ -160,7 +161,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 ::-webkit-scrollbar-thumb{background:rgba(0,229,255,.25);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(0,229,255,.45)}
 
-@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid-3{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}.chart-card.full-width{grid-column:auto}}
+#routeSection{display:none;margin-bottom:18px}
+@media(max-width:1200px){.kpi-grid,.kpi-grid-3{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}.chart-card.full-width{grid-column:auto}}
 @media(max-width:600px){.kpi-grid,.kpi-grid-3{grid-template-columns:1fr}.slider-row{flex-direction:column;gap:20px}}
 </style>
 </head>
@@ -191,7 +193,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
       <div class="slider-value" id="startLabel">2017年 01月</div>
       <div class="date-input-row">
         <input class="date-input" id="startInput" type="text" placeholder="YYYY-MM" maxlength="7">
-        <span class="date-input-hint">可手動輸入</span>
+        <span class="date-hint">可手動輸入</span>
       </div>
       <input type="range" id="startSlider" min="0" max="111" value="0">
       <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
@@ -206,7 +208,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
       <div class="slider-value" id="endLabel">2026年 04月</div>
       <div class="date-input-row">
         <input class="date-input" id="endInput" type="text" placeholder="YYYY-MM" maxlength="7">
-        <span class="date-input-hint">可手動輸入</span>
+        <span class="date-hint">可手動輸入</span>
       </div>
       <input type="range" id="endSlider" min="0" max="111" value="111">
       <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
@@ -214,13 +216,30 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
   </div>
 </div>
 
-<!-- KPI Row 1 -->
+<!-- KPI Row 1: 3 cards (removed top5) -->
 <div class="section-label">基礎指標</div>
 <div class="kpi-grid">
-  <div class="kpi-card max"><div class="kpi-icon">🔺</div><div class="kpi-label">最高出貨量</div><div class="kpi-value"><span id="kpiMaxVal">—</span><span class="kpi-unit">公噸</span></div><div class="kpi-sub">年月：<span id="kpiMaxDate">—</span></div></div>
-  <div class="kpi-card min"><div class="kpi-icon">🔻</div><div class="kpi-label">最低出貨量</div><div class="kpi-value"><span id="kpiMinVal">—</span><span class="kpi-unit">公噸</span></div><div class="kpi-sub">年月：<span id="kpiMinDate">—</span></div></div>
-  <div class="kpi-card avg"><div class="kpi-icon">〜</div><div class="kpi-label">平均月出貨量</div><div class="kpi-value"><span id="kpiAvgVal">—</span><span class="kpi-unit">公噸</span></div><div class="kpi-sub">總出貨：<span id="kpiTotal">—</span> 公噸</div></div>
-  <div class="kpi-card top5"><div class="kpi-icon">🏆</div><div class="kpi-label">出貨量前五名</div><div class="top5-list" id="kpiTop5List"></div></div>
+  <div class="kpi-card max">
+    <div class="kpi-icon">🔺</div>
+    <div class="kpi-label">最高出貨量</div>
+    <div class="kpi-value"><span id="kpiMaxVal">—</span><span class="kpi-unit">公噸</span></div>
+    <div class="kpi-sub">年月：<span id="kpiMaxDate">—</span></div>
+    <div class="kpi-route" id="kpiMaxRoute"></div>
+  </div>
+  <div class="kpi-card min">
+    <div class="kpi-icon">🔻</div>
+    <div class="kpi-label">最低出貨量</div>
+    <div class="kpi-value"><span id="kpiMinVal">—</span><span class="kpi-unit">公噸</span></div>
+    <div class="kpi-sub">年月：<span id="kpiMinDate">—</span></div>
+    <div class="kpi-route" id="kpiMinRoute"></div>
+  </div>
+  <div class="kpi-card avg">
+    <div class="kpi-icon">〜</div>
+    <div class="kpi-label">平均月出貨量</div>
+    <div class="kpi-value"><span id="kpiAvgVal">—</span><span class="kpi-unit">公噸</span></div>
+    <div class="kpi-sub">總出貨：<span id="kpiTotal">—</span> 公噸</div>
+    <div class="kpi-route" id="kpiAvgRoute"></div>
+  </div>
 </div>
 
 <!-- KPI Row 2 -->
@@ -234,17 +253,37 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 <!-- Charts -->
 <div class="section-label">圖表分析</div>
 <div class="charts-grid">
+
+  <!-- Merged trend chart with toggles -->
   <div class="chart-card full-width">
     <div class="chart-title">出貨量趨勢圖</div>
-    <div class="chart-subtitle">月度出貨量 (公噸)</div>
-    <div class="chart-wrap" style="height:290px"><canvas id="trendChart"></canvas></div>
+    <div class="chart-subtitle">勾選下方選項切換顯示（美線 / 歐線資料從 2021 年起）</div>
+    <div class="trend-toggles">
+      <label class="trend-toggle-btn total" id="toggle-total">
+        <input type="checkbox" id="cb-total" checked style="display:none">
+        <span class="dot"></span>合計
+      </label>
+      <label class="trend-toggle-btn us" id="toggle-us">
+        <input type="checkbox" id="cb-us" checked style="display:none">
+        <span class="dot"></span>美線（采丁美）
+      </label>
+      <label class="trend-toggle-btn eu" id="toggle-eu">
+        <input type="checkbox" id="cb-eu" checked style="display:none">
+        <span class="dot"></span>歐洲線
+      </label>
+    </div>
+    <div class="chart-wrap" style="height:300px"><canvas id="trendChart"></canvas></div>
   </div>
+
+  <!-- Heatmap -->
   <div class="chart-card full-width">
     <div class="chart-title">季節性熱力圖</div>
     <div class="chart-subtitle">年 × 月出貨量分布 — 顏色越亮出貨量越高，框線為選定區間</div>
     <div class="heatmap-wrap"><table class="heatmap-table" id="heatmapTable"></table></div>
     <div class="heatmap-legend"><span>低</span><div class="heatmap-legend-bar"></div><span>高</span></div>
   </div>
+
+  <!-- Month ranking & Top5 -->
   <div class="chart-card">
     <div class="chart-title">月份結構排名</div>
     <div class="chart-subtitle">各月份歷年平均出貨量 — 找出系統性淡旺季</div>
@@ -255,6 +294,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
     <div class="chart-subtitle">選定區間內最高出貨月份 (公噸)</div>
     <div class="chart-wrap" style="height:290px"><canvas id="top5Chart"></canvas></div>
   </div>
+
+  <!-- CAGR -->
   <div class="chart-card full-width">
     <div class="chart-title">年度複合成長率 (CAGR)</div>
     <div class="chart-subtitle">各年度合計出貨量及年增率 (%)</div>
@@ -262,7 +303,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
   </div>
 </div>
 
-<!-- Route Section (2021+) -->
+<!-- Route section (2021+) -->
 <div id="routeSection">
   <div class="section-label">美線 vs 歐線分析（2021年起）</div>
   <div class="route-badges">
@@ -270,14 +311,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
     <span class="route-badge eu">🌍 歐洲線</span>
   </div>
   <div class="charts-grid">
-    <div class="chart-card full-width">
-      <div class="chart-title">美線 vs 歐線趨勢</div>
-      <div class="chart-subtitle">月度出貨量拆分 (公噸) — 2021年起</div>
-      <div class="chart-wrap" style="height:270px"><canvas id="routeTrendChart"></canvas></div>
-    </div>
     <div class="chart-card">
-      <div class="chart-title">年度路線佔比</div>
-      <div class="chart-subtitle">各年美線 vs 歐線佔比堆疊圖</div>
+      <div class="chart-title">年度路線佔比（堆疊）</div>
+      <div class="chart-subtitle">各年美線 vs 歐線出貨量堆疊圖</div>
       <div class="chart-wrap" style="height:270px"><canvas id="routeBarChart"></canvas></div>
     </div>
     <div class="chart-card">
@@ -306,8 +342,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 </div><!-- /container -->
 
 <script>
-const SUPABASE_URL='https://mugkjtiagmahipotekmr.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Z2tqdGlhZ21haGlwb3Rla21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mzc3MjEsImV4cCI6MjA5NTQxMzcyMX0.xI8-bUL5b1tPJOJiV5awvCQwduCgcnrgpmDkjYi-lP8';
+const SB_URL='https://mugkjtiagmahipotekmr.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Z2tqdGlhZ21haGlwb3Rla21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mzc3MjEsImV4cCI6MjA5NTQxMzcyMX0.xI8-bUL5b1tPJOJiV5awvCQwduCgcnrgpmDkjYi-lP8';
 
 const EMBEDDED=[
   {year:2017,month:1,quantity_mt:1420.8},{year:2017,month:2,quantity_mt:1362.9},{year:2017,month:3,quantity_mt:1995.4},{year:2017,month:4,quantity_mt:1619.7},{year:2017,month:5,quantity_mt:1231.2},{year:2017,month:6,quantity_mt:1792.2},{year:2017,month:7,quantity_mt:1401.4},{year:2017,month:8,quantity_mt:1671.3},{year:2017,month:9,quantity_mt:1001.2},{year:2017,month:10,quantity_mt:909.8},{year:2017,month:11,quantity_mt:1660.0},{year:2017,month:12,quantity_mt:1504.2},
@@ -322,7 +358,7 @@ const EMBEDDED=[
   {year:2026,month:1,quantity_mt:2737.6,us_line_mt:1771.9,eu_line_mt:965.7},{year:2026,month:2,quantity_mt:1999.4,us_line_mt:1439.3,eu_line_mt:560.1},{year:2026,month:3,quantity_mt:2618.3,us_line_mt:1725.5,eu_line_mt:892.8},{year:2026,month:4,quantity_mt:2336.8,us_line_mt:1627.4,eu_line_mt:709.4}
 ];
 
-// ── Helpers ──
+/* ── Helpers ── */
 function idxToYM(i){return{year:2017+Math.floor(i/12),month:(i%12)+1}}
 function ymToIdx(y,m){return(y-2017)*12+(m-1)}
 function fmtYM(y,m){return`${y}年 ${String(m).padStart(2,'0')}月`}
@@ -334,102 +370,177 @@ function heatColor(t){
   const s=(t-.5)*2;return`rgb(0,${Math.round(lerp(121,229,s))},${Math.round(lerp(172,255,s))})`;
 }
 function textOnHeat(t){return t>.55?'#050b18':'#e8f0fe'}
-const MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
 let allData=[],charts={};
-const rColors=['#00e5ff','#2979ff','#7c4dff','#00e676','#ff6d00'];
+const RC=['#00e5ff','#2979ff','#7c4dff','#00e676','#ff6d00'];
+
+// track current range for export
+let curSI=0,curEI=111;
 
 function getFiltered(si,ei){
   return allData.filter(r=>{const i=ymToIdx(r.year,r.month);return i>=si&&i<=ei;})
     .sort((a,b)=>ymToIdx(a.year,a.month)-ymToIdx(b.year,b.month));
 }
 
-// ── Main Update ──
+/* ── Route HTML helper ── */
+function routeHTML(us,eu){
+  if(!us&&!eu)return'';
+  let h='';
+  if(us)h+=`<div class="kpi-route-item us"><span class="r-label">🚢 美線 </span><span class="r-val">${fmt(us)}</span><span class="r-label"> 噸</span></div>`;
+  if(eu)h+=`<div class="kpi-route-item eu"><span class="r-label">🌍 歐線 </span><span class="r-val">${fmt(eu)}</span><span class="r-label"> 噸</span></div>`;
+  return h;
+}
+
+/* ── Main Update ── */
 function updateDashboard(si,ei){
+  curSI=si;curEI=ei;
   const data=getFiltered(si,ei);
   if(!data.length)return;
+
   const maxR=data.reduce((a,b)=>b.quantity_mt>a.quantity_mt?b:a);
   const minR=data.reduce((a,b)=>b.quantity_mt<a.quantity_mt?b:a);
   const total=data.reduce((s,r)=>s+r.quantity_mt,0);
   const avg=total/data.length;
+
   document.getElementById('kpiMaxVal').textContent=fmt(maxR.quantity_mt);
   document.getElementById('kpiMaxDate').textContent=fmtYM(maxR.year,maxR.month);
+  document.getElementById('kpiMaxRoute').innerHTML=routeHTML(maxR.us_line_mt,maxR.eu_line_mt);
+
   document.getElementById('kpiMinVal').textContent=fmt(minR.quantity_mt);
   document.getElementById('kpiMinDate').textContent=fmtYM(minR.year,minR.month);
+  document.getElementById('kpiMinRoute').innerHTML=routeHTML(minR.us_line_mt,minR.eu_line_mt);
+
   document.getElementById('kpiAvgVal').textContent=fmt(avg);
   document.getElementById('kpiTotal').textContent=fmt(total);
-  const sorted=[...data].sort((a,b)=>b.quantity_mt-a.quantity_mt).slice(0,5);
-  const rc=['r1','r2','r3','',''];
-  document.getElementById('kpiTop5List').innerHTML=sorted.map((r,i)=>`
-    <div class="top5-item"><div class="top5-rank ${rc[i]}">${i+1}</div>
-    <div class="top5-date">${fmtYMs(r.year,r.month)}</div>
-    <div class="top5-val">${fmt(r.quantity_mt)}</div></div>`).join('');
+  // avg route: only from records that have route data
+  const rd=data.filter(r=>r.us_line_mt!=null);
+  if(rd.length){
+    const avgUs=rd.reduce((s,r)=>s+r.us_line_mt,0)/rd.length;
+    const avgEu=rd.reduce((s,r)=>s+(r.eu_line_mt||0),0)/rd.length;
+    document.getElementById('kpiAvgRoute').innerHTML=routeHTML(avgUs,avgEu);
+  }else document.getElementById('kpiAvgRoute').innerHTML='';
 
   updateYoYMoM(data);
   updatePeakMonth(data);
   updateTrendChart(data);
   updateHeatmap(si,ei);
-  updateMonthRankChart(data);
-  updateTop5Chart(sorted);
-  updateCAGRChart(data);
+  updateMonthRank(data);
+  updateTop5([...data].sort((a,b)=>b.quantity_mt-a.quantity_mt).slice(0,5));
+  updateCAGR(data);
   updateTable(data);
 
-  // Route section
-  const hasRoute=data.some(r=>r.year>=2021&&r.us_line_mt!=null);
-  document.getElementById('routeSection').style.display=hasRoute?'block':'none';
-  if(hasRoute){
-    const rData=data.filter(r=>r.year>=2021&&r.us_line_mt!=null);
-    updateRouteTrend(rData);
-    updateRouteBar(rData);
-    updateRouteDonut(rData);
-  }
+  const rData=data.filter(r=>r.year>=2021&&r.us_line_mt!=null);
+  document.getElementById('routeSection').style.display=rData.length?'block':'none';
+  if(rData.length){updateRouteBar(rData);updateRouteDonut(rData);}
 }
 
-// ── YoY / MoM ──
+/* ── YoY/MoM ── */
 function updateYoYMoM(data){
-  const last2=data.slice(-2);
-  const momEl=document.getElementById('kpiMomVal'),momD=document.getElementById('kpiMomDetail');
-  if(last2.length===2){
-    const[p,c]=last2,pct=((c.quantity_mt-p.quantity_mt)/p.quantity_mt)*100,up=pct>=0;
-    momEl.className='yoy-value '+(up?'up':'down');
-    momEl.innerHTML=`<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
-    momD.innerHTML=`<strong>${fmtYMs(c.year,c.month)}</strong> ${fmt(c.quantity_mt)} 噸<br>vs 上月 <strong>${fmtYMs(p.year,p.month)}</strong> ${fmt(p.quantity_mt)} 噸`;
-  }else{momEl.textContent='N/A';momD.textContent='資料不足';}
+  const l2=data.slice(-2);
+  const mE=document.getElementById('kpiMomVal'),mD=document.getElementById('kpiMomDetail');
+  if(l2.length===2){
+    const[p,c]=l2,pct=((c.quantity_mt-p.quantity_mt)/p.quantity_mt)*100,up=pct>=0;
+    mE.className='yoy-value '+(up?'up':'down');
+    mE.innerHTML=`<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
+    mD.innerHTML=`<strong>${fmtYMs(c.year,c.month)}</strong> ${fmt(c.quantity_mt)} 噸<br>vs <strong>${fmtYMs(p.year,p.month)}</strong> ${fmt(p.quantity_mt)} 噸`;
+  }else{mE.textContent='N/A';mD.textContent='資料不足';}
   const yt={};data.forEach(r=>{yt[r.year]=(yt[r.year]||0)+r.quantity_mt;});
   const yrs=Object.keys(yt).map(Number).sort();
-  const yoyEl=document.getElementById('kpiYoyVal'),yoyD=document.getElementById('kpiYoyDetail');
+  const yE=document.getElementById('kpiYoyVal'),yD=document.getElementById('kpiYoyDetail');
   if(yrs.length>=2){
     const cy=yrs[yrs.length-1],py=yrs[yrs.length-2];
     const pct=((yt[cy]-yt[py])/yt[py])*100,up=pct>=0;
-    yoyEl.className='yoy-value '+(up?'up':'down');
-    yoyEl.innerHTML=`<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
-    yoyD.innerHTML=`<strong>${cy}年</strong> ${fmt(yt[cy])} 噸<br>vs <strong>${py}年</strong> ${fmt(yt[py])} 噸`;
-  }else{yoyEl.textContent='N/A';yoyD.textContent='需至少兩年資料';}
+    yE.className='yoy-value '+(up?'up':'down');
+    yE.innerHTML=`<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
+    yD.innerHTML=`<strong>${cy}年</strong> ${fmt(yt[cy])} 噸<br>vs <strong>${py}年</strong> ${fmt(yt[py])} 噸`;
+  }else{yE.textContent='N/A';yD.textContent='需至少兩年資料';}
 }
 
-// ── Peak Month ──
 function updatePeakMonth(data){
-  const sums={},cnts={};
-  data.forEach(r=>{sums[r.month]=(sums[r.month]||0)+r.quantity_mt;cnts[r.month]=(cnts[r.month]||0)+1;});
-  const avgs=Object.keys(sums).map(m=>({month:+m,avg:sums[m]/cnts[m]})).sort((a,b)=>b.avg-a.avg);
-  if(!avgs.length)return;
-  document.getElementById('kpiPeakMonth').textContent=MONTHS[avgs[0].month-1];
-  document.getElementById('kpiPeakDetail').innerHTML=
-    `歷年平均 <strong>${fmt(avgs[0].avg)}</strong> 噸<br>次高：${avgs[1]?MONTHS[avgs[1].month-1]:'—'}、${avgs[2]?MONTHS[avgs[2].month-1]:'—'}`;
+  const s={},c={};data.forEach(r=>{s[r.month]=(s[r.month]||0)+r.quantity_mt;c[r.month]=(c[r.month]||0)+1;});
+  const a=Object.keys(s).map(m=>({m:+m,avg:s[m]/c[m]})).sort((a,b)=>b.avg-a.avg);
+  if(!a.length)return;
+  document.getElementById('kpiPeakMonth').textContent=MN[a[0].m-1];
+  document.getElementById('kpiPeakDetail').innerHTML=`歷年平均 <strong>${fmt(a[0].avg)}</strong> 噸<br>次高：${a[1]?MN[a[1].m-1]:'—'}、${a[2]?MN[a[2].m-1]:'—'}`;
 }
 
-// ── Trend ──
+/* ── Merged Trend Chart ── */
 function updateTrendChart(data){
-  const lbl=data.map(r=>fmtYMs(r.year,r.month)),vals=data.map(r=>r.quantity_mt);
-  if(charts.trend){charts.trend.data.labels=lbl;charts.trend.data.datasets[0].data=vals;charts.trend.data.datasets[0].pointRadius=data.length>60?0:3;charts.trend.update('none');return;}
+  const lbl=data.map(r=>fmtYMs(r.year,r.month));
+  const tot=data.map(r=>r.quantity_mt);
+  const us=data.map(r=>r.us_line_mt??null);
+  const eu=data.map(r=>r.eu_line_mt??null);
+
+  if(charts.trend){
+    charts.trend.data.labels=lbl;
+    charts.trend.data.datasets[0].data=tot;
+    charts.trend.data.datasets[0].pointRadius=data.length>60?0:3;
+    charts.trend.data.datasets[1].data=us;
+    charts.trend.data.datasets[1].pointRadius=data.length>60?0:3;
+    charts.trend.data.datasets[2].data=eu;
+    charts.trend.data.datasets[2].pointRadius=data.length>60?0:3;
+    charts.trend.update('none');
+    return;
+  }
+
   const ctx=document.getElementById('trendChart').getContext('2d');
-  const gr=ctx.createLinearGradient(0,0,0,290);gr.addColorStop(0,'rgba(0,229,255,.3)');gr.addColorStop(1,'rgba(0,229,255,0)');
-  charts.trend=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[{data:vals,borderColor:'#00e5ff',backgroundColor:gr,borderWidth:2,pointRadius:data.length>60?0:3,pointHoverRadius:7,pointBackgroundColor:'#00e5ff',pointBorderColor:'#050b18',pointBorderWidth:2,tension:.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},maxTicksLimit:24,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)',dash:[4,4]}}},interaction:{mode:'index',intersect:false}}});
+  const gT=ctx.createLinearGradient(0,0,0,300);gT.addColorStop(0,'rgba(0,229,255,.25)');gT.addColorStop(1,'rgba(0,229,255,0)');
+  const gU=ctx.createLinearGradient(0,0,0,300);gU.addColorStop(0,'rgba(0,200,220,.15)');gU.addColorStop(1,'rgba(0,200,220,0)');
+  const gE=ctx.createLinearGradient(0,0,0,300);gE.addColorStop(0,'rgba(255,109,0,.2)');gE.addColorStop(1,'rgba(255,109,0,0)');
+
+  const pt=data.length>60?0:3;
+  charts.trend=new Chart(ctx,{
+    type:'line',
+    data:{labels:lbl,datasets:[
+      {label:'合計',data:tot,borderColor:'#00e5ff',backgroundColor:gT,borderWidth:2.5,pointRadius:pt,pointHoverRadius:7,pointBackgroundColor:'#00e5ff',pointBorderColor:'#050b18',pointBorderWidth:2,tension:.3,fill:true,order:1},
+      {label:'美線（采丁美）',data:us,borderColor:'#40c4ff',backgroundColor:gU,borderWidth:1.8,pointRadius:pt,pointHoverRadius:6,pointBackgroundColor:'#40c4ff',pointBorderColor:'#050b18',pointBorderWidth:1.5,tension:.3,fill:false,borderDash:[5,3],spanGaps:false,order:2},
+      {label:'歐洲線',data:eu,borderColor:'#ff6d00',backgroundColor:gE,borderWidth:1.8,pointRadius:pt,pointHoverRadius:6,pointBackgroundColor:'#ff6d00',pointBorderColor:'#050b18',pointBorderWidth:1.5,tension:.3,fill:false,borderDash:[5,3],spanGaps:false,order:3}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'rgba(5,11,24,.97)',borderColor:'rgba(0,229,255,.4)',borderWidth:1,
+          titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},padding:12,
+          mode:'index',intersect:false,
+          filter:item=>item.parsed.y!==null,
+          callbacks:{
+            title:items=>items[0]?.label||'',
+            label:c=>{
+              const v=c.parsed.y;
+              if(v===null)return null;
+              const icon=c.datasetIndex===0?'📦':c.datasetIndex===1?'🚢':'🌍';
+              return`  ${icon} ${c.dataset.label}: ${fmt(v)} 公噸`;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#8faabe',font:{size:12},maxTicksLimit:24,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.1)'}},
+        y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)',dash:[4,4]}}
+      },
+      interaction:{mode:'index',intersect:false}
+    }
+  });
+
+  // Wire up toggle buttons
+  ['total','us','eu'].forEach((key,idx)=>{
+    const btn=document.getElementById(`toggle-${key}`);
+    const cb=document.getElementById(`cb-${key}`);
+    btn.addEventListener('click',()=>{
+      cb.checked=!cb.checked;
+      charts.trend.data.datasets[idx].hidden=!cb.checked;
+      charts.trend.update();
+      btn.classList.toggle('off',!cb.checked);
+    });
+  });
 }
 
-// ── Heatmap ──
+/* ── Heatmap ── */
 function updateHeatmap(si,ei){
-  const allV=allData.map(r=>r.quantity_mt),gMin=Math.min(...allV),gMax=Math.max(...allV);
+  const aV=allData.map(r=>r.quantity_mt),gMn=Math.min(...aV),gMx=Math.max(...aV);
   const lk={};allData.forEach(r=>{lk[`${r.year}-${r.month}`]=r.quantity_mt;});
   const years=[2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
   let h='<tr><th class="row-label">年份</th>';
@@ -440,7 +551,7 @@ function updateHeatmap(si,ei){
       const idx=ymToIdx(y,m),v=lk[`${y}-${m}`],inR=idx>=si&&idx<=ei;
       if(v==null){h+=`<td class="heatmap-cell empty ${inR?'':'out-of-range'}">—</td>`;}
       else{
-        const t=(v-gMin)/(gMax-gMin),bg=heatColor(t),tc=textOnHeat(t);
+        const t=(v-gMn)/(gMx-gMn),bg=heatColor(t),tc=textOnHeat(t);
         const br=inR?'outline:2px solid rgba(0,229,255,.75);outline-offset:-2px;':'';
         h+=`<td class="heatmap-cell ${inR?'':'out-of-range'}" style="background:${bg};color:${tc};${br}" title="${y}年${m}月: ${fmt(v)} 公噸">${fmt(v)}</td>`;
       }
@@ -449,31 +560,30 @@ function updateHeatmap(si,ei){
   document.getElementById('heatmapTable').innerHTML=h;
 }
 
-// ── Month Rank ──
-function updateMonthRankChart(data){
+/* ── Month Rank ── */
+function updateMonthRank(data){
   const s=new Array(12).fill(0),c=new Array(12).fill(0);
   data.forEach(r=>{s[r.month-1]+=r.quantity_mt;c[r.month-1]++;});
   const avgs=s.map((v,i)=>c[i]>0?v/c[i]:null);
-  const indexed=avgs.map((v,i)=>({month:i+1,avg:v})).filter(x=>x.avg!=null).sort((a,b)=>b.avg-a.avg);
-  const lbl=indexed.map(x=>MONTHS[x.month-1]),vals=indexed.map(x=>x.avg);
+  const idx=avgs.map((v,i)=>({m:i+1,avg:v})).filter(x=>x.avg!=null).sort((a,b)=>b.avg-a.avg);
+  const lbl=idx.map(x=>MN[x.m-1]),vals=idx.map(x=>x.avg);
   const mx=Math.max(...vals),mn=Math.min(...vals);
-  const bg=vals.map(v=>{const t=(v-mn)/(mx-mn||1);return heatColor(t)+'cc';});
-  const bd=vals.map(v=>heatColor((v-mn)/(mx-mn||1)));
-  if(charts.mRank){charts.mRank.data.labels=lbl;charts.mRank.data.datasets[0].data=vals;charts.mRank.data.datasets[0].backgroundColor=bg;charts.mRank.data.datasets[0].borderColor=bd;charts.mRank.update('none');return;}
+  const bg=vals.map(v=>heatColor((v-mn)/(mx-mn||1))+'cc'),bd=vals.map(v=>heatColor((v-mn)/(mx-mn||1)));
+  if(charts.mR){charts.mR.data.labels=lbl;charts.mR.data.datasets[0].data=vals;charts.mR.data.datasets[0].backgroundColor=bg;charts.mR.data.datasets[0].borderColor=bd;charts.mR.update('none');return;}
   const ctx=document.getElementById('monthRankChart').getContext('2d');
-  charts.mRank=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`平均 ${c.parsed.x.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#e8f0fe',font:{size:13,weight:'600'}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}}}}});
+  charts.mR=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`平均 ${c.parsed.x.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#e8f0fe',font:{size:13,weight:'600'}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}}}}});
 }
 
-// ── Top5 ──
-function updateTop5Chart(sorted){
+/* ── Top5 ── */
+function updateTop5(sorted){
   const lbl=sorted.map(r=>fmtYMs(r.year,r.month)),vals=sorted.map(r=>r.quantity_mt);
-  if(charts.top5){charts.top5.data.labels=lbl;charts.top5.data.datasets[0].data=vals;charts.top5.update('none');return;}
+  if(charts.t5){charts.t5.data.labels=lbl;charts.t5.data.datasets[0].data=vals;charts.t5.update('none');return;}
   const ctx=document.getElementById('top5Chart').getContext('2d');
-  charts.top5=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:rColors.map(c=>c+'33'),borderColor:rColors,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}}}});
+  charts.t5=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:RC.map(c=>c+'33'),borderColor:RC,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}}}});
 }
 
-// ── CAGR ──
-function updateCAGRChart(data){
+/* ── CAGR ── */
+function updateCAGR(data){
   const yt={};data.forEach(r=>{yt[r.year]=(yt[r.year]||0)+r.quantity_mt;});
   const yrs=Object.keys(yt).map(Number).sort(),tots=yrs.map(y=>yt[y]);
   const yoy=yrs.map((y,i)=>i===0?null:((yt[y]-yt[yrs[i-1]])/yt[yrs[i-1]])*100);
@@ -486,43 +596,27 @@ function updateCAGRChart(data){
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8faabe',font:{size:12},boxWidth:14},position:'top'},title:{display:true,text:ct,color:'#00e676',font:{size:13,weight:'600'},padding:{bottom:8}},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>c.datasetIndex===0?`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`:c.parsed.y!=null?`${c.parsed.y>=0?'+':''}${c.parsed.y.toFixed(1)}%`:'N/A'}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(41,121,255,.08)'},border:{color:'rgba(255,255,255,.1)'},title:{display:true,text:'公噸',color:'#8faabe',font:{size:12}}},y2:{position:'right',ticks:{color:'#00e676',font:{size:12},callback:v=>v!=null?v.toFixed(0)+'%':''},grid:{display:false},border:{color:'rgba(0,230,118,.2)'},title:{display:true,text:'年增率',color:'#00e676',font:{size:12}}}}}});
 }
 
-// ── Route Trend ──
-function updateRouteTrend(rData){
-  const lbl=rData.map(r=>fmtYMs(r.year,r.month));
-  const us=rData.map(r=>r.us_line_mt||0),eu=rData.map(r=>r.eu_line_mt||0);
-  if(charts.rTrend){charts.rTrend.data.labels=lbl;charts.rTrend.data.datasets[0].data=us;charts.rTrend.data.datasets[1].data=eu;charts.rTrend.update('none');return;}
-  const ctx=document.getElementById('routeTrendChart').getContext('2d');
-  const gUs=ctx.createLinearGradient(0,0,0,270);gUs.addColorStop(0,'rgba(0,229,255,.35)');gUs.addColorStop(1,'rgba(0,229,255,0)');
-  const gEu=ctx.createLinearGradient(0,0,0,270);gEu.addColorStop(0,'rgba(255,109,0,.3)');gEu.addColorStop(1,'rgba(255,109,0,0)');
-  charts.rTrend=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[
-    {label:'美線（采丁美）',data:us,borderColor:'#00e5ff',backgroundColor:gUs,borderWidth:2.5,pointRadius:rData.length>36?0:3,pointHoverRadius:7,tension:.3,fill:true},
-    {label:'歐洲線',data:eu,borderColor:'#ff6d00',backgroundColor:gEu,borderWidth:2.5,pointRadius:rData.length>36?0:3,pointHoverRadius:7,tension:.3,fill:true}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'top'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},maxTicksLimit:20,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)',dash:[4,4]}}},interaction:{mode:'index',intersect:false}}});
-}
-
-// ── Route Bar (stacked) ──
+/* ── Route Bar ── */
 function updateRouteBar(rData){
-  const yt={};
-  rData.forEach(r=>{if(!yt[r.year])yt[r.year]={us:0,eu:0};yt[r.year].us+=r.us_line_mt||0;yt[r.year].eu+=r.eu_line_mt||0;});
+  const yt={};rData.forEach(r=>{if(!yt[r.year])yt[r.year]={us:0,eu:0};yt[r.year].us+=r.us_line_mt||0;yt[r.year].eu+=r.eu_line_mt||0;});
   const yrs=Object.keys(yt).sort(),us=yrs.map(y=>yt[y].us),eu=yrs.map(y=>yt[y].eu);
   if(charts.rBar){charts.rBar.data.labels=yrs;charts.rBar.data.datasets[0].data=us;charts.rBar.data.datasets[1].data=eu;charts.rBar.update('none');return;}
   const ctx=document.getElementById('routeBarChart').getContext('2d');
   charts.rBar=new Chart(ctx,{type:'bar',data:{labels:yrs,datasets:[
-    {label:'美線（采丁美）',data:us,backgroundColor:'rgba(0,229,255,.4)',borderColor:'#00e5ff',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'route'},
-    {label:'歐洲線',data:eu,backgroundColor:'rgba(255,109,0,.4)',borderColor:'#ff6d00',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'route'}
+    {label:'美線（采丁美）',data:us,backgroundColor:'rgba(0,229,255,.4)',borderColor:'#00e5ff',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'},
+    {label:'歐洲線',data:eu,backgroundColor:'rgba(255,109,0,.4)',borderColor:'#ff6d00',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'top'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:13}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{stacked:true,ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}}}});
 }
 
-// ── Route Donut ──
+/* ── Route Donut ── */
 function updateRouteDonut(rData){
-  const totUs=rData.reduce((s,r)=>s+(r.us_line_mt||0),0);
-  const totEu=rData.reduce((s,r)=>s+(r.eu_line_mt||0),0);
-  if(charts.rDonut){charts.rDonut.data.datasets[0].data=[totUs,totEu];charts.rDonut.update('none');return;}
+  const tU=rData.reduce((s,r)=>s+(r.us_line_mt||0),0),tE=rData.reduce((s,r)=>s+(r.eu_line_mt||0),0);
+  if(charts.rD){charts.rD.data.datasets[0].data=[tU,tE];charts.rD.update('none');return;}
   const ctx=document.getElementById('routeDonutChart').getContext('2d');
-  charts.rDonut=new Chart(ctx,{type:'doughnut',data:{labels:['美線（采丁美）','歐洲線'],datasets:[{data:[totUs,totEu],backgroundColor:['rgba(0,229,255,.45)','rgba(255,109,0,.45)'],borderColor:['#00e5ff','#ff6d00'],borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'bottom'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return`${c.label}: ${fmt(c.parsed)} 噸 (${(c.parsed/t*100).toFixed(1)}%)`;}}},datalabels:{display:false}}}});
+  charts.rD=new Chart(ctx,{type:'doughnut',data:{labels:['美線（采丁美）','歐洲線'],datasets:[{data:[tU,tE],backgroundColor:['rgba(0,229,255,.45)','rgba(255,109,0,.45)'],borderColor:['#00e5ff','#ff6d00'],borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'bottom'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return`${c.label}: ${fmt(c.parsed)} 噸 (${(c.parsed/t*100).toFixed(1)}%)`;}}}}}});
 }
 
-// ── Table ──
+/* ── Table ── */
 function updateTable(data){
   const years=[...new Set(data.map(r=>r.year))].sort();
   const lk={};data.forEach(r=>{lk[`${r.year}-${r.month}`]=r.quantity_mt;});
@@ -541,62 +635,78 @@ function updateTable(data){
     }).join('')}<td style="color:#8faabe">${mAvg!=null?fmt(mAvg):'—'}</td></tr>`;
   }
   const gv=Object.values(yt).filter(v=>v>0);
-  const gAvg=gv.length?gv.reduce((a,b)=>a+b,0)/gv.length:0;
-  rows+=`<tr class="total-row"><td>年合計</td>${years.map(y=>`<td>${yt[y]>0?fmt(yt[y]):'—'}</td>`).join('')}<td>${fmt(gAvg)}</td></tr>`;
+  const gA=gv.length?gv.reduce((a,b)=>a+b,0)/gv.length:0;
+  rows+=`<tr class="total-row"><td>年合計</td>${years.map(y=>`<td>${yt[y]>0?fmt(yt[y]):'—'}</td>`).join('')}<td>${fmt(gA)}</td></tr>`;
   document.getElementById('tableHead').innerHTML=`<tr><th>月份</th>${years.map(y=>`<th>${y}</th>`).join('')}<th>月均值</th></tr>`;
   document.getElementById('tableBody').innerHTML=rows;
 }
 
-// ── Export Excel ──
+/* ── Excel Export ── */
 function exportExcel(){
-  const years=[...new Set(allData.map(r=>r.year))].sort();
-  const lk={};allData.forEach(r=>{lk[`${r.year}-${r.month}`]=r;});
-  const header=['月份',...years.map(String),'月均值'];
-  const rows=[header];
-  const yt={};years.forEach(y=>{yt[y]={total:0,us:0,eu:0};});
-  for(let m=1;m<=12;m++){
-    const row=[`${m}月`];
-    const vals=[];
-    years.forEach(y=>{
-      const r=lk[`${y}-${m}`];
-      if(r){row.push(r.quantity_mt);vals.push(r.quantity_mt);yt[y].total+=r.quantity_mt;if(r.us_line_mt)yt[y].us+=r.us_line_mt;if(r.eu_line_mt)yt[y].eu+=r.eu_line_mt;}
-      else row.push('');
-    });
-    row.push(vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10:'');
-    rows.push(row);
-  }
-  // Totals row
-  const totRow=['年合計'];
-  years.forEach(y=>{totRow.push(Math.round(yt[y].total*10)/10);});
-  totRow.push('');rows.push(totRow);
-  // US/EU rows
-  const usRow=['美線合計'];years.forEach(y=>{usRow.push(yt[y].us>0?Math.round(yt[y].us*10)/10:'');});usRow.push('');rows.push(usRow);
-  const euRow=['歐線合計'];years.forEach(y=>{euRow.push(yt[y].eu>0?Math.round(yt[y].eu*10)/10:'');});euRow.push('');rows.push(euRow);
+  if(typeof XLSX==='undefined'){alert('Excel 模組尚未載入，請稍後再試');return;}
+  try{
+    const data=getFiltered(curSI,curEI);
+    const years=[...new Set(data.map(r=>r.year))].sort();
+    const lk={};data.forEach(r=>{lk[`${r.year}-${r.month}`]=r;});
 
-  const ws=XLSX.utils.aoa_to_sheet(rows);
-  // Column widths
-  ws['!cols']=[{wch:8},...years.map(()=>({wch:10})),{wch:10}];
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,'出貨量統計',ws);
-  XLSX.writeFile(wb,'出貨量統計表.xlsx');
+    // Sheet 1: Monthly total
+    const h1=['月份',...years.map(String),'月均值'];
+    const rows1=[h1];
+    const yt={};years.forEach(y=>{yt[y]={total:0,us:0,eu:0};});
+    for(let m=1;m<=12;m++){
+      const row=[`${m}月`];const vals=[];
+      years.forEach(y=>{const r=lk[`${y}-${m}`];if(r){row.push(r.quantity_mt);vals.push(r.quantity_mt);yt[y].total+=r.quantity_mt;if(r.us_line_mt)yt[y].us+=r.us_line_mt;if(r.eu_line_mt)yt[y].eu+=r.eu_line_mt;}else row.push('');});
+      row.push(vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10:'');
+      rows1.push(row);
+    }
+    rows1.push(['年合計',...years.map(y=>Math.round(yt[y].total*10)/10),'']);
+    rows1.push(['']);
+    rows1.push(['美線合計',...years.map(y=>yt[y].us>0?Math.round(yt[y].us*10)/10:''),'']);
+    rows1.push(['歐線合計',...years.map(y=>yt[y].eu>0?Math.round(yt[y].eu*10)/10:''),'']);
+
+    const ws1=XLSX.utils.aoa_to_sheet(rows1);
+    ws1['!cols']=[{wch:8},...years.map(()=>({wch:10})),{wch:10}];
+
+    // Sheet 2: Route detail (2021+)
+    const rData=data.filter(r=>r.year>=2021&&r.us_line_mt!=null);
+    const ws2=XLSX.utils.aoa_to_sheet([
+      ['年月','合計(公噸)','美線-采丁美(公噸)','歐洲線(公噸)','美線佔比(%)','歐線佔比(%)'],
+      ...rData.map(r=>[
+        fmtYMs(r.year,r.month),
+        r.quantity_mt,
+        r.us_line_mt||'',
+        r.eu_line_mt||'',
+        r.us_line_mt?Math.round(r.us_line_mt/r.quantity_mt*1000)/10:'',
+        r.eu_line_mt?Math.round(r.eu_line_mt/r.quantity_mt*1000)/10:''
+      ])
+    ]);
+    ws2['!cols']=[{wch:12},{wch:12},{wch:16},{wch:12},{wch:12},{wch:12}];
+
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,'出貨量統計',ws1);
+    if(rData.length)XLSX.utils.book_append_sheet(wb,'美線歐線明細',ws2);
+    XLSX.writeFile(wb,'出貨量統計表.xlsx');
+  }catch(e){console.error(e);alert('匯出失敗：'+e.message);}
 }
 
-// ── Sliders & Date Input ──
+/* ── Slider & Date Input ── */
 function updateLabels(si,ei){
   const s=idxToYM(si),e=idxToYM(ei);
   document.getElementById('startLabel').textContent=fmtYM(s.year,s.month);
   document.getElementById('endLabel').textContent=fmtYM(e.year,e.month);
   document.getElementById('rangeStart').textContent=fmtYMs(s.year,s.month);
   document.getElementById('rangeEnd').textContent=fmtYMs(e.year,e.month);
-  document.getElementById('startInput').value=fmtYMs(s.year,s.month);
-  document.getElementById('endInput').value=fmtYMs(e.year,e.month);
+  // Sync text inputs only if not focused
+  const si_el=document.getElementById('startInput'),ei_el=document.getElementById('endInput');
+  if(document.activeElement!==si_el)si_el.value=fmtYMs(s.year,s.month);
+  if(document.activeElement!==ei_el)ei_el.value=fmtYMs(e.year,e.month);
 }
 function updateTrack(sl){
   const p=((+sl.value-+sl.min)/(+sl.max-+sl.min))*100;
   sl.style.background=`linear-gradient(90deg,rgba(0,229,255,.5) ${p}%,rgba(0,229,255,.12) ${p}%)`;
 }
 function parseYM(str){
-  const m=str.match(/^(\d{4})-(\d{1,2})$/);
+  const m=str.match(/^(\d{4})-(\d{2})$/);
   if(!m)return null;
   const y=+m[1],mo=+m[2];
   if(y<2017||y>2026||mo<1||mo>12)return null;
@@ -614,47 +724,54 @@ function onSliderChange(){
   clearTimeout(debounce);debounce=setTimeout(()=>updateDashboard(s,e),80);
 }
 
-function setupDateInput(inputId,sliderId,isStart){
-  const inp=document.getElementById(inputId),sl=document.getElementById(sliderId);
-  inp.addEventListener('input',()=>{
-    inp.style.borderColor='rgba(0,229,255,.3)';
-    const idx=parseYM(inp.value);
-    if(idx===null){inp.style.borderColor='rgba(255,82,82,.6)';return;}
-    inp.style.borderColor='rgba(0,229,255,.5)';
+function setupDateInput(inputId,isStart){
+  const inp=document.getElementById(inputId);
+  const otherSlId=isStart?'endSlider':'startSlider';
+  const mySlId=isStart?'startSlider':'endSlider';
+
+  // Only validate on complete 7-char entry OR key Enter
+  function tryApply(){
+    const val=inp.value.trim();
+    if(val.length!==7){inp.classList.remove('err');return;}
+    const idx=parseYM(val);
+    if(idx===null){inp.classList.add('err');return;}
+    inp.classList.remove('err');
     const ss=document.getElementById('startSlider'),es=document.getElementById('endSlider');
     let s=+ss.value,e=+es.value;
-    if(isStart){if(idx>e)return;s=idx;ss.value=idx;}
-    else{if(idx<s)return;e=idx;es.value=idx;}
+    if(isStart){if(idx>e){inp.classList.add('err');return;}s=idx;ss.value=idx;}
+    else{if(idx<s){inp.classList.add('err');return;}e=idx;es.value=idx;}
     updateTrack(ss);updateTrack(es);updateLabels(s,e);
     clearTimeout(debounce);debounce=setTimeout(()=>updateDashboard(s,e),80);
-  });
+  }
+
+  inp.addEventListener('input',tryApply);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')tryApply();});
   inp.addEventListener('blur',()=>{
-    const idx=parseYM(inp.value);
-    if(idx===null){
-      const cur=isStart?+document.getElementById('startSlider').value:+document.getElementById('endSlider').value;
-      const ym=idxToYM(cur);inp.value=fmtYMs(ym.year,ym.month);
-    }
-    inp.style.borderColor='';
+    inp.classList.remove('err');
+    const sl=document.getElementById(mySlId);
+    const ym=idxToYM(+sl.value);
+    if(!inp.value||parseYM(inp.value)===null)inp.value=fmtYMs(ym.year,ym.month);
   });
 }
 
-// ── Init ──
+/* ── Init ── */
 async function init(){
   let data=null;
   try{
     const ctrl=new AbortController(),tid=setTimeout(()=>ctrl.abort(),4000);
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/shipping_monthly?select=year,month,quantity_mt,us_line_mt,eu_line_mt&order=year.asc,month.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},signal:ctrl.signal});
+    const res=await fetch(`${SB_URL}/rest/v1/shipping_monthly?select=year,month,quantity_mt,us_line_mt,eu_line_mt&order=year.asc,month.asc`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`},signal:ctrl.signal});
     clearTimeout(tid);
     if(res.ok){const j=await res.json();if(Array.isArray(j)&&j.length>0)data=j;}
   }catch(e){}
   allData=data||EMBEDDED;
 
   const ss=document.getElementById('startSlider'),es=document.getElementById('endSlider');
-  ss.addEventListener('input',onSliderChange);es.addEventListener('input',onSliderChange);
+  ss.addEventListener('input',onSliderChange);
+  es.addEventListener('input',onSliderChange);
   updateTrack(ss);updateTrack(es);
   updateLabels(0,111);
-  setupDateInput('startInput','startSlider',true);
-  setupDateInput('endInput','endSlider',false);
+  setupDateInput('startInput',true);
+  setupDateInput('endInput',false);
   document.getElementById('exportBtn').addEventListener('click',exportExcel);
   updateDashboard(0,111);
   document.getElementById('loading').style.display='none';
