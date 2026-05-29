@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>出貨量分析 Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg:#050b18;--card:rgba(10,20,40,.88);--card2:rgba(6,15,32,.92);
@@ -670,58 +669,72 @@ function updateTable(data){
   document.getElementById('tableBody').innerHTML=rows;
 }
 
-/* ── Excel Export ── */
+/* ── Excel Export (pure JS, SpreadsheetML / no library) ── */
 function exportExcel(){
-  if(typeof XLSX==='undefined'){alert('Excel 模組尚未載入，請稍後再試');return;}
   try{
     const data=getFiltered(curSI,curEI);
     const years=[...new Set(data.map(r=>r.year))].sort();
     const lk={};data.forEach(r=>{lk[`${r.year}-${r.month}`]=r;});
 
-    // Sheet 1: Monthly total
-    const h1=['月份',...years.map(String),'月均值'];
-    const rows1=[h1];
+    function x(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    function sc(v){return`<Cell><Data ss:Type="String">${x(v)}</Data></Cell>`;}
+    function nc(v){return(v===''||v==null)?'<Cell/>':(`<Cell><Data ss:Type="Number">${+v}</Data></Cell>`);}
+    function r2(...cells){return`<Row>${cells.join('')}</Row>`;}
+    function round1(n){return Math.round(n*10)/10;}
+
+    // ── Sheet 1: Monthly summary ──
     const yt={};years.forEach(y=>{yt[y]={total:0,us:0,eu:0};});
+    let s1='';
+    s1+=r2(sc('月份'),...years.map(y=>sc(String(y))),sc('月均值'));
     for(let m=1;m<=12;m++){
-      const row=[`${m}月`];const vals=[];
-      years.forEach(y=>{const r=lk[`${y}-${m}`];if(r){row.push(r.quantity_mt);vals.push(r.quantity_mt);yt[y].total+=r.quantity_mt;if(r.us_line_mt)yt[y].us+=r.us_line_mt;if(r.eu_line_mt)yt[y].eu+=r.eu_line_mt;}else row.push('');});
-      row.push(vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10:'');
-      rows1.push(row);
+      const vals=[];const cells=[sc(`${m}月`)];
+      years.forEach(y=>{
+        const rec=lk[`${y}-${m}`];
+        if(rec){cells.push(nc(rec.quantity_mt));vals.push(rec.quantity_mt);yt[y].total+=rec.quantity_mt;if(rec.us_line_mt)yt[y].us+=rec.us_line_mt;if(rec.eu_line_mt)yt[y].eu+=rec.eu_line_mt;}
+        else cells.push('<Cell/>');
+      });
+      cells.push(vals.length?nc(round1(vals.reduce((a,b)=>a+b,0)/vals.length)):'<Cell/>');
+      s1+=r2(...cells);
     }
-    rows1.push(['年合計',...years.map(y=>Math.round(yt[y].total*10)/10),'']);
-    rows1.push(['']);
-    rows1.push(['美線合計',...years.map(y=>yt[y].us>0?Math.round(yt[y].us*10)/10:''),'']);
-    rows1.push(['歐線合計',...years.map(y=>yt[y].eu>0?Math.round(yt[y].eu*10)/10:''),'']);
+    s1+=r2(sc('年合計'),...years.map(y=>nc(round1(yt[y].total))),'<Cell/>');
+    s1+=r2(sc(''));
+    s1+=r2(sc('美線合計（采丁美）'),...years.map(y=>yt[y].us>0?nc(round1(yt[y].us)):'<Cell/>'),'<Cell/>');
+    s1+=r2(sc('歐線合計'),...years.map(y=>yt[y].eu>0?nc(round1(yt[y].eu)):'<Cell/>'),'<Cell/>');
 
-    const ws1=XLSX.utils.aoa_to_sheet(rows1);
-    ws1['!cols']=[{wch:8},...years.map(()=>({wch:10})),{wch:10}];
-
-    // Sheet 2: Route detail (2021+)
+    // ── Sheet 2: Route detail ──
     const rData=data.filter(r=>r.year>=2021&&r.us_line_mt!=null);
-    const ws2=XLSX.utils.aoa_to_sheet([
-      ['年月','合計(公噸)','美線-采丁美(公噸)','歐洲線(公噸)','美線佔比(%)','歐線佔比(%)'],
-      ...rData.map(r=>[
-        fmtYMs(r.year,r.month),
-        r.quantity_mt,
-        r.us_line_mt||'',
-        r.eu_line_mt||'',
-        r.us_line_mt?Math.round(r.us_line_mt/r.quantity_mt*1000)/10:'',
-        r.eu_line_mt?Math.round(r.eu_line_mt/r.quantity_mt*1000)/10:''
-      ])
-    ]);
-    ws2['!cols']=[{wch:12},{wch:12},{wch:16},{wch:12},{wch:12},{wch:12}];
+    let s2xml='';
+    if(rData.length){
+      let s2=r2(sc('年月'),sc('合計(公噸)'),sc('美線-采丁美(公噸)'),sc('歐洲線(公噸)'),sc('美線佔比(%)'),sc('歐線佔比(%)'));
+      rData.forEach(rec=>{
+        s2+=r2(
+          sc(fmtYMs(rec.year,rec.month)),
+          nc(rec.quantity_mt),
+          nc(rec.us_line_mt??''),
+          nc(rec.eu_line_mt??''),
+          rec.us_line_mt?nc(round1(rec.us_line_mt/rec.quantity_mt*100)):'<Cell/>',
+          rec.eu_line_mt?nc(round1(rec.eu_line_mt/rec.quantity_mt*100)):'<Cell/>'
+        );
+      });
+      s2xml=`<Worksheet ss:Name="美線歐線明細"><Table>${s2}</Table></Worksheet>`;
+    }
 
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,'出貨量統計',ws1);
-    if(rData.length)XLSX.utils.book_append_sheet(wb,'美線歐線明細',ws2);
-    // Use Blob download instead of writeFile to avoid indexOf compatibility issue
-    const wbArr=XLSX.write(wb,{bookType:'xlsx',type:'array'});
-    const blob=new Blob([wbArr],{type:'application/octet-stream'});
+    const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+<Worksheet ss:Name="出貨量統計"><Table>${s1}</Table></Worksheet>
+${s2xml}
+</Workbook>`;
+
+    const blob=new Blob(['﻿'+xml],{type:'application/vnd.ms-excel;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url;a.download='出貨量統計表.xlsx';
+    a.href=url;a.download='出貨量統計表.xls';
     document.body.appendChild(a);a.click();
-    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
   }catch(e){console.error(e);alert('匯出失敗：'+e.message);}
 }
 
