@@ -161,6 +161,22 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 ::-webkit-scrollbar-thumb{background:rgba(0,229,255,.25);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(0,229,255,.45)}
 
+/* Cell route tooltip */
+#cellTooltip{
+  position:fixed;display:none;z-index:9000;
+  background:rgba(4,10,24,.97);
+  border:1px solid rgba(0,229,255,.4);
+  border-radius:10px;padding:10px 14px;
+  pointer-events:none;min-width:160px;
+  box-shadow:0 4px 24px rgba(0,0,0,.6),0 0 12px rgba(0,229,255,.15);
+}
+#cellTooltip .ct-title{font-size:12px;color:var(--cyan);letter-spacing:1px;margin-bottom:8px;font-weight:600}
+#cellTooltip .ct-row{display:flex;justify-content:space-between;gap:16px;font-size:13px;padding:2px 0}
+#cellTooltip .ct-label{color:var(--txt2)}
+#cellTooltip .ct-val{font-weight:700}
+#cellTooltip .ct-row.us .ct-val{color:var(--cyan)}
+#cellTooltip .ct-row.eu .ct-val{color:var(--orange)}
+
 #routeSection{display:none;margin-bottom:18px}
 @media(max-width:1200px){.kpi-grid,.kpi-grid-3{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}.chart-card.full-width{grid-column:auto}}
 @media(max-width:600px){.kpi-grid,.kpi-grid-3{grid-template-columns:1fr}.slider-row{flex-direction:column;gap:20px}}
@@ -169,6 +185,13 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 <body>
 
 <div id="loading"><div class="loader-ring"></div><div class="loader-text">Loading Data...</div></div>
+
+<!-- Cell route tooltip -->
+<div id="cellTooltip">
+  <div class="ct-title" id="ctTitle"></div>
+  <div class="ct-row us"><span class="ct-label">🚢 美線（采丁美）</span><span class="ct-val" id="ctUs"></span></div>
+  <div class="ct-row eu"><span class="ct-label">🌍 歐洲線</span><span class="ct-val" id="ctEu"></span></div>
+</div>
 
 <div class="container" id="app" style="opacity:0;transition:opacity .4s">
 
@@ -619,19 +642,25 @@ function updateRouteDonut(rData){
 /* ── Table ── */
 function updateTable(data){
   const years=[...new Set(data.map(r=>r.year))].sort();
-  const lk={};data.forEach(r=>{lk[`${r.year}-${r.month}`]=r.quantity_mt;});
+  // Store full record in lookup (needed for US/EU hover)
+  const lk={};data.forEach(r=>{lk[`${r.year}-${r.month}`]=r;});
   const yt={};years.forEach(y=>{yt[y]=0;});
   let rows='';
   for(let m=1;m<=12;m++){
-    const mv=years.map(y=>lk[`${y}-${m}`]);
+    const recs=years.map(y=>lk[`${y}-${m}`]||null);
+    const mv=recs.map(r=>r?r.quantity_mt:null);
     const def=mv.filter(v=>v!=null);
     const mAvg=def.length?def.reduce((a,b)=>a+b,0)/def.length:null;
     years.forEach((y,i)=>{if(mv[i]!=null)yt[y]+=mv[i];});
     const mx=def.length?Math.max(...def):1;
     rows+=`<tr><td>${m}月</td>${years.map((y,i)=>{
-      const v=mv[i];if(v==null)return'<td style="color:#444">—</td>';
-      const p=(v/mx*100).toFixed(0);
-      return`<td style="position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:${p}%;background:rgba(0,229,255,.06);border-radius:2px"></div><span style="position:relative">${fmt(v)}</span></td>`;
+      const r=recs[i];if(!r)return'<td style="color:#444">—</td>';
+      const v=r.quantity_mt,p=(v/mx*100).toFixed(0);
+      const usAttr=r.us_line_mt!=null?` data-us="${r.us_line_mt}"`:'';
+      const euAttr=r.eu_line_mt!=null?` data-eu="${r.eu_line_mt}"`:'';
+      const hasRoute=r.us_line_mt!=null||r.eu_line_mt!=null;
+      const cursor=hasRoute?' style="position:relative;cursor:pointer"':' style="position:relative"';
+      return`<td${cursor}${usAttr}${euAttr}><div style="position:absolute;left:0;top:0;bottom:0;width:${p}%;background:rgba(0,229,255,.06);border-radius:2px"></div><span style="position:relative">${fmt(v)}</span></td>`;
     }).join('')}<td style="color:#8faabe">${mAvg!=null?fmt(mAvg):'—'}</td></tr>`;
   }
   const gv=Object.values(yt).filter(v=>v>0);
@@ -685,7 +714,14 @@ function exportExcel(){
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,'出貨量統計',ws1);
     if(rData.length)XLSX.utils.book_append_sheet(wb,'美線歐線明細',ws2);
-    XLSX.writeFile(wb,'出貨量統計表.xlsx');
+    // Use Blob download instead of writeFile to avoid indexOf compatibility issue
+    const wbArr=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const blob=new Blob([wbArr],{type:'application/octet-stream'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='出貨量統計表.xlsx';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);
   }catch(e){console.error(e);alert('匯出失敗：'+e.message);}
 }
 
@@ -773,6 +809,33 @@ async function init(){
   setupDateInput('startInput',true);
   setupDateInput('endInput',false);
   document.getElementById('exportBtn').addEventListener('click',exportExcel);
+
+  // Table cell route tooltip
+  const ctt=document.getElementById('cellTooltip');
+  document.querySelector('.table-scroll').addEventListener('mouseover',e=>{
+    const td=e.target.closest('td[data-us],td[data-eu]');
+    if(!td){ctt.style.display='none';return;}
+    const us=td.getAttribute('data-us'),eu=td.getAttribute('data-eu');
+    if(!us&&!eu){ctt.style.display='none';return;}
+    // Find month label from the row
+    const row=td.closest('tr');
+    const monthTd=row?row.querySelector('td:first-child'):null;
+    const monthLabel=monthTd?monthTd.textContent:'';
+    // Find year from column header
+    const colIdx=Array.from(td.parentNode.children).indexOf(td);
+    const thEls=document.querySelectorAll('#tableHead th');
+    const yearLabel=thEls[colIdx]?thEls[colIdx].textContent:'';
+    document.getElementById('ctTitle').textContent=`${yearLabel} ${monthLabel}`;
+    document.getElementById('ctUs').textContent=us?fmt(+us)+' 公噸':'—';
+    document.getElementById('ctEu').textContent=eu?fmt(+eu)+' 公噸':'—';
+    const rect=td.getBoundingClientRect();
+    let x=rect.right+10,y=rect.top;
+    if(x+170>window.innerWidth)x=rect.left-180;
+    if(y+90>window.innerHeight)y=window.innerHeight-90;
+    ctt.style.left=x+'px';ctt.style.top=y+'px';ctt.style.display='block';
+  });
+  document.querySelector('.table-scroll').addEventListener('mouseleave',()=>{ctt.style.display='none';});
+
   updateDashboard(0,111);
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.opacity='1';
