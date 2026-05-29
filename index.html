@@ -5,795 +5,657 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>出貨量分析 Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-  :root {
-    --bg-primary: #050b18;
-    --bg-card: rgba(10,20,40,0.85);
-    --bg-card2: rgba(6,15,32,0.9);
-    --accent-cyan: #00e5ff;
-    --accent-blue: #2979ff;
-    --accent-purple: #7c4dff;
-    --accent-green: #00e676;
-    --accent-orange: #ff6d00;
-    --accent-pink: #f50057;
-    --text-primary: #e8f0fe;
-    --text-secondary: #8faabe;
-    --border-glow: rgba(0,229,255,0.2);
-    --border-glow2: rgba(41,121,255,0.25);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI','PingFang TC','Microsoft JhengHei',sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content:''; position:fixed; inset:0;
-    background: linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),
-                linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);
-    background-size:48px 48px; pointer-events:none; z-index:0;
-  }
-  body::after {
-    content:''; position:fixed; inset:0;
-    background: radial-gradient(ellipse at 20% 50%,rgba(41,121,255,0.07) 0%,transparent 60%),
-                radial-gradient(ellipse at 80% 20%,rgba(124,77,255,0.07) 0%,transparent 60%);
-    pointer-events:none; z-index:0;
-  }
-  .container { position:relative; z-index:1; max-width:1600px; margin:0 auto; padding:0 24px 40px; }
+:root{
+  --bg:#050b18; --card:rgba(10,20,40,.88); --card2:rgba(6,15,32,.92);
+  --cyan:#00e5ff; --blue:#2979ff; --purple:#7c4dff; --green:#00e676;
+  --orange:#ff6d00; --pink:#f50057; --us:#00e5ff; --eu:#ff6d00;
+  --txt:#e8f0fe; --txt2:#8faabe;
+  --bord:rgba(0,229,255,.2); --bord2:rgba(41,121,255,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;font-size:15px}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(41,121,255,.07) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(124,77,255,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:0 24px 48px}
 
-  /* Header */
-  header {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:28px 0 24px; border-bottom:1px solid var(--border-glow); margin-bottom:28px;
-  }
-  .header-left { display:flex; align-items:center; gap:16px; }
-  .logo-box {
-    width:44px; height:44px; background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));
-    border-radius:10px; display:flex; align-items:center; justify-content:center;
-    font-size:20px; font-weight:900; color:#fff; box-shadow:0 0 20px rgba(0,229,255,0.4);
-  }
-  .header-title h1 { font-size:22px; font-weight:700; letter-spacing:1px; }
-  .header-title p { font-size:12px; color:var(--text-secondary); margin-top:2px; letter-spacing:2px; text-transform:uppercase; }
-  .header-badge {
-    background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3);
-    border-radius:20px; padding:6px 16px; font-size:12px; color:var(--accent-cyan); letter-spacing:1px;
-  }
+/* Header */
+header{display:flex;align-items:center;justify-content:space-between;padding:28px 0 24px;border-bottom:1px solid var(--bord);margin-bottom:28px}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-box{width:48px;height:48px;background:linear-gradient(135deg,var(--blue),var(--cyan));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;box-shadow:0 0 24px rgba(0,229,255,.45)}
+.header-title h1{font-size:24px;font-weight:700;letter-spacing:1px}
+.header-title p{font-size:13px;color:var(--txt2);margin-top:3px;letter-spacing:2px;text-transform:uppercase}
+.header-badge{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:20px;padding:7px 18px;font-size:13px;color:var(--cyan);letter-spacing:1px}
 
-  /* Slider Panel */
-  .slider-panel {
-    background:var(--bg-card); border:1px solid var(--border-glow); border-radius:16px;
-    padding:24px 32px; margin-bottom:28px; backdrop-filter:blur(12px);
-    position:relative; overflow:hidden;
-  }
-  .slider-panel::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:2px;
-    background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan),var(--accent-purple));
-  }
-  .slider-panel-title { font-size:11px; letter-spacing:3px; color:var(--accent-cyan); text-transform:uppercase; margin-bottom:20px; font-weight:600; }
-  .slider-row { display:flex; align-items:center; gap:32px; flex-wrap:wrap; }
-  .slider-group { flex:1; min-width:280px; }
-  .slider-label { font-size:12px; color:var(--text-secondary); margin-bottom:8px; letter-spacing:1px; }
-  .slider-value { font-size:18px; font-weight:700; color:var(--accent-cyan); text-shadow:0 0 12px rgba(0,229,255,0.5); }
-  input[type=range] {
-    -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:3px;
-    background:rgba(0,229,255,0.15); outline:none; cursor:pointer; margin-top:10px;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%;
-    background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));
-    box-shadow:0 0 12px rgba(0,229,255,0.7); cursor:pointer;
-    border:2px solid rgba(255,255,255,0.3); transition:transform .15s,box-shadow .15s;
-  }
-  input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); box-shadow:0 0 20px rgba(0,229,255,0.9); }
-  .slider-ticks { display:flex; justify-content:space-between; margin-top:6px; }
-  .slider-ticks span { font-size:10px; color:var(--text-secondary); }
-  .range-display {
-    display:flex; align-items:center; gap:12px; padding:14px 24px;
-    background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.15); border-radius:10px; white-space:nowrap;
-  }
-  .range-display .sep { color:var(--text-secondary); }
-  .range-display .val { font-size:16px; font-weight:700; color:var(--accent-cyan); }
-  .range-display .lbl { font-size:11px; color:var(--text-secondary); display:block; }
+/* Slider Panel */
+.slider-panel{background:var(--card);border:1px solid var(--bord);border-radius:16px;padding:24px 32px;margin-bottom:28px;backdrop-filter:blur(12px);position:relative;overflow:hidden}
+.slider-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--purple))}
+.slider-panel-title{font-size:12px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:20px;font-weight:600}
+.slider-row{display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.slider-group{flex:1;min-width:280px}
+.slider-label{font-size:13px;color:var(--txt2);margin-bottom:6px;letter-spacing:1px}
+.slider-value{font-size:20px;font-weight:700;color:var(--cyan);text-shadow:0 0 12px rgba(0,229,255,.5)}
+.date-input-row{display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:6px}
+.date-input{
+  background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.3);border-radius:8px;
+  color:var(--cyan);font-size:14px;font-weight:600;padding:6px 12px;width:110px;
+  outline:none;letter-spacing:1px;font-family:inherit;
+  transition:border-color .2s,box-shadow .2s
+}
+.date-input:focus{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,229,255,.3)}
+.date-input::placeholder{color:rgba(0,229,255,.3);font-weight:400}
+.date-input-hint{font-size:11px;color:rgba(0,229,255,.4)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:rgba(0,229,255,.15);outline:none;cursor:pointer;display:block}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--blue));box-shadow:0 0 14px rgba(0,229,255,.7);cursor:pointer;border:2px solid rgba(255,255,255,.3);transition:transform .15s,box-shadow .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 0 22px rgba(0,229,255,.9)}
+.slider-ticks{display:flex;justify-content:space-between;margin-top:6px}
+.slider-ticks span{font-size:11px;color:var(--txt2)}
+.range-display{display:flex;align-items:center;gap:14px;padding:16px 26px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.15);border-radius:12px;white-space:nowrap;align-self:center}
+.range-display .sep{color:var(--txt2);font-size:20px}
+.range-display .val{font-size:18px;font-weight:700;color:var(--cyan)}
+.range-display .lbl{font-size:12px;color:var(--txt2);display:block;margin-bottom:2px}
 
-  /* KPI Grids */
-  .kpi-grid {
-    display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:18px;
-  }
-  .kpi-grid-3 {
-    display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:28px;
-  }
-  .kpi-card {
-    background:var(--bg-card); border:1px solid var(--border-glow2); border-radius:14px;
-    padding:22px 24px; backdrop-filter:blur(12px); position:relative; overflow:hidden;
-    transition:transform .2s,box-shadow .2s;
-  }
-  .kpi-card:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(0,229,255,0.15); }
-  .kpi-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; }
-  .kpi-card.max::after { background:linear-gradient(90deg,var(--accent-cyan),var(--accent-blue)); }
-  .kpi-card.min::after { background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink)); }
-  .kpi-card.avg::after { background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple)); }
-  .kpi-card.top5::after { background:linear-gradient(90deg,var(--accent-green),var(--accent-cyan)); }
-  .kpi-card.yoy::after { background:linear-gradient(90deg,var(--accent-orange),#ffab40); }
-  .kpi-card.mom::after { background:linear-gradient(90deg,#ff6090,var(--accent-purple)); }
-  .kpi-card.peak::after { background:linear-gradient(90deg,var(--accent-green),#69f0ae); }
-  .kpi-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:14px; }
-  .kpi-card.max .kpi-icon { background:rgba(0,229,255,0.12); }
-  .kpi-card.min .kpi-icon { background:rgba(245,0,87,0.12); }
-  .kpi-card.avg .kpi-icon { background:rgba(41,121,255,0.12); }
-  .kpi-card.top5 .kpi-icon { background:rgba(0,230,118,0.12); }
-  .kpi-card.yoy .kpi-icon { background:rgba(255,109,0,0.12); }
-  .kpi-card.mom .kpi-icon { background:rgba(245,0,87,0.1); }
-  .kpi-card.peak .kpi-icon { background:rgba(0,230,118,0.12); }
-  .kpi-label { font-size:11px; color:var(--text-secondary); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
-  .kpi-value { font-size:28px; font-weight:800; letter-spacing:-.5px; line-height:1; }
-  .kpi-card.max .kpi-value { color:var(--accent-cyan); text-shadow:0 0 20px rgba(0,229,255,0.4); }
-  .kpi-card.min .kpi-value { color:#ff6b9d; text-shadow:0 0 20px rgba(245,0,87,0.3); }
-  .kpi-card.avg .kpi-value { color:var(--accent-blue); text-shadow:0 0 20px rgba(41,121,255,0.4); }
-  .kpi-card.top5 .kpi-value { color:var(--accent-green); }
-  .kpi-unit { font-size:13px; color:var(--text-secondary); margin-left:4px; font-weight:400; }
-  .kpi-sub { font-size:12px; color:var(--text-secondary); margin-top:8px; }
-  .kpi-sub span { color:var(--text-primary); font-weight:600; }
+/* Section label */
+.section-label{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(0,229,255,.5);margin-bottom:14px;margin-top:4px;padding-left:2px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,229,255,.2),transparent)}
 
-  /* YoY / MoM KPI */
-  .yoy-value { font-size:30px; font-weight:800; letter-spacing:-.5px; }
-  .yoy-value.up { color:#00e676; text-shadow:0 0 20px rgba(0,230,118,0.4); }
-  .yoy-value.down { color:#ff5252; text-shadow:0 0 20px rgba(255,82,82,0.4); }
-  .yoy-value.flat { color:var(--text-secondary); }
-  .yoy-arrow { font-size:18px; margin-right:4px; }
-  .yoy-detail { font-size:11px; color:var(--text-secondary); margin-top:8px; line-height:1.6; }
-  .yoy-detail strong { color:var(--text-primary); }
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:18px}
+.kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
+.kpi-card{background:var(--card);border:1px solid var(--bord2);border-radius:14px;padding:22px 24px;backdrop-filter:blur(12px);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,229,255,.18)}
+.kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.kpi-card.max::after{background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.kpi-card.min::after{background:linear-gradient(90deg,var(--purple),var(--pink))}
+.kpi-card.avg::after{background:linear-gradient(90deg,var(--blue),var(--purple))}
+.kpi-card.top5::after{background:linear-gradient(90deg,var(--green),var(--cyan))}
+.kpi-card.yoy::after{background:linear-gradient(90deg,var(--orange),#ffab40)}
+.kpi-card.mom::after{background:linear-gradient(90deg,#ff6090,var(--purple))}
+.kpi-card.peak::after{background:linear-gradient(90deg,var(--green),#69f0ae)}
+.kpi-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:14px}
+.kpi-card.max .kpi-icon{background:rgba(0,229,255,.12)}
+.kpi-card.min .kpi-icon{background:rgba(245,0,87,.12)}
+.kpi-card.avg .kpi-icon{background:rgba(41,121,255,.12)}
+.kpi-card.top5 .kpi-icon{background:rgba(0,230,118,.12)}
+.kpi-card.yoy .kpi-icon{background:rgba(255,109,0,.12)}
+.kpi-card.mom .kpi-icon{background:rgba(245,0,87,.1)}
+.kpi-card.peak .kpi-icon{background:rgba(0,230,118,.12)}
+.kpi-label{font-size:12px;color:var(--txt2);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
+.kpi-value{font-size:32px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.kpi-card.max .kpi-value{color:var(--cyan);text-shadow:0 0 22px rgba(0,229,255,.4)}
+.kpi-card.min .kpi-value{color:#ff6b9d;text-shadow:0 0 22px rgba(245,0,87,.3)}
+.kpi-card.avg .kpi-value{color:var(--blue);text-shadow:0 0 22px rgba(41,121,255,.4)}
+.kpi-card.top5 .kpi-value{color:var(--green)}
+.kpi-unit{font-size:14px;color:var(--txt2);margin-left:4px;font-weight:400}
+.kpi-sub{font-size:13px;color:var(--txt2);margin-top:9px}
+.kpi-sub span{color:var(--txt);font-weight:600}
+.yoy-value{font-size:32px;font-weight:800;letter-spacing:-.5px}
+.yoy-value.up{color:#00e676;text-shadow:0 0 20px rgba(0,230,118,.4)}
+.yoy-value.down{color:#ff5252;text-shadow:0 0 20px rgba(255,82,82,.4)}
+.yoy-value.flat{color:var(--txt2)}
+.yoy-arrow{font-size:20px;margin-right:4px}
+.yoy-detail{font-size:12px;color:var(--txt2);margin-top:9px;line-height:1.7}
+.yoy-detail strong{color:var(--txt)}
+.top5-list{margin-top:10px}
+.top5-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.top5-item:last-child{border-bottom:none}
+.top5-rank{width:24px;height:24px;border-radius:6px;background:rgba(0,230,118,.15);color:var(--green);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.top5-rank.r1{background:rgba(0,229,255,.2);color:var(--cyan)}
+.top5-rank.r2{background:rgba(41,121,255,.2);color:var(--blue)}
+.top5-rank.r3{background:rgba(124,77,255,.2);color:var(--purple)}
+.top5-date{font-size:13px;color:var(--txt2);flex:1;margin:0 8px}
+.top5-val{font-size:13px;font-weight:700;color:var(--txt)}
 
-  /* Top5 list */
-  .top5-list { margin-top:10px; }
-  .top5-item { display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-  .top5-item:last-child { border-bottom:none; }
-  .top5-rank { width:22px; height:22px; border-radius:6px; background:rgba(0,230,118,0.15); color:var(--accent-green); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .top5-rank.r1 { background:rgba(0,229,255,0.2); color:var(--accent-cyan); }
-  .top5-rank.r2 { background:rgba(41,121,255,0.2); color:var(--accent-blue); }
-  .top5-rank.r3 { background:rgba(124,77,255,0.2); color:var(--accent-purple); }
-  .top5-date { font-size:12px; color:var(--text-secondary); flex:1; margin:0 8px; }
-  .top5-val { font-size:12px; font-weight:700; color:var(--text-primary); }
+/* Charts */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.chart-card{background:var(--card2);border:1px solid var(--bord2);border-radius:14px;padding:24px;backdrop-filter:blur(12px);position:relative;overflow:hidden}
+.chart-card.full-width{grid-column:1/-1}
+.chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent)}
+.chart-title{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:4px;font-weight:600}
+.chart-subtitle{font-size:12px;color:var(--txt2);margin-bottom:18px}
+.chart-wrap{position:relative}
 
-  /* Charts Grid */
-  .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
-  .chart-card {
-    background:var(--bg-card2); border:1px solid var(--border-glow2); border-radius:14px;
-    padding:24px; backdrop-filter:blur(12px); position:relative; overflow:hidden;
-  }
-  .chart-card.full-width { grid-column:1/-1; }
-  .chart-card::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:linear-gradient(90deg,transparent,var(--accent-blue),transparent);
-  }
-  .chart-title { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--accent-cyan); margin-bottom:4px; font-weight:600; }
-  .chart-subtitle { font-size:11px; color:var(--text-secondary); margin-bottom:18px; }
-  .chart-wrap { position:relative; }
+/* Route section (shows when 2021+ in range) */
+#routeSection{display:none;margin-bottom:18px}
+.route-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 12px;border-radius:12px;font-weight:600;letter-spacing:1px}
+.route-badge.us{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:var(--cyan)}
+.route-badge.eu{background:rgba(255,109,0,.1);border:1px solid rgba(255,109,0,.3);color:var(--orange)}
+.route-badges{display:flex;gap:8px;margin-bottom:16px}
 
-  /* Heatmap */
-  .heatmap-wrap { overflow-x:auto; }
-  .heatmap-table { border-collapse:separate; border-spacing:3px; width:100%; }
-  .heatmap-table th {
-    font-size:10px; color:var(--text-secondary); font-weight:600; letter-spacing:1px;
-    padding:4px 6px; text-align:center; white-space:nowrap;
-  }
-  .heatmap-table th.row-label { text-align:right; padding-right:10px; color:var(--accent-cyan); }
-  .heatmap-cell {
-    border-radius:5px; padding:6px 4px; text-align:center;
-    font-size:11px; font-weight:600; cursor:default;
-    transition:transform .15s, box-shadow .15s;
-    min-width:68px;
-  }
-  .heatmap-cell:hover { transform:scale(1.08); box-shadow:0 0 10px rgba(0,229,255,0.5); z-index:2; position:relative; }
-  .heatmap-cell.empty { background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.15); }
-  .heatmap-cell.out-of-range { opacity:0.28; }
-  .heatmap-legend {
-    display:flex; align-items:center; gap:8px; margin-top:14px; justify-content:flex-end;
-  }
-  .heatmap-legend-bar {
-    width:160px; height:8px; border-radius:4px;
-    background:linear-gradient(90deg, #0d2b6e, #1565c0, #00acc1, #00e5ff);
-  }
-  .heatmap-legend span { font-size:10px; color:var(--text-secondary); }
+/* Heatmap */
+.heatmap-wrap{overflow-x:auto}
+.heatmap-table{border-collapse:separate;border-spacing:3px;width:100%}
+.heatmap-table th{font-size:12px;color:var(--txt2);font-weight:600;letter-spacing:1px;padding:5px 6px;text-align:center;white-space:nowrap}
+.heatmap-table th.row-label{text-align:right;padding-right:10px;color:var(--cyan);font-size:13px}
+.heatmap-cell{border-radius:6px;padding:7px 4px;text-align:center;font-size:12px;font-weight:600;cursor:default;transition:transform .15s,box-shadow .15s;min-width:68px}
+.heatmap-cell:hover{transform:scale(1.08);box-shadow:0 0 12px rgba(0,229,255,.5);z-index:2;position:relative}
+.heatmap-cell.empty{background:rgba(255,255,255,.03);color:rgba(255,255,255,.15)}
+.heatmap-cell.out-of-range{opacity:.28}
+.heatmap-legend{display:flex;align-items:center;gap:8px;margin-top:14px;justify-content:flex-end}
+.heatmap-legend-bar{width:180px;height:8px;border-radius:4px;background:linear-gradient(90deg,#0d2b6e,#1565c0,#00acc1,#00e5ff)}
+.heatmap-legend span{font-size:12px;color:var(--txt2)}
 
-  /* Data Table */
-  .table-scroll { overflow-x:auto; max-height:360px; overflow-y:auto; }
-  .data-table { width:100%; border-collapse:collapse; font-size:12px; }
-  .data-table th {
-    background:rgba(0,229,255,0.08); color:var(--accent-cyan);
-    font-size:10px; letter-spacing:2px; text-transform:uppercase;
-    padding:10px 12px; text-align:right; white-space:nowrap;
-    position:sticky; top:0; z-index:2; border-bottom:1px solid rgba(0,229,255,0.2);
-  }
-  .data-table th:first-child { text-align:left; }
-  .data-table td { padding:9px 12px; text-align:right; color:var(--text-primary); border-bottom:1px solid rgba(255,255,255,0.04); transition:background .15s; }
-  .data-table td:first-child { text-align:left; color:var(--text-secondary); font-weight:600; }
-  .data-table tr:hover td { background:rgba(0,229,255,0.04); }
-  .data-table .total-row td { color:var(--accent-cyan); font-weight:700; background:rgba(0,229,255,0.06); }
+/* Data Table */
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.export-btn{display:flex;align-items:center;gap:8px;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.35);color:var(--green);font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;cursor:pointer;transition:background .2s,box-shadow .2s;letter-spacing:.5px}
+.export-btn:hover{background:rgba(0,230,118,.2);box-shadow:0 0 14px rgba(0,230,118,.3)}
+.table-scroll{overflow-x:auto;max-height:380px;overflow-y:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{background:rgba(0,229,255,.08);color:var(--cyan);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:11px 13px;text-align:right;white-space:nowrap;position:sticky;top:0;z-index:2;border-bottom:1px solid rgba(0,229,255,.2)}
+.data-table th:first-child{text-align:left}
+.data-table td{padding:10px 13px;text-align:right;color:var(--txt);border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+.data-table td:first-child{text-align:left;color:var(--txt2);font-weight:600;font-size:14px}
+.data-table tr:hover td{background:rgba(0,229,255,.04)}
+.data-table .total-row td{color:var(--cyan);font-weight:700;background:rgba(0,229,255,.06)}
 
-  /* Loading */
-  #loading { position:fixed; inset:0; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; z-index:9999; flex-direction:column; gap:20px; }
-  .loader-ring { width:56px; height:56px; border-radius:50%; border:3px solid rgba(0,229,255,0.15); border-top-color:var(--accent-cyan); animation:spin .8s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .loader-text { font-size:13px; color:var(--text-secondary); letter-spacing:3px; text-transform:uppercase; }
+/* Loading */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px}
+.loader-ring{width:60px;height:60px;border-radius:50%;border:3px solid rgba(0,229,255,.15);border-top-color:var(--cyan);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:14px;color:var(--txt2);letter-spacing:3px;text-transform:uppercase}
 
-  /* Section divider */
-  .section-label {
-    font-size:10px; letter-spacing:4px; text-transform:uppercase; color:rgba(0,229,255,0.5);
-    margin-bottom:14px; margin-top:4px; padding-left:2px;
-    display:flex; align-items:center; gap:10px;
-  }
-  .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(0,229,255,0.2),transparent); }
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
+::-webkit-scrollbar-thumb{background:rgba(0,229,255,.25);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,229,255,.45)}
 
-  ::-webkit-scrollbar { width:6px; height:6px; }
-  ::-webkit-scrollbar-track { background:rgba(255,255,255,0.03); }
-  ::-webkit-scrollbar-thumb { background:rgba(0,229,255,0.25); border-radius:3px; }
-  ::-webkit-scrollbar-thumb:hover { background:rgba(0,229,255,0.45); }
-
-  @media (max-width:1024px) {
-    .kpi-grid,.kpi-grid-3 { grid-template-columns:repeat(2,1fr); }
-    .charts-grid { grid-template-columns:1fr; }
-    .chart-card.full-width { grid-column:auto; }
-  }
-  @media (max-width:600px) {
-    .kpi-grid,.kpi-grid-3 { grid-template-columns:1fr; }
-    .slider-row { flex-direction:column; gap:20px; }
-  }
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid-3{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}.chart-card.full-width{grid-column:auto}}
+@media(max-width:600px){.kpi-grid,.kpi-grid-3{grid-template-columns:1fr}.slider-row{flex-direction:column;gap:20px}}
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div class="loader-ring"></div>
-  <div class="loader-text">Loading Data...</div>
+<div id="loading"><div class="loader-ring"></div><div class="loader-text">Loading Data...</div></div>
+
+<div class="container" id="app" style="opacity:0;transition:opacity .4s">
+
+<!-- Header -->
+<header>
+  <div class="header-left">
+    <div class="logo-box">貨</div>
+    <div class="header-title">
+      <h1>包裝出貨量分析系統</h1>
+      <p>Shipping Volume Analytics Dashboard · 2017 – 2026</p>
+    </div>
+  </div>
+  <div class="header-badge">EXECUTIVE VIEW</div>
+</header>
+
+<!-- Slider -->
+<div class="slider-panel">
+  <div class="slider-panel-title">▍ 時間範圍篩選</div>
+  <div class="slider-row">
+    <div class="slider-group">
+      <div class="slider-label">起始年月</div>
+      <div class="slider-value" id="startLabel">2017年 01月</div>
+      <div class="date-input-row">
+        <input class="date-input" id="startInput" type="text" placeholder="YYYY-MM" maxlength="7">
+        <span class="date-input-hint">可手動輸入</span>
+      </div>
+      <input type="range" id="startSlider" min="0" max="111" value="0">
+      <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
+    </div>
+    <div class="range-display">
+      <div><span class="lbl">起</span><span class="val" id="rangeStart">2017-01</span></div>
+      <div class="sep">→</div>
+      <div><span class="lbl">迄</span><span class="val" id="rangeEnd">2026-04</span></div>
+    </div>
+    <div class="slider-group">
+      <div class="slider-label">結束年月</div>
+      <div class="slider-value" id="endLabel">2026年 04月</div>
+      <div class="date-input-row">
+        <input class="date-input" id="endInput" type="text" placeholder="YYYY-MM" maxlength="7">
+        <span class="date-input-hint">可手動輸入</span>
+      </div>
+      <input type="range" id="endSlider" min="0" max="111" value="111">
+      <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
+    </div>
+  </div>
 </div>
 
-<div class="container" id="app" style="opacity:0;transition:opacity 0.4s">
+<!-- KPI Row 1 -->
+<div class="section-label">基礎指標</div>
+<div class="kpi-grid">
+  <div class="kpi-card max"><div class="kpi-icon">🔺</div><div class="kpi-label">最高出貨量</div><div class="kpi-value"><span id="kpiMaxVal">—</span><span class="kpi-unit">公噸</span></div><div class="kpi-sub">年月：<span id="kpiMaxDate">—</span></div></div>
+  <div class="kpi-card min"><div class="kpi-icon">🔻</div><div class="kpi-label">最低出貨量</div><div class="kpi-value"><span id="kpiMinVal">—</span><span class="kpi-unit">公噸</span></div><div class="kpi-sub">年月：<span id="kpiMinDate">—</span></div></div>
+  <div class="kpi-card avg"><div class="kpi-icon">〜</div><div class="kpi-label">平均月出貨量</div><div class="kpi-value"><span id="kpiAvgVal">—</span><span class="kpi-unit">公噸</span></div><div class="kpi-sub">總出貨：<span id="kpiTotal">—</span> 公噸</div></div>
+  <div class="kpi-card top5"><div class="kpi-icon">🏆</div><div class="kpi-label">出貨量前五名</div><div class="top5-list" id="kpiTop5List"></div></div>
+</div>
 
-  <!-- Header -->
-  <header>
-    <div class="header-left">
-      <div class="logo-box">貨</div>
-      <div class="header-title">
-        <h1>包裝出貨量分析系統</h1>
-        <p>Shipping Volume Analytics Dashboard · 2017 – 2026</p>
-      </div>
-    </div>
-    <div class="header-badge">EXECUTIVE VIEW</div>
-  </header>
+<!-- KPI Row 2 -->
+<div class="section-label">深度洞察</div>
+<div class="kpi-grid-3">
+  <div class="kpi-card yoy"><div class="kpi-icon">📈</div><div class="kpi-label">年同比 YoY</div><div class="yoy-value" id="kpiYoyVal">—</div><div class="yoy-detail" id="kpiYoyDetail">計算中...</div></div>
+  <div class="kpi-card mom"><div class="kpi-icon">📊</div><div class="kpi-label">月環比 MoM</div><div class="yoy-value" id="kpiMomVal">—</div><div class="yoy-detail" id="kpiMomDetail">計算中...</div></div>
+  <div class="kpi-card peak"><div class="kpi-icon">🌟</div><div class="kpi-label">旺季月份</div><div class="kpi-value" style="color:var(--green);font-size:26px"><span id="kpiPeakMonth">—</span></div><div class="yoy-detail" id="kpiPeakDetail">計算中...</div></div>
+</div>
 
-  <!-- Slider -->
-  <div class="slider-panel">
-    <div class="slider-panel-title">▍ 時間範圍篩選</div>
-    <div class="slider-row">
-      <div class="slider-group">
-        <div class="slider-label">起始年月</div>
-        <div class="slider-value" id="startLabel">2017年 01月</div>
-        <input type="range" id="startSlider" min="0" max="111" value="0">
-        <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
-      </div>
-      <div class="range-display">
-        <div><span class="lbl">起</span><span class="val" id="rangeStart">2017-01</span></div>
-        <div class="sep">→</div>
-        <div><span class="lbl">迄</span><span class="val" id="rangeEnd">2026-04</span></div>
-      </div>
-      <div class="slider-group">
-        <div class="slider-label">結束年月</div>
-        <div class="slider-value" id="endLabel">2026年 04月</div>
-        <input type="range" id="endSlider" min="0" max="111" value="111">
-        <div class="slider-ticks"><span>2017-01</span><span>2019-01</span><span>2021-01</span><span>2023-01</span><span>2025-01</span><span>2026-04</span></div>
-      </div>
-    </div>
+<!-- Charts -->
+<div class="section-label">圖表分析</div>
+<div class="charts-grid">
+  <div class="chart-card full-width">
+    <div class="chart-title">出貨量趨勢圖</div>
+    <div class="chart-subtitle">月度出貨量 (公噸)</div>
+    <div class="chart-wrap" style="height:290px"><canvas id="trendChart"></canvas></div>
   </div>
-
-  <!-- KPI Row 1 -->
-  <div class="section-label">基礎指標</div>
-  <div class="kpi-grid">
-    <div class="kpi-card max">
-      <div class="kpi-icon">🔺</div>
-      <div class="kpi-label">最高出貨量</div>
-      <div class="kpi-value"><span id="kpiMaxVal">—</span><span class="kpi-unit">公噸</span></div>
-      <div class="kpi-sub">年月：<span id="kpiMaxDate">—</span></div>
-    </div>
-    <div class="kpi-card min">
-      <div class="kpi-icon">🔻</div>
-      <div class="kpi-label">最低出貨量</div>
-      <div class="kpi-value"><span id="kpiMinVal">—</span><span class="kpi-unit">公噸</span></div>
-      <div class="kpi-sub">年月：<span id="kpiMinDate">—</span></div>
-    </div>
-    <div class="kpi-card avg">
-      <div class="kpi-icon">〜</div>
-      <div class="kpi-label">平均月出貨量</div>
-      <div class="kpi-value"><span id="kpiAvgVal">—</span><span class="kpi-unit">公噸</span></div>
-      <div class="kpi-sub">總出貨：<span id="kpiTotal">—</span> 公噸</div>
-    </div>
-    <div class="kpi-card top5">
-      <div class="kpi-icon">🏆</div>
-      <div class="kpi-label">出貨量前五名</div>
-      <div class="top5-list" id="kpiTop5List"></div>
-    </div>
+  <div class="chart-card full-width">
+    <div class="chart-title">季節性熱力圖</div>
+    <div class="chart-subtitle">年 × 月出貨量分布 — 顏色越亮出貨量越高，框線為選定區間</div>
+    <div class="heatmap-wrap"><table class="heatmap-table" id="heatmapTable"></table></div>
+    <div class="heatmap-legend"><span>低</span><div class="heatmap-legend-bar"></div><span>高</span></div>
   </div>
-
-  <!-- KPI Row 2: 新增三個洞察指標 -->
-  <div class="section-label">深度洞察</div>
-  <div class="kpi-grid-3">
-    <div class="kpi-card yoy">
-      <div class="kpi-icon">📈</div>
-      <div class="kpi-label">年同比 YoY</div>
-      <div class="yoy-value" id="kpiYoyVal">—</div>
-      <div class="yoy-detail" id="kpiYoyDetail">計算中...</div>
-    </div>
-    <div class="kpi-card mom">
-      <div class="kpi-icon">📊</div>
-      <div class="kpi-label">月環比 MoM</div>
-      <div class="yoy-value" id="kpiMomVal">—</div>
-      <div class="yoy-detail" id="kpiMomDetail">計算中...</div>
-    </div>
-    <div class="kpi-card peak">
-      <div class="kpi-icon">🌟</div>
-      <div class="kpi-label">旺季月份</div>
-      <div class="kpi-value" style="color:var(--accent-green);font-size:24px"><span id="kpiPeakMonth">—</span></div>
-      <div class="yoy-detail" id="kpiPeakDetail">計算中...</div>
-    </div>
+  <div class="chart-card">
+    <div class="chart-title">月份結構排名</div>
+    <div class="chart-subtitle">各月份歷年平均出貨量 — 找出系統性淡旺季</div>
+    <div class="chart-wrap" style="height:290px"><canvas id="monthRankChart"></canvas></div>
   </div>
+  <div class="chart-card">
+    <div class="chart-title">出貨量排名 Top 5</div>
+    <div class="chart-subtitle">選定區間內最高出貨月份 (公噸)</div>
+    <div class="chart-wrap" style="height:290px"><canvas id="top5Chart"></canvas></div>
+  </div>
+  <div class="chart-card full-width">
+    <div class="chart-title">年度複合成長率 (CAGR)</div>
+    <div class="chart-subtitle">各年度合計出貨量及年增率 (%)</div>
+    <div class="chart-wrap" style="height:270px"><canvas id="cagrChart"></canvas></div>
+  </div>
+</div>
 
-  <!-- Charts -->
-  <div class="section-label">圖表分析</div>
+<!-- Route Section (2021+) -->
+<div id="routeSection">
+  <div class="section-label">美線 vs 歐線分析（2021年起）</div>
+  <div class="route-badges">
+    <span class="route-badge us">🚢 美線（采丁美）</span>
+    <span class="route-badge eu">🌍 歐洲線</span>
+  </div>
   <div class="charts-grid">
-
-    <!-- 趨勢圖 -->
     <div class="chart-card full-width">
-      <div class="chart-title">出貨量趨勢圖</div>
-      <div class="chart-subtitle">月度出貨量 (公噸) — 選定時間範圍內完整趨勢</div>
-      <div class="chart-wrap" style="height:280px"><canvas id="trendChart"></canvas></div>
+      <div class="chart-title">美線 vs 歐線趨勢</div>
+      <div class="chart-subtitle">月度出貨量拆分 (公噸) — 2021年起</div>
+      <div class="chart-wrap" style="height:270px"><canvas id="routeTrendChart"></canvas></div>
     </div>
-
-    <!-- ★ 熱力圖 -->
-    <div class="chart-card full-width">
-      <div class="chart-title">季節性熱力圖</div>
-      <div class="chart-subtitle">年 × 月出貨量分布 — 顏色越亮代表出貨量越高，框線範圍為選定區間</div>
-      <div class="heatmap-wrap">
-        <table class="heatmap-table" id="heatmapTable"></table>
-      </div>
-      <div class="heatmap-legend">
-        <span>低</span>
-        <div class="heatmap-legend-bar"></div>
-        <span>高</span>
-      </div>
-    </div>
-
-    <!-- ★ 月份結構排名 -->
     <div class="chart-card">
-      <div class="chart-title">月份結構排名</div>
-      <div class="chart-subtitle">各月份歷年平均出貨量 — 找出系統性淡旺季</div>
-      <div class="chart-wrap" style="height:280px"><canvas id="monthRankChart"></canvas></div>
+      <div class="chart-title">年度路線佔比</div>
+      <div class="chart-subtitle">各年美線 vs 歐線佔比堆疊圖</div>
+      <div class="chart-wrap" style="height:270px"><canvas id="routeBarChart"></canvas></div>
     </div>
-
-    <!-- Top 5 -->
     <div class="chart-card">
-      <div class="chart-title">出貨量排名 Top 5</div>
-      <div class="chart-subtitle">選定區間內最高出貨月份 (公噸)</div>
-      <div class="chart-wrap" style="height:280px"><canvas id="top5Chart"></canvas></div>
-    </div>
-
-    <!-- CAGR -->
-    <div class="chart-card full-width">
-      <div class="chart-title">年度複合成長率 (CAGR)</div>
-      <div class="chart-subtitle">各年度合計出貨量及年增率 (%)</div>
-      <div class="chart-wrap" style="height:260px"><canvas id="cagrChart"></canvas></div>
-    </div>
-
-    <!-- 資料表 -->
-    <div class="chart-card full-width">
-      <div class="chart-title">出貨量資料表</div>
-      <div class="chart-subtitle">各年各月詳細數據 (公噸) — 選定時間範圍</div>
-      <div class="table-scroll">
-        <table class="data-table"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
-      </div>
+      <div class="chart-title">整體路線比例</div>
+      <div class="chart-subtitle">選定期間美線 vs 歐線總出貨佔比</div>
+      <div class="chart-wrap" style="height:270px"><canvas id="routeDonutChart"></canvas></div>
     </div>
   </div>
-
 </div>
+
+<!-- Data Table -->
+<div class="section-label">詳細資料</div>
+<div class="chart-card full-width">
+  <div class="table-toolbar">
+    <div>
+      <div class="chart-title">出貨量資料表</div>
+      <div class="chart-subtitle" style="margin-bottom:0">各年各月詳細數據 (公噸)</div>
+    </div>
+    <button class="export-btn" id="exportBtn">⬇ 匯出 Excel</button>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
+  </div>
+</div>
+
+</div><!-- /container -->
 
 <script>
-const SUPABASE_URL = 'https://mugkjtiagmahipotekmr.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Z2tqdGlhZ21haGlwb3Rla21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mzc3MjEsImV4cCI6MjA5NTQxMzcyMX0.xI8-bUL5b1tPJOJiV5awvCQwduCgcnrgpmDkjYi-lP8';
+const SUPABASE_URL='https://mugkjtiagmahipotekmr.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Z2tqdGlhZ21haGlwb3Rla21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mzc3MjEsImV4cCI6MjA5NTQxMzcyMX0.xI8-bUL5b1tPJOJiV5awvCQwduCgcnrgpmDkjYi-lP8';
 
-const EMBEDDED_DATA = [
+const EMBEDDED=[
   {year:2017,month:1,quantity_mt:1420.8},{year:2017,month:2,quantity_mt:1362.9},{year:2017,month:3,quantity_mt:1995.4},{year:2017,month:4,quantity_mt:1619.7},{year:2017,month:5,quantity_mt:1231.2},{year:2017,month:6,quantity_mt:1792.2},{year:2017,month:7,quantity_mt:1401.4},{year:2017,month:8,quantity_mt:1671.3},{year:2017,month:9,quantity_mt:1001.2},{year:2017,month:10,quantity_mt:909.8},{year:2017,month:11,quantity_mt:1660.0},{year:2017,month:12,quantity_mt:1504.2},
   {year:2018,month:1,quantity_mt:1611.5},{year:2018,month:2,quantity_mt:1098.1},{year:2018,month:3,quantity_mt:1780.5},{year:2018,month:4,quantity_mt:1607.6},{year:2018,month:5,quantity_mt:1670.3},{year:2018,month:6,quantity_mt:1729.8},{year:2018,month:7,quantity_mt:1810.1},{year:2018,month:8,quantity_mt:1661.4},{year:2018,month:9,quantity_mt:1985.7},{year:2018,month:10,quantity_mt:1933.6},{year:2018,month:11,quantity_mt:1660.3},{year:2018,month:12,quantity_mt:2015.7},
   {year:2019,month:1,quantity_mt:2693.7},{year:2019,month:2,quantity_mt:1806.4},{year:2019,month:3,quantity_mt:2360.9},{year:2019,month:4,quantity_mt:1917.2},{year:2019,month:5,quantity_mt:2767.7},{year:2019,month:6,quantity_mt:1715.6},{year:2019,month:7,quantity_mt:1754.1},{year:2019,month:8,quantity_mt:2112.7},{year:2019,month:9,quantity_mt:1425.3},{year:2019,month:10,quantity_mt:1016.5},{year:2019,month:11,quantity_mt:1196.3},{year:2019,month:12,quantity_mt:1714.5},
   {year:2020,month:1,quantity_mt:1560.8},{year:2020,month:2,quantity_mt:2008.3},{year:2020,month:3,quantity_mt:2315.8},{year:2020,month:4,quantity_mt:1717.5},{year:2020,month:5,quantity_mt:2084.7},{year:2020,month:6,quantity_mt:2556.5},{year:2020,month:7,quantity_mt:3193.8},{year:2020,month:8,quantity_mt:2902.7},{year:2020,month:9,quantity_mt:2558.6},{year:2020,month:10,quantity_mt:2235.6},{year:2020,month:11,quantity_mt:2208.2},{year:2020,month:12,quantity_mt:2725.8},
-  {year:2021,month:1,quantity_mt:2530.2},{year:2021,month:2,quantity_mt:1810.6},{year:2021,month:3,quantity_mt:2836.0},{year:2021,month:4,quantity_mt:1898.0},{year:2021,month:5,quantity_mt:2077.6},{year:2021,month:6,quantity_mt:2172.8},{year:2021,month:7,quantity_mt:2115.1},{year:2021,month:8,quantity_mt:1834.9},{year:2021,month:9,quantity_mt:2500.4},{year:2021,month:10,quantity_mt:1838.9},{year:2021,month:11,quantity_mt:1899.7},{year:2021,month:12,quantity_mt:1921.0},
-  {year:2022,month:1,quantity_mt:2457.5},{year:2022,month:2,quantity_mt:1077.6},{year:2022,month:3,quantity_mt:2238.8},{year:2022,month:4,quantity_mt:2215.3},{year:2022,month:5,quantity_mt:2273.2},{year:2022,month:6,quantity_mt:2103.9},{year:2022,month:7,quantity_mt:2017.2},{year:2022,month:8,quantity_mt:2011.0},{year:2022,month:9,quantity_mt:2042.9},{year:2022,month:10,quantity_mt:1802.3},{year:2022,month:11,quantity_mt:1202.6},{year:2022,month:12,quantity_mt:2411.2},
-  {year:2023,month:1,quantity_mt:1069.3},{year:2023,month:2,quantity_mt:1711.3},{year:2023,month:3,quantity_mt:2023.3},{year:2023,month:4,quantity_mt:1225.6},{year:2023,month:5,quantity_mt:2851.1},{year:2023,month:6,quantity_mt:2466.0},{year:2023,month:7,quantity_mt:2656.0},{year:2023,month:8,quantity_mt:2858.0},{year:2023,month:9,quantity_mt:3195.7},{year:2023,month:10,quantity_mt:3130.0},{year:2023,month:11,quantity_mt:3242.8},{year:2023,month:12,quantity_mt:3854.4},
-  {year:2024,month:1,quantity_mt:3220.7},{year:2024,month:2,quantity_mt:2027.1},{year:2024,month:3,quantity_mt:2440.4},{year:2024,month:4,quantity_mt:3044.0},{year:2024,month:5,quantity_mt:1890.6},{year:2024,month:6,quantity_mt:1784.1},{year:2024,month:7,quantity_mt:2742.5},{year:2024,month:8,quantity_mt:1960.5},{year:2024,month:9,quantity_mt:2051.3},{year:2024,month:10,quantity_mt:2413.4},{year:2024,month:11,quantity_mt:2708.9},{year:2024,month:12,quantity_mt:2534.9},
-  {year:2025,month:1,quantity_mt:2463.1},{year:2025,month:2,quantity_mt:2403.3},{year:2025,month:3,quantity_mt:2368.0},{year:2025,month:4,quantity_mt:1910.8},{year:2025,month:5,quantity_mt:1513.2},{year:2025,month:6,quantity_mt:1700.8},{year:2025,month:7,quantity_mt:2008.7},{year:2025,month:8,quantity_mt:2669.2},{year:2025,month:9,quantity_mt:1917.9},{year:2025,month:10,quantity_mt:2036.7},{year:2025,month:11,quantity_mt:2262.2},{year:2025,month:12,quantity_mt:2632.5},
-  {year:2026,month:1,quantity_mt:2737.6},{year:2026,month:2,quantity_mt:1999.4},{year:2026,month:3,quantity_mt:2618.3},{year:2026,month:4,quantity_mt:2336.8}
+  {year:2021,month:1,quantity_mt:2530.2,us_line_mt:1248.8,eu_line_mt:1281.4},{year:2021,month:2,quantity_mt:1810.6,us_line_mt:1126.4,eu_line_mt:684.2},{year:2021,month:3,quantity_mt:2836.0,us_line_mt:1536.2,eu_line_mt:1299.8},{year:2021,month:4,quantity_mt:1898.0,us_line_mt:1053.4,eu_line_mt:844.6},{year:2021,month:5,quantity_mt:2077.6,us_line_mt:1355.2,eu_line_mt:722.4},{year:2021,month:6,quantity_mt:2172.8,us_line_mt:1104.3,eu_line_mt:1068.5},{year:2021,month:7,quantity_mt:2115.1,us_line_mt:1130.2,eu_line_mt:984.9},{year:2021,month:8,quantity_mt:1834.9,us_line_mt:1011.7,eu_line_mt:823.2},{year:2021,month:9,quantity_mt:2500.4,us_line_mt:1395.7,eu_line_mt:1104.7},{year:2021,month:10,quantity_mt:1838.9,us_line_mt:754.6,eu_line_mt:1084.3},{year:2021,month:11,quantity_mt:1899.7,us_line_mt:905.8,eu_line_mt:993.9},{year:2021,month:12,quantity_mt:1921.0,us_line_mt:813.1,eu_line_mt:1107.9},
+  {year:2022,month:1,quantity_mt:2457.5,us_line_mt:1177.0,eu_line_mt:1280.5},{year:2022,month:2,quantity_mt:1077.6,us_line_mt:427.7,eu_line_mt:649.9},{year:2022,month:3,quantity_mt:2238.8,us_line_mt:846.1,eu_line_mt:1392.7},{year:2022,month:4,quantity_mt:2215.3,us_line_mt:444.9,eu_line_mt:1770.4},{year:2022,month:5,quantity_mt:2273.2,us_line_mt:949.0,eu_line_mt:1324.2},{year:2022,month:6,quantity_mt:2103.9,us_line_mt:607.5,eu_line_mt:1496.4},{year:2022,month:7,quantity_mt:2017.2,us_line_mt:649.0,eu_line_mt:1368.2},{year:2022,month:8,quantity_mt:2011.0,us_line_mt:676.9,eu_line_mt:1334.1},{year:2022,month:9,quantity_mt:2042.9,us_line_mt:1161.2,eu_line_mt:881.7},{year:2022,month:10,quantity_mt:1802.3,us_line_mt:1153.8,eu_line_mt:648.5},{year:2022,month:11,quantity_mt:1202.6,us_line_mt:612.8,eu_line_mt:589.8},{year:2022,month:12,quantity_mt:2411.2,us_line_mt:1448.8,eu_line_mt:962.4},
+  {year:2023,month:1,quantity_mt:1069.3,us_line_mt:622.2,eu_line_mt:447.1},{year:2023,month:2,quantity_mt:1711.3,us_line_mt:905.2,eu_line_mt:806.1},{year:2023,month:3,quantity_mt:2023.3,us_line_mt:1182.9,eu_line_mt:840.4},{year:2023,month:4,quantity_mt:1225.6,us_line_mt:769.6,eu_line_mt:456.0},{year:2023,month:5,quantity_mt:2851.1,us_line_mt:2388.6,eu_line_mt:462.5},{year:2023,month:6,quantity_mt:2466.0,us_line_mt:2021.1,eu_line_mt:444.9},{year:2023,month:7,quantity_mt:2656.0,us_line_mt:1880.0,eu_line_mt:776.0},{year:2023,month:8,quantity_mt:2858.0,us_line_mt:2489.0,eu_line_mt:369.0},{year:2023,month:9,quantity_mt:3195.7,us_line_mt:2615.7,eu_line_mt:580.0},{year:2023,month:10,quantity_mt:3130.0,us_line_mt:2550.9,eu_line_mt:579.1},{year:2023,month:11,quantity_mt:3242.8,us_line_mt:2461.3,eu_line_mt:781.5},{year:2023,month:12,quantity_mt:3854.4,us_line_mt:2827.5,eu_line_mt:1026.9},
+  {year:2024,month:1,quantity_mt:3220.7,us_line_mt:2083.8,eu_line_mt:1136.9},{year:2024,month:2,quantity_mt:2027.1,us_line_mt:1435.5,eu_line_mt:591.6},{year:2024,month:3,quantity_mt:2440.4,us_line_mt:1436.2,eu_line_mt:1004.2},{year:2024,month:4,quantity_mt:3044.0,us_line_mt:2248.4,eu_line_mt:795.6},{year:2024,month:5,quantity_mt:1890.6,us_line_mt:967.9,eu_line_mt:922.7},{year:2024,month:6,quantity_mt:1784.1,us_line_mt:1032.1,eu_line_mt:752.0},{year:2024,month:7,quantity_mt:2742.5,us_line_mt:1894.9,eu_line_mt:847.6},{year:2024,month:8,quantity_mt:1960.5,us_line_mt:1120.8,eu_line_mt:839.7},{year:2024,month:9,quantity_mt:2051.3,us_line_mt:1139.4,eu_line_mt:911.9},{year:2024,month:10,quantity_mt:2413.4,us_line_mt:1576.6,eu_line_mt:836.8},{year:2024,month:11,quantity_mt:2708.9,us_line_mt:1747.2,eu_line_mt:961.7},{year:2024,month:12,quantity_mt:2534.9,us_line_mt:1586.6,eu_line_mt:948.3},
+  {year:2025,month:1,quantity_mt:2463.1,us_line_mt:1689.3,eu_line_mt:773.8},{year:2025,month:2,quantity_mt:2403.3,us_line_mt:1773.3,eu_line_mt:630.0},{year:2025,month:3,quantity_mt:2368.0,us_line_mt:1277.4,eu_line_mt:1090.6},{year:2025,month:4,quantity_mt:1910.8,us_line_mt:1022.5,eu_line_mt:888.3},{year:2025,month:5,quantity_mt:1513.2,us_line_mt:826.5,eu_line_mt:686.7},{year:2025,month:6,quantity_mt:1700.8,us_line_mt:945.4,eu_line_mt:755.4},{year:2025,month:7,quantity_mt:2008.7,us_line_mt:1294.3,eu_line_mt:714.4},{year:2025,month:8,quantity_mt:2669.2,us_line_mt:1489.7,eu_line_mt:1179.5},{year:2025,month:9,quantity_mt:1917.9,us_line_mt:1014.1,eu_line_mt:903.8},{year:2025,month:10,quantity_mt:2036.7,us_line_mt:1093.5,eu_line_mt:943.2},{year:2025,month:11,quantity_mt:2262.2,us_line_mt:1308.9,eu_line_mt:953.3},{year:2025,month:12,quantity_mt:2632.5,us_line_mt:1663.7,eu_line_mt:968.8},
+  {year:2026,month:1,quantity_mt:2737.6,us_line_mt:1771.9,eu_line_mt:965.7},{year:2026,month:2,quantity_mt:1999.4,us_line_mt:1439.3,eu_line_mt:560.1},{year:2026,month:3,quantity_mt:2618.3,us_line_mt:1725.5,eu_line_mt:892.8},{year:2026,month:4,quantity_mt:2336.8,us_line_mt:1627.4,eu_line_mt:709.4}
 ];
 
-// ─── Helpers ───
-function idxToYM(idx) { return { year: 2017+Math.floor(idx/12), month: (idx%12)+1 }; }
-function ymToIdx(year, month) { return (year-2017)*12+(month-1); }
-function fmtYM(y,m) { return `${y}年 ${String(m).padStart(2,'0')}月`; }
-function fmtYMShort(y,m) { return `${y}-${String(m).padStart(2,'0')}`; }
-function fmt(n) { return n.toLocaleString('zh-TW',{minimumFractionDigits:1,maximumFractionDigits:1}); }
-function lerp(a,b,t) { return a+(b-a)*t; }
-
-// Heatmap color: dark navy → ocean blue → bright cyan
-function heatColor(t) {
-  if (t <= 0.5) {
-    const s = t*2;
-    return `rgb(${Math.round(lerp(13,0,s))},${Math.round(lerp(43,121,s))},${Math.round(lerp(110,172,s))})`;
-  } else {
-    const s = (t-0.5)*2;
-    return `rgb(${Math.round(lerp(0,0,s))},${Math.round(lerp(121,229,s))},${Math.round(lerp(172,255,s))})`;
-  }
+// ── Helpers ──
+function idxToYM(i){return{year:2017+Math.floor(i/12),month:(i%12)+1}}
+function ymToIdx(y,m){return(y-2017)*12+(m-1)}
+function fmtYM(y,m){return`${y}年 ${String(m).padStart(2,'0')}月`}
+function fmtYMs(y,m){return`${y}-${String(m).padStart(2,'0')}`}
+function fmt(n){return n.toLocaleString('zh-TW',{minimumFractionDigits:1,maximumFractionDigits:1})}
+function lerp(a,b,t){return a+(b-a)*t}
+function heatColor(t){
+  if(t<=.5){const s=t*2;return`rgb(${Math.round(lerp(13,0,s))},${Math.round(lerp(43,121,s))},${Math.round(lerp(110,172,s))})`}
+  const s=(t-.5)*2;return`rgb(0,${Math.round(lerp(121,229,s))},${Math.round(lerp(172,255,s))})`;
 }
-function textOnHeat(t) { return t > 0.55 ? '#050b18' : '#e8f0fe'; }
+function textOnHeat(t){return t>.55?'#050b18':'#e8f0fe'}
+const MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
-let allData = [], charts = {};
-const rankColors = ['#00e5ff','#2979ff','#7c4dff','#00e676','#ff6d00'];
-const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+let allData=[],charts={};
+const rColors=['#00e5ff','#2979ff','#7c4dff','#00e676','#ff6d00'];
 
-function getFiltered(si, ei) {
-  return allData.filter(r => { const i=ymToIdx(r.year,r.month); return i>=si&&i<=ei; })
-    .sort((a,b) => ymToIdx(a.year,a.month)-ymToIdx(b.year,b.month));
+function getFiltered(si,ei){
+  return allData.filter(r=>{const i=ymToIdx(r.year,r.month);return i>=si&&i<=ei;})
+    .sort((a,b)=>ymToIdx(a.year,a.month)-ymToIdx(b.year,b.month));
 }
 
-// ─── Dashboard Update ───
-function updateDashboard(si, ei) {
-  const data = getFiltered(si, ei);
-  if (!data.length) return;
+// ── Main Update ──
+function updateDashboard(si,ei){
+  const data=getFiltered(si,ei);
+  if(!data.length)return;
+  const maxR=data.reduce((a,b)=>b.quantity_mt>a.quantity_mt?b:a);
+  const minR=data.reduce((a,b)=>b.quantity_mt<a.quantity_mt?b:a);
+  const total=data.reduce((s,r)=>s+r.quantity_mt,0);
+  const avg=total/data.length;
+  document.getElementById('kpiMaxVal').textContent=fmt(maxR.quantity_mt);
+  document.getElementById('kpiMaxDate').textContent=fmtYM(maxR.year,maxR.month);
+  document.getElementById('kpiMinVal').textContent=fmt(minR.quantity_mt);
+  document.getElementById('kpiMinDate').textContent=fmtYM(minR.year,minR.month);
+  document.getElementById('kpiAvgVal').textContent=fmt(avg);
+  document.getElementById('kpiTotal').textContent=fmt(total);
+  const sorted=[...data].sort((a,b)=>b.quantity_mt-a.quantity_mt).slice(0,5);
+  const rc=['r1','r2','r3','',''];
+  document.getElementById('kpiTop5List').innerHTML=sorted.map((r,i)=>`
+    <div class="top5-item"><div class="top5-rank ${rc[i]}">${i+1}</div>
+    <div class="top5-date">${fmtYMs(r.year,r.month)}</div>
+    <div class="top5-val">${fmt(r.quantity_mt)}</div></div>`).join('');
 
-  // Basic KPI
-  const maxR = data.reduce((a,b)=>b.quantity_mt>a.quantity_mt?b:a);
-  const minR = data.reduce((a,b)=>b.quantity_mt<a.quantity_mt?b:a);
-  const total = data.reduce((s,r)=>s+r.quantity_mt,0);
-  const avg = total/data.length;
-  document.getElementById('kpiMaxVal').textContent = fmt(maxR.quantity_mt);
-  document.getElementById('kpiMaxDate').textContent = fmtYM(maxR.year,maxR.month);
-  document.getElementById('kpiMinVal').textContent = fmt(minR.quantity_mt);
-  document.getElementById('kpiMinDate').textContent = fmtYM(minR.year,minR.month);
-  document.getElementById('kpiAvgVal').textContent = fmt(avg);
-  document.getElementById('kpiTotal').textContent = fmt(total);
-
-  const sorted = [...data].sort((a,b)=>b.quantity_mt-a.quantity_mt).slice(0,5);
-  const rCls = ['r1','r2','r3','',''];
-  document.getElementById('kpiTop5List').innerHTML = sorted.map((r,i)=>`
-    <div class="top5-item">
-      <div class="top5-rank ${rCls[i]}">${i+1}</div>
-      <div class="top5-date">${fmtYMShort(r.year,r.month)}</div>
-      <div class="top5-val">${fmt(r.quantity_mt)}</div>
-    </div>`).join('');
-
-  // YoY / MoM
   updateYoYMoM(data);
-
-  // Peak month
   updatePeakMonth(data);
-
-  // Charts
   updateTrendChart(data);
-  updateHeatmap(si, ei);
+  updateHeatmap(si,ei);
   updateMonthRankChart(data);
   updateTop5Chart(sorted);
   updateCAGRChart(data);
   updateTable(data);
-}
 
-// ─── YoY & MoM ───
-function updateYoYMoM(data) {
-  // MoM: last 2 months in range
-  const lastTwo = data.slice(-2);
-  const momEl = document.getElementById('kpiMomVal');
-  const momDet = document.getElementById('kpiMomDetail');
-  if (lastTwo.length === 2) {
-    const [prev, curr] = lastTwo;
-    const pct = ((curr.quantity_mt - prev.quantity_mt) / prev.quantity_mt) * 100;
-    const up = pct >= 0;
-    momEl.className = 'yoy-value ' + (up ? 'up' : 'down');
-    momEl.innerHTML = `<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
-    momDet.innerHTML = `<strong>${fmtYMShort(curr.year,curr.month)}</strong> ${fmt(curr.quantity_mt)} 噸<br>vs 上月 <strong>${fmtYMShort(prev.year,prev.month)}</strong> ${fmt(prev.quantity_mt)} 噸`;
-  } else {
-    momEl.textContent = 'N/A'; momDet.textContent = '資料不足';
-  }
-
-  // YoY: compare annual totals of last 2 complete years
-  const yearTotals = {};
-  data.forEach(r => { yearTotals[r.year] = (yearTotals[r.year]||0) + r.quantity_mt; });
-  const years = Object.keys(yearTotals).map(Number).sort();
-  const yoyEl = document.getElementById('kpiYoyVal');
-  const yoyDet = document.getElementById('kpiYoyDetail');
-  if (years.length >= 2) {
-    const cy = years[years.length-1], py = years[years.length-2];
-    const pct = ((yearTotals[cy]-yearTotals[py])/yearTotals[py])*100;
-    const up = pct >= 0;
-    yoyEl.className = 'yoy-value ' + (up ? 'up' : 'down');
-    yoyEl.innerHTML = `<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
-    yoyDet.innerHTML = `<strong>${cy}年</strong> ${fmt(yearTotals[cy])} 噸<br>vs <strong>${py}年</strong> ${fmt(yearTotals[py])} 噸`;
-  } else {
-    yoyEl.textContent = 'N/A'; yoyDet.textContent = '需至少兩年資料';
+  // Route section
+  const hasRoute=data.some(r=>r.year>=2021&&r.us_line_mt!=null);
+  document.getElementById('routeSection').style.display=hasRoute?'block':'none';
+  if(hasRoute){
+    const rData=data.filter(r=>r.year>=2021&&r.us_line_mt!=null);
+    updateRouteTrend(rData);
+    updateRouteBar(rData);
+    updateRouteDonut(rData);
   }
 }
 
-// ─── Peak Month ───
-function updatePeakMonth(data) {
-  const monthAvg = {};
-  const monthCnt = {};
-  data.forEach(r => {
-    monthAvg[r.month] = (monthAvg[r.month]||0) + r.quantity_mt;
-    monthCnt[r.month] = (monthCnt[r.month]||0) + 1;
-  });
-  const avgs = Object.keys(monthAvg).map(m => ({ month:+m, avg: monthAvg[m]/monthCnt[m] }));
-  if (!avgs.length) return;
-  avgs.sort((a,b)=>b.avg-a.avg);
-  const top3 = avgs.slice(0,3);
-  document.getElementById('kpiPeakMonth').textContent = MONTHS[top3[0].month-1];
-  document.getElementById('kpiPeakDetail').innerHTML =
-    `歷年平均 <strong>${fmt(top3[0].avg)}</strong> 噸<br>` +
-    `次高：${top3[1]?MONTHS[top3[1].month-1]:'—'}、${top3[2]?MONTHS[top3[2].month-1]:'—'}`;
+// ── YoY / MoM ──
+function updateYoYMoM(data){
+  const last2=data.slice(-2);
+  const momEl=document.getElementById('kpiMomVal'),momD=document.getElementById('kpiMomDetail');
+  if(last2.length===2){
+    const[p,c]=last2,pct=((c.quantity_mt-p.quantity_mt)/p.quantity_mt)*100,up=pct>=0;
+    momEl.className='yoy-value '+(up?'up':'down');
+    momEl.innerHTML=`<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
+    momD.innerHTML=`<strong>${fmtYMs(c.year,c.month)}</strong> ${fmt(c.quantity_mt)} 噸<br>vs 上月 <strong>${fmtYMs(p.year,p.month)}</strong> ${fmt(p.quantity_mt)} 噸`;
+  }else{momEl.textContent='N/A';momD.textContent='資料不足';}
+  const yt={};data.forEach(r=>{yt[r.year]=(yt[r.year]||0)+r.quantity_mt;});
+  const yrs=Object.keys(yt).map(Number).sort();
+  const yoyEl=document.getElementById('kpiYoyVal'),yoyD=document.getElementById('kpiYoyDetail');
+  if(yrs.length>=2){
+    const cy=yrs[yrs.length-1],py=yrs[yrs.length-2];
+    const pct=((yt[cy]-yt[py])/yt[py])*100,up=pct>=0;
+    yoyEl.className='yoy-value '+(up?'up':'down');
+    yoyEl.innerHTML=`<span class="yoy-arrow">${up?'▲':'▼'}</span>${Math.abs(pct).toFixed(1)}%`;
+    yoyD.innerHTML=`<strong>${cy}年</strong> ${fmt(yt[cy])} 噸<br>vs <strong>${py}年</strong> ${fmt(yt[py])} 噸`;
+  }else{yoyEl.textContent='N/A';yoyD.textContent='需至少兩年資料';}
 }
 
-// ─── Trend Chart ───
-function updateTrendChart(data) {
-  const labels = data.map(r=>fmtYMShort(r.year,r.month));
-  const values = data.map(r=>r.quantity_mt);
-  if (charts.trend) {
-    charts.trend.data.labels = labels;
-    charts.trend.data.datasets[0].data = values;
-    charts.trend.data.datasets[0].pointRadius = data.length>60?0:3;
-    charts.trend.update('none'); return;
-  }
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  const gr = ctx.createLinearGradient(0,0,0,280);
-  gr.addColorStop(0,'rgba(0,229,255,0.3)'); gr.addColorStop(1,'rgba(0,229,255,0.0)');
-  charts.trend = new Chart(ctx, {
-    type:'line',
-    data:{ labels, datasets:[{ data:values, borderColor:'#00e5ff', backgroundColor:gr, borderWidth:2,
-      pointRadius:data.length>60?0:3, pointHoverRadius:6,
-      pointBackgroundColor:'#00e5ff', pointBorderColor:'#050b18', pointBorderWidth:2,
-      tension:0.3, fill:true }]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{
-        backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1,
-        titleColor:'#00e5ff', bodyColor:'#e8f0fe',
-        callbacks:{ label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸` }
-      }},
-      scales:{
-        x:{ ticks:{color:'#8faabe',font:{size:10},maxTicksLimit:24,maxRotation:45}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.1)'} },
-        y:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>v.toLocaleString('zh-TW')}, grid:{color:'rgba(0,229,255,0.06)'}, border:{color:'rgba(255,255,255,0.1)',dash:[4,4]} }
-      },
-      interaction:{mode:'index',intersect:false}
-    }
-  });
+// ── Peak Month ──
+function updatePeakMonth(data){
+  const sums={},cnts={};
+  data.forEach(r=>{sums[r.month]=(sums[r.month]||0)+r.quantity_mt;cnts[r.month]=(cnts[r.month]||0)+1;});
+  const avgs=Object.keys(sums).map(m=>({month:+m,avg:sums[m]/cnts[m]})).sort((a,b)=>b.avg-a.avg);
+  if(!avgs.length)return;
+  document.getElementById('kpiPeakMonth').textContent=MONTHS[avgs[0].month-1];
+  document.getElementById('kpiPeakDetail').innerHTML=
+    `歷年平均 <strong>${fmt(avgs[0].avg)}</strong> 噸<br>次高：${avgs[1]?MONTHS[avgs[1].month-1]:'—'}、${avgs[2]?MONTHS[avgs[2].month-1]:'—'}`;
 }
 
-// ─── ★ Heatmap ───
-function updateHeatmap(si, ei) {
-  const allVals = allData.map(r=>r.quantity_mt);
-  const gMin = Math.min(...allVals), gMax = Math.max(...allVals);
-  const years = [2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
-  const lookup = {};
-  allData.forEach(r=>{ lookup[`${r.year}-${r.month}`]=r.quantity_mt; });
+// ── Trend ──
+function updateTrendChart(data){
+  const lbl=data.map(r=>fmtYMs(r.year,r.month)),vals=data.map(r=>r.quantity_mt);
+  if(charts.trend){charts.trend.data.labels=lbl;charts.trend.data.datasets[0].data=vals;charts.trend.data.datasets[0].pointRadius=data.length>60?0:3;charts.trend.update('none');return;}
+  const ctx=document.getElementById('trendChart').getContext('2d');
+  const gr=ctx.createLinearGradient(0,0,0,290);gr.addColorStop(0,'rgba(0,229,255,.3)');gr.addColorStop(1,'rgba(0,229,255,0)');
+  charts.trend=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[{data:vals,borderColor:'#00e5ff',backgroundColor:gr,borderWidth:2,pointRadius:data.length>60?0:3,pointHoverRadius:7,pointBackgroundColor:'#00e5ff',pointBorderColor:'#050b18',pointBorderWidth:2,tension:.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},maxTicksLimit:24,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)',dash:[4,4]}}},interaction:{mode:'index',intersect:false}}});
+}
 
-  let html = '<tr><th class="row-label">年份</th>';
-  for (let m=1; m<=12; m++) html += `<th>${m}月</th>`;
-  html += '</tr>';
-
-  years.forEach(y => {
-    html += `<tr><th class="row-label">${y}</th>`;
-    for (let m=1; m<=12; m++) {
-      const idx = ymToIdx(y,m);
-      const val = lookup[`${y}-${m}`];
-      const inRange = idx >= si && idx <= ei;
-      if (val == null) {
-        html += `<td class="heatmap-cell empty ${inRange?'':'out-of-range'}">—</td>`;
-      } else {
-        const t = (val-gMin)/(gMax-gMin);
-        const bg = heatColor(t);
-        const txtColor = textOnHeat(t);
-        const border = inRange ? 'outline:2px solid rgba(0,229,255,0.7);outline-offset:-2px;' : '';
-        html += `<td class="heatmap-cell ${inRange?'':'out-of-range'}" style="background:${bg};color:${txtColor};${border}" title="${y}年${m}月: ${fmt(val)} 公噸">${fmt(val)}</td>`;
+// ── Heatmap ──
+function updateHeatmap(si,ei){
+  const allV=allData.map(r=>r.quantity_mt),gMin=Math.min(...allV),gMax=Math.max(...allV);
+  const lk={};allData.forEach(r=>{lk[`${r.year}-${r.month}`]=r.quantity_mt;});
+  const years=[2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
+  let h='<tr><th class="row-label">年份</th>';
+  for(let m=1;m<=12;m++)h+=`<th>${m}月</th>`;h+='</tr>';
+  years.forEach(y=>{
+    h+=`<tr><th class="row-label">${y}</th>`;
+    for(let m=1;m<=12;m++){
+      const idx=ymToIdx(y,m),v=lk[`${y}-${m}`],inR=idx>=si&&idx<=ei;
+      if(v==null){h+=`<td class="heatmap-cell empty ${inR?'':'out-of-range'}">—</td>`;}
+      else{
+        const t=(v-gMin)/(gMax-gMin),bg=heatColor(t),tc=textOnHeat(t);
+        const br=inR?'outline:2px solid rgba(0,229,255,.75);outline-offset:-2px;':'';
+        h+=`<td class="heatmap-cell ${inR?'':'out-of-range'}" style="background:${bg};color:${tc};${br}" title="${y}年${m}月: ${fmt(v)} 公噸">${fmt(v)}</td>`;
       }
-    }
-    html += '</tr>';
+    }h+='</tr>';
   });
-
-  document.getElementById('heatmapTable').innerHTML = html;
+  document.getElementById('heatmapTable').innerHTML=h;
 }
 
-// ─── ★ Monthly Structural Ranking ───
-function updateMonthRankChart(data) {
-  const sums = new Array(12).fill(0), cnts = new Array(12).fill(0);
-  data.forEach(r => { sums[r.month-1]+=r.quantity_mt; cnts[r.month-1]++; });
-  const avgs = sums.map((s,i)=>cnts[i]>0?s/cnts[i]:null);
-
-  // Sort months by avg descending
-  const indexed = avgs.map((v,i)=>({month:i+1,avg:v})).filter(x=>x.avg!=null).sort((a,b)=>b.avg-a.avg);
-  const labels = indexed.map(x=>MONTHS[x.month-1]);
-  const values = indexed.map(x=>x.avg);
-
-  // Color by rank
-  const maxV = Math.max(...values), minV = Math.min(...values);
-  const bgColors = values.map(v=>{
-    const t=(v-minV)/(maxV-minV||1);
-    return heatColor(t)+'cc';
-  });
-  const bdColors = values.map(v=>{
-    const t=(v-minV)/(maxV-minV||1);
-    return heatColor(t);
-  });
-
-  if (charts.monthRank) {
-    charts.monthRank.data.labels = labels;
-    charts.monthRank.data.datasets[0].data = values;
-    charts.monthRank.data.datasets[0].backgroundColor = bgColors;
-    charts.monthRank.data.datasets[0].borderColor = bdColors;
-    charts.monthRank.update('none'); return;
-  }
-  const ctx = document.getElementById('monthRankChart').getContext('2d');
-  charts.monthRank = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[{ data:values, backgroundColor:bgColors, borderColor:bdColors, borderWidth:2, borderRadius:8, borderSkipped:false }]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      indexAxis:'y',
-      plugins:{ legend:{display:false}, tooltip:{
-        backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1,
-        titleColor:'#00e5ff', bodyColor:'#e8f0fe',
-        callbacks:{ label:c=>`平均 ${c.parsed.x.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸` }
-      }},
-      scales:{
-        x:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>v.toLocaleString('zh-TW')}, grid:{color:'rgba(0,229,255,0.06)'}, border:{color:'rgba(255,255,255,0.1)'} },
-        y:{ ticks:{color:'#e8f0fe',font:{size:11,weight:'600'}}, grid:{display:false}, border:{color:'rgba(255,255,255,0.1)'} }
-      }
-    }
-  });
+// ── Month Rank ──
+function updateMonthRankChart(data){
+  const s=new Array(12).fill(0),c=new Array(12).fill(0);
+  data.forEach(r=>{s[r.month-1]+=r.quantity_mt;c[r.month-1]++;});
+  const avgs=s.map((v,i)=>c[i]>0?v/c[i]:null);
+  const indexed=avgs.map((v,i)=>({month:i+1,avg:v})).filter(x=>x.avg!=null).sort((a,b)=>b.avg-a.avg);
+  const lbl=indexed.map(x=>MONTHS[x.month-1]),vals=indexed.map(x=>x.avg);
+  const mx=Math.max(...vals),mn=Math.min(...vals);
+  const bg=vals.map(v=>{const t=(v-mn)/(mx-mn||1);return heatColor(t)+'cc';});
+  const bd=vals.map(v=>heatColor((v-mn)/(mx-mn||1)));
+  if(charts.mRank){charts.mRank.data.labels=lbl;charts.mRank.data.datasets[0].data=vals;charts.mRank.data.datasets[0].backgroundColor=bg;charts.mRank.data.datasets[0].borderColor=bd;charts.mRank.update('none');return;}
+  const ctx=document.getElementById('monthRankChart').getContext('2d');
+  charts.mRank=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`平均 ${c.parsed.x.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#e8f0fe',font:{size:13,weight:'600'}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}}}}});
 }
 
-// ─── Top5 Chart ───
-function updateTop5Chart(sorted) {
-  const labels = sorted.map(r=>fmtYMShort(r.year,r.month));
-  const values = sorted.map(r=>r.quantity_mt);
-  if (charts.top5) {
-    charts.top5.data.labels=labels; charts.top5.data.datasets[0].data=values; charts.top5.update('none'); return;
-  }
-  const ctx = document.getElementById('top5Chart').getContext('2d');
-  charts.top5 = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[{ data:values, backgroundColor:rankColors.map(c=>c+'33'), borderColor:rankColors, borderWidth:2, borderRadius:8, borderSkipped:false }]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{
-        backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1,
-        titleColor:'#00e5ff', bodyColor:'#e8f0fe',
-        callbacks:{ label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸` }
-      }},
-      scales:{
-        x:{ ticks:{color:'#8faabe',font:{size:11}}, grid:{display:false}, border:{color:'rgba(255,255,255,0.1)'} },
-        y:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>v.toLocaleString('zh-TW')}, grid:{color:'rgba(0,229,255,0.06)'}, border:{color:'rgba(255,255,255,0.1)'} }
-      }
-    }
-  });
+// ── Top5 ──
+function updateTop5Chart(sorted){
+  const lbl=sorted.map(r=>fmtYMs(r.year,r.month)),vals=sorted.map(r=>r.quantity_mt);
+  if(charts.top5){charts.top5.data.labels=lbl;charts.top5.data.datasets[0].data=vals;charts.top5.update('none');return;}
+  const ctx=document.getElementById('top5Chart').getContext('2d');
+  charts.top5=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:rColors.map(c=>c+'33'),borderColor:rColors,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}}}});
 }
 
-// ─── CAGR Chart ───
-function updateCAGRChart(data) {
-  const yt = {};
-  data.forEach(r=>{ yt[r.year]=(yt[r.year]||0)+r.quantity_mt; });
-  const years = Object.keys(yt).map(Number).sort();
-  const totals = years.map(y=>yt[y]);
-  const yoy = years.map((y,i)=>i===0?null:((yt[y]-yt[years[i-1]])/yt[years[i-1]])*100);
-  let cagrTxt='';
-  if (years.length>=2) {
-    const n=years.length-1;
-    const cagr=(Math.pow(totals[n]/totals[0],1/n)-1)*100;
-    cagrTxt=`整體CAGR: ${cagr>=0?'+':''}${cagr.toFixed(1)}%`;
-  }
-  if (charts.cagr) {
-    charts.cagr.data.labels=years.map(String);
-    charts.cagr.data.datasets[0].data=totals;
-    charts.cagr.data.datasets[1].data=yoy;
-    charts.cagr.options.plugins.title.text=cagrTxt;
-    charts.cagr.update('none'); return;
-  }
-  const ctx = document.getElementById('cagrChart').getContext('2d');
-  charts.cagr = new Chart(ctx, {
-    type:'bar',
-    data:{ labels:years.map(String), datasets:[
-      { label:'年度合計 (公噸)', data:totals, backgroundColor:'rgba(41,121,255,0.25)', borderColor:'#2979ff', borderWidth:2, borderRadius:6, yAxisID:'y', order:2 },
-      { label:'年增率 (%)', data:yoy, type:'line', borderColor:'#00e676', backgroundColor:'rgba(0,230,118,0.1)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#00e676', pointBorderColor:'#050b18', pointBorderWidth:2, tension:0.3, yAxisID:'y2', order:1, spanGaps:true }
-    ]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{ labels:{color:'#8faabe',font:{size:11},boxWidth:14}, position:'top' },
-        title:{ display:true, text:cagrTxt, color:'#00e676', font:{size:12,weight:'600'}, padding:{bottom:8} },
-        tooltip:{ backgroundColor:'rgba(5,11,24,0.95)', borderColor:'rgba(0,229,255,0.3)', borderWidth:1, titleColor:'#00e5ff', bodyColor:'#e8f0fe',
-          callbacks:{ label:c=>c.datasetIndex===0?`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`:c.parsed.y!=null?`${c.parsed.y>=0?'+':''}${c.parsed.y.toFixed(1)}%`:'N/A' }
-        }
-      },
-      scales:{
-        x:{ ticks:{color:'#8faabe',font:{size:11}}, grid:{display:false}, border:{color:'rgba(255,255,255,0.1)'} },
-        y:{ ticks:{color:'#8faabe',font:{size:10},callback:v=>(v/1000).toFixed(0)+'K'}, grid:{color:'rgba(41,121,255,0.08)'}, border:{color:'rgba(255,255,255,0.1)'}, title:{display:true,text:'公噸',color:'#8faabe',font:{size:10}} },
-        y2:{ position:'right', ticks:{color:'#00e676',font:{size:10},callback:v=>v!=null?v.toFixed(0)+'%':''}, grid:{display:false}, border:{color:'rgba(0,230,118,0.2)'}, title:{display:true,text:'年增率',color:'#00e676',font:{size:10}} }
-      }
-    }
-  });
+// ── CAGR ──
+function updateCAGRChart(data){
+  const yt={};data.forEach(r=>{yt[r.year]=(yt[r.year]||0)+r.quantity_mt;});
+  const yrs=Object.keys(yt).map(Number).sort(),tots=yrs.map(y=>yt[y]);
+  const yoy=yrs.map((y,i)=>i===0?null:((yt[y]-yt[yrs[i-1]])/yt[yrs[i-1]])*100);
+  let ct='';if(yrs.length>=2){const n=yrs.length-1,cagr=(Math.pow(tots[n]/tots[0],1/n)-1)*100;ct=`整體CAGR: ${cagr>=0?'+':''}${cagr.toFixed(1)}%`;}
+  if(charts.cagr){charts.cagr.data.labels=yrs.map(String);charts.cagr.data.datasets[0].data=tots;charts.cagr.data.datasets[1].data=yoy;charts.cagr.options.plugins.title.text=ct;charts.cagr.update('none');return;}
+  const ctx=document.getElementById('cagrChart').getContext('2d');
+  charts.cagr=new Chart(ctx,{type:'bar',data:{labels:yrs.map(String),datasets:[
+    {label:'年度合計(公噸)',data:tots,backgroundColor:'rgba(41,121,255,.25)',borderColor:'#2979ff',borderWidth:2,borderRadius:6,yAxisID:'y',order:2},
+    {label:'年增率(%)',data:yoy,type:'line',borderColor:'#00e676',backgroundColor:'rgba(0,230,118,.1)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#00e676',pointBorderColor:'#050b18',pointBorderWidth:2,tension:.3,yAxisID:'y2',order:1,spanGaps:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8faabe',font:{size:12},boxWidth:14},position:'top'},title:{display:true,text:ct,color:'#00e676',font:{size:13,weight:'600'},padding:{bottom:8}},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>c.datasetIndex===0?`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`:c.parsed.y!=null?`${c.parsed.y>=0?'+':''}${c.parsed.y.toFixed(1)}%`:'N/A'}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(41,121,255,.08)'},border:{color:'rgba(255,255,255,.1)'},title:{display:true,text:'公噸',color:'#8faabe',font:{size:12}}},y2:{position:'right',ticks:{color:'#00e676',font:{size:12},callback:v=>v!=null?v.toFixed(0)+'%':''},grid:{display:false},border:{color:'rgba(0,230,118,.2)'},title:{display:true,text:'年增率',color:'#00e676',font:{size:12}}}}}});
 }
 
-// ─── Data Table ───
-function updateTable(data) {
-  const years = [...new Set(data.map(r=>r.year))].sort();
-  const lookup = {};
-  data.forEach(r=>{ lookup[`${r.year}-${r.month}`]=r.quantity_mt; });
-  const yt = {};
-  years.forEach(y=>{yt[y]=0;});
+// ── Route Trend ──
+function updateRouteTrend(rData){
+  const lbl=rData.map(r=>fmtYMs(r.year,r.month));
+  const us=rData.map(r=>r.us_line_mt||0),eu=rData.map(r=>r.eu_line_mt||0);
+  if(charts.rTrend){charts.rTrend.data.labels=lbl;charts.rTrend.data.datasets[0].data=us;charts.rTrend.data.datasets[1].data=eu;charts.rTrend.update('none');return;}
+  const ctx=document.getElementById('routeTrendChart').getContext('2d');
+  const gUs=ctx.createLinearGradient(0,0,0,270);gUs.addColorStop(0,'rgba(0,229,255,.35)');gUs.addColorStop(1,'rgba(0,229,255,0)');
+  const gEu=ctx.createLinearGradient(0,0,0,270);gEu.addColorStop(0,'rgba(255,109,0,.3)');gEu.addColorStop(1,'rgba(255,109,0,0)');
+  charts.rTrend=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[
+    {label:'美線（采丁美）',data:us,borderColor:'#00e5ff',backgroundColor:gUs,borderWidth:2.5,pointRadius:rData.length>36?0:3,pointHoverRadius:7,tension:.3,fill:true},
+    {label:'歐洲線',data:eu,borderColor:'#ff6d00',backgroundColor:gEu,borderWidth:2.5,pointRadius:rData.length>36?0:3,pointHoverRadius:7,tension:.3,fill:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'top'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},maxTicksLimit:20,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)',dash:[4,4]}}},interaction:{mode:'index',intersect:false}}});
+}
+
+// ── Route Bar (stacked) ──
+function updateRouteBar(rData){
+  const yt={};
+  rData.forEach(r=>{if(!yt[r.year])yt[r.year]={us:0,eu:0};yt[r.year].us+=r.us_line_mt||0;yt[r.year].eu+=r.eu_line_mt||0;});
+  const yrs=Object.keys(yt).sort(),us=yrs.map(y=>yt[y].us),eu=yrs.map(y=>yt[y].eu);
+  if(charts.rBar){charts.rBar.data.labels=yrs;charts.rBar.data.datasets[0].data=us;charts.rBar.data.datasets[1].data=eu;charts.rBar.update('none');return;}
+  const ctx=document.getElementById('routeBarChart').getContext('2d');
+  charts.rBar=new Chart(ctx,{type:'bar',data:{labels:yrs,datasets:[
+    {label:'美線（采丁美）',data:us,backgroundColor:'rgba(0,229,255,.4)',borderColor:'#00e5ff',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'route'},
+    {label:'歐洲線',data:eu,backgroundColor:'rgba(255,109,0,.4)',borderColor:'#ff6d00',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'route'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'top'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:13}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{stacked:true,ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}}}});
+}
+
+// ── Route Donut ──
+function updateRouteDonut(rData){
+  const totUs=rData.reduce((s,r)=>s+(r.us_line_mt||0),0);
+  const totEu=rData.reduce((s,r)=>s+(r.eu_line_mt||0),0);
+  if(charts.rDonut){charts.rDonut.data.datasets[0].data=[totUs,totEu];charts.rDonut.update('none');return;}
+  const ctx=document.getElementById('routeDonutChart').getContext('2d');
+  charts.rDonut=new Chart(ctx,{type:'doughnut',data:{labels:['美線（采丁美）','歐洲線'],datasets:[{data:[totUs,totEu],backgroundColor:['rgba(0,229,255,.45)','rgba(255,109,0,.45)'],borderColor:['#00e5ff','#ff6d00'],borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'bottom'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return`${c.label}: ${fmt(c.parsed)} 噸 (${(c.parsed/t*100).toFixed(1)}%)`;}}},datalabels:{display:false}}}});
+}
+
+// ── Table ──
+function updateTable(data){
+  const years=[...new Set(data.map(r=>r.year))].sort();
+  const lk={};data.forEach(r=>{lk[`${r.year}-${r.month}`]=r.quantity_mt;});
+  const yt={};years.forEach(y=>{yt[y]=0;});
   let rows='';
-  for (let m=1; m<=12; m++) {
-    const mVals=years.map(y=>lookup[`${y}-${m}`]);
-    const def=mVals.filter(v=>v!=null);
+  for(let m=1;m<=12;m++){
+    const mv=years.map(y=>lk[`${y}-${m}`]);
+    const def=mv.filter(v=>v!=null);
     const mAvg=def.length?def.reduce((a,b)=>a+b,0)/def.length:null;
-    years.forEach((y,i)=>{ if(mVals[i]!=null) yt[y]+=mVals[i]; });
+    years.forEach((y,i)=>{if(mv[i]!=null)yt[y]+=mv[i];});
     const mx=def.length?Math.max(...def):1;
     rows+=`<tr><td>${m}月</td>${years.map((y,i)=>{
-      const v=mVals[i];
-      if(v==null) return '<td style="color:#444">—</td>';
-      const pct=(v/mx*100).toFixed(0);
-      return `<td style="position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:rgba(0,229,255,0.06);border-radius:2px"></div><span style="position:relative">${fmt(v)}</span></td>`;
+      const v=mv[i];if(v==null)return'<td style="color:#444">—</td>';
+      const p=(v/mx*100).toFixed(0);
+      return`<td style="position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:${p}%;background:rgba(0,229,255,.06);border-radius:2px"></div><span style="position:relative">${fmt(v)}</span></td>`;
     }).join('')}<td style="color:#8faabe">${mAvg!=null?fmt(mAvg):'—'}</td></tr>`;
   }
-  const grandVals=Object.values(yt).filter(v=>v>0);
-  const grandAvg=grandVals.length?grandVals.reduce((a,b)=>a+b,0)/grandVals.length:0;
-  rows+=`<tr class="total-row"><td>年合計</td>${years.map(y=>`<td>${yt[y]>0?fmt(yt[y]):'—'}</td>`).join('')}<td>${fmt(grandAvg)}</td></tr>`;
+  const gv=Object.values(yt).filter(v=>v>0);
+  const gAvg=gv.length?gv.reduce((a,b)=>a+b,0)/gv.length:0;
+  rows+=`<tr class="total-row"><td>年合計</td>${years.map(y=>`<td>${yt[y]>0?fmt(yt[y]):'—'}</td>`).join('')}<td>${fmt(gAvg)}</td></tr>`;
   document.getElementById('tableHead').innerHTML=`<tr><th>月份</th>${years.map(y=>`<th>${y}</th>`).join('')}<th>月均值</th></tr>`;
   document.getElementById('tableBody').innerHTML=rows;
 }
 
-// ─── Sliders ───
-function updateSliderLabels(si,ei) {
+// ── Export Excel ──
+function exportExcel(){
+  const years=[...new Set(allData.map(r=>r.year))].sort();
+  const lk={};allData.forEach(r=>{lk[`${r.year}-${r.month}`]=r;});
+  const header=['月份',...years.map(String),'月均值'];
+  const rows=[header];
+  const yt={};years.forEach(y=>{yt[y]={total:0,us:0,eu:0};});
+  for(let m=1;m<=12;m++){
+    const row=[`${m}月`];
+    const vals=[];
+    years.forEach(y=>{
+      const r=lk[`${y}-${m}`];
+      if(r){row.push(r.quantity_mt);vals.push(r.quantity_mt);yt[y].total+=r.quantity_mt;if(r.us_line_mt)yt[y].us+=r.us_line_mt;if(r.eu_line_mt)yt[y].eu+=r.eu_line_mt;}
+      else row.push('');
+    });
+    row.push(vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10:'');
+    rows.push(row);
+  }
+  // Totals row
+  const totRow=['年合計'];
+  years.forEach(y=>{totRow.push(Math.round(yt[y].total*10)/10);});
+  totRow.push('');rows.push(totRow);
+  // US/EU rows
+  const usRow=['美線合計'];years.forEach(y=>{usRow.push(yt[y].us>0?Math.round(yt[y].us*10)/10:'');});usRow.push('');rows.push(usRow);
+  const euRow=['歐線合計'];years.forEach(y=>{euRow.push(yt[y].eu>0?Math.round(yt[y].eu*10)/10:'');});euRow.push('');rows.push(euRow);
+
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  // Column widths
+  ws['!cols']=[{wch:8},...years.map(()=>({wch:10})),{wch:10}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,'出貨量統計',ws);
+  XLSX.writeFile(wb,'出貨量統計表.xlsx');
+}
+
+// ── Sliders & Date Input ──
+function updateLabels(si,ei){
   const s=idxToYM(si),e=idxToYM(ei);
   document.getElementById('startLabel').textContent=fmtYM(s.year,s.month);
   document.getElementById('endLabel').textContent=fmtYM(e.year,e.month);
-  document.getElementById('rangeStart').textContent=fmtYMShort(s.year,s.month);
-  document.getElementById('rangeEnd').textContent=fmtYMShort(e.year,e.month);
+  document.getElementById('rangeStart').textContent=fmtYMs(s.year,s.month);
+  document.getElementById('rangeEnd').textContent=fmtYMs(e.year,e.month);
+  document.getElementById('startInput').value=fmtYMs(s.year,s.month);
+  document.getElementById('endInput').value=fmtYMs(e.year,e.month);
 }
-function updateTrack(sl) {
+function updateTrack(sl){
   const p=((+sl.value-+sl.min)/(+sl.max-+sl.min))*100;
-  sl.style.background=`linear-gradient(90deg,rgba(0,229,255,0.5) ${p}%,rgba(0,229,255,0.1) ${p}%)`;
+  sl.style.background=`linear-gradient(90deg,rgba(0,229,255,.5) ${p}%,rgba(0,229,255,.12) ${p}%)`;
 }
+function parseYM(str){
+  const m=str.match(/^(\d{4})-(\d{1,2})$/);
+  if(!m)return null;
+  const y=+m[1],mo=+m[2];
+  if(y<2017||y>2026||mo<1||mo>12)return null;
+  const i=ymToIdx(y,mo);
+  if(i<0||i>111)return null;
+  return i;
+}
+
 let debounce;
-function onSliderChange() {
+function onSliderChange(){
   const ss=document.getElementById('startSlider'),es=document.getElementById('endSlider');
   let s=+ss.value,e=+es.value;
-  if(s>e){ if(this===ss){ss.value=e;s=e;}else{es.value=s;e=s;} }
-  updateTrack(ss); updateTrack(es); updateSliderLabels(s,e);
-  clearTimeout(debounce); debounce=setTimeout(()=>updateDashboard(s,e),80);
+  if(s>e){if(this===ss){ss.value=e;s=e;}else{es.value=s;e=s;}}
+  updateTrack(ss);updateTrack(es);updateLabels(s,e);
+  clearTimeout(debounce);debounce=setTimeout(()=>updateDashboard(s,e),80);
 }
 
-// ─── Init ───
-async function init() {
+function setupDateInput(inputId,sliderId,isStart){
+  const inp=document.getElementById(inputId),sl=document.getElementById(sliderId);
+  inp.addEventListener('input',()=>{
+    inp.style.borderColor=rgba(0,229,255,.3);
+    const idx=parseYM(inp.value);
+    if(idx===null){inp.style.borderColor='rgba(255,82,82,.6)';return;}
+    inp.style.borderColor='rgba(0,229,255,.5)';
+    const ss=document.getElementById('startSlider'),es=document.getElementById('endSlider');
+    let s=+ss.value,e=+es.value;
+    if(isStart){if(idx>e)return;s=idx;ss.value=idx;}
+    else{if(idx<s)return;e=idx;es.value=idx;}
+    updateTrack(ss);updateTrack(es);updateLabels(s,e);
+    clearTimeout(debounce);debounce=setTimeout(()=>updateDashboard(s,e),80);
+  });
+  inp.addEventListener('blur',()=>{
+    const idx=parseYM(inp.value);
+    if(idx===null){
+      const cur=isStart?+document.getElementById('startSlider').value:+document.getElementById('endSlider').value;
+      const ym=idxToYM(cur);inp.value=fmtYMs(ym.year,ym.month);
+    }
+    inp.style.borderColor='';
+  });
+}
+
+// ── Init ──
+async function init(){
   let data=null;
-  try {
-    const controller=new AbortController();
-    const tid=setTimeout(()=>controller.abort(),4000);
-    const res=await fetch(
-      `${SUPABASE_URL}/rest/v1/shipping_monthly?select=year,month,quantity_mt&order=year.asc,month.asc`,
-      { headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, signal:controller.signal }
-    );
+  try{
+    const ctrl=new AbortController(),tid=setTimeout(()=>ctrl.abort(),4000);
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/shipping_monthly?select=year,month,quantity_mt,us_line_mt,eu_line_mt&order=year.asc,month.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},signal:ctrl.signal});
     clearTimeout(tid);
-    if(res.ok){ const json=await res.json(); if(Array.isArray(json)&&json.length>0) data=json; }
-  } catch(e) {}
-  allData = data || EMBEDDED_DATA;
+    if(res.ok){const j=await res.json();if(Array.isArray(j)&&j.length>0)data=j;}
+  }catch(e){}
+  allData=data||EMBEDDED;
 
   const ss=document.getElementById('startSlider'),es=document.getElementById('endSlider');
-  ss.addEventListener('input',onSliderChange);
-  es.addEventListener('input',onSliderChange);
-  updateTrack(ss); updateTrack(es);
-  updateSliderLabels(0,111);
+  ss.addEventListener('input',onSliderChange);es.addEventListener('input',onSliderChange);
+  updateTrack(ss);updateTrack(es);
+  updateLabels(0,111);
+  setupDateInput('startInput','startSlider',true);
+  setupDateInput('endInput','endSlider',false);
+  document.getElementById('exportBtn').addEventListener('click',exportExcel);
   updateDashboard(0,111);
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.opacity='1';
