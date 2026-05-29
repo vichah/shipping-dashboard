@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -177,6 +177,74 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
 #cellTooltip .ct-row.us .ct-val{color:var(--cyan)}
 #cellTooltip .ct-row.eu .ct-val{color:var(--orange)}
 
+/* Theme toggle button */
+.theme-toggle{display:flex;align-items:center;gap:8px;background:rgba(0,229,255,.08);border:1.5px solid rgba(0,229,255,.35);border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;color:var(--cyan);cursor:pointer;transition:background .2s,box-shadow .2s;font-family:inherit;letter-spacing:.5px}
+.theme-toggle:hover{background:rgba(0,229,255,.16);box-shadow:0 0 12px rgba(0,229,255,.25)}
+
+/* Light theme overrides */
+html[data-theme="light"]{
+  --bg:#eef4ff;--card:rgba(255,255,255,.93);--card2:rgba(248,251,255,.95);
+  --cyan:#1565c0;--blue:#1976d2;--purple:#5e35b1;--green:#00897b;
+  --orange:#e65100;--pink:#c62828;
+  --txt:#0d1b3e;--txt2:#4a6080;
+  --bord:rgba(21,101,192,.22);--bord2:rgba(21,101,192,.18);
+}
+html[data-theme="light"] body{background:var(--bg)}
+html[data-theme="light"] body::before{
+  background:linear-gradient(rgba(21,101,192,.07) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(21,101,192,.07) 1px,transparent 1px);
+}
+html[data-theme="light"] body::after{
+  background:radial-gradient(ellipse at 20% 50%,rgba(21,101,192,.06) 0%,transparent 60%),
+  radial-gradient(ellipse at 80% 20%,rgba(94,53,177,.06) 0%,transparent 60%);
+}
+html[data-theme="light"] .slider-panel,
+html[data-theme="light"] .kpi-card,
+html[data-theme="light"] .chart-card{box-shadow:0 2px 16px rgba(21,101,192,.1)}
+html[data-theme="light"] .kpi-card:hover{box-shadow:0 8px 32px rgba(21,101,192,.2) !important}
+html[data-theme="light"] .logo-box{box-shadow:0 0 24px rgba(21,101,192,.4)}
+html[data-theme="light"] .theme-toggle{color:var(--cyan);border-color:rgba(21,101,192,.4);background:rgba(21,101,192,.08)}
+html[data-theme="light"] .theme-toggle:hover{background:rgba(21,101,192,.16)}
+html[data-theme="light"] .header-badge{background:rgba(21,101,192,.1);border-color:rgba(21,101,192,.3);color:var(--cyan)}
+html[data-theme="light"] .heatmap-legend-bar{background:linear-gradient(90deg,#e3f2fd,#64b5f6,#1976d2,#0d47a1)}
+html[data-theme="light"] .trend-toggle-btn.total{border-color:#1565c0;color:#1565c0;background:rgba(21,101,192,.1)}
+html[data-theme="light"] .trend-toggle-btn.us{border-color:#0097a7;color:#0097a7;background:rgba(0,151,167,.08)}
+html[data-theme="light"] .trend-toggle-btn.eu{border-color:#e65100;color:#e65100;background:rgba(230,81,0,.08)}
+html[data-theme="light"] .route-badge.us{background:rgba(21,101,192,.1);border-color:rgba(21,101,192,.35);color:#1565c0}
+html[data-theme="light"] .route-badge.eu{background:rgba(230,81,0,.1);border-color:rgba(230,81,0,.3);color:#e65100}
+html[data-theme="light"] .export-btn{background:rgba(0,137,123,.1);border-color:rgba(0,137,123,.35);color:var(--green)}
+html[data-theme="light"] .export-btn:hover{background:rgba(0,137,123,.2)}
+html[data-theme="light"] #cellTooltip{background:rgba(248,252,255,.97);border-color:rgba(21,101,192,.4);box-shadow:0 4px 24px rgba(0,0,0,.15)}
+html[data-theme="light"] #cellTooltip .ct-title{color:#1565c0}
+html[data-theme="light"] .loader-ring{border-top-color:#1565c0}
+html[data-theme="light"] .kpi-card.max .kpi-value{text-shadow:0 0 16px rgba(21,101,192,.3)}
+html[data-theme="light"] .kpi-card.min .kpi-value{text-shadow:0 0 16px rgba(198,40,40,.2)}
+html[data-theme="light"] .kpi-card.avg .kpi-value{text-shadow:0 0 16px rgba(25,118,210,.3)}
+html[data-theme="light"] .yoy-value.up{text-shadow:0 0 16px rgba(0,137,123,.3)}
+html[data-theme="light"] .yoy-value.down{text-shadow:0 0 16px rgba(198,40,40,.2)}
+html[data-theme="light"] input[type=range]{background:rgba(21,101,192,.15)}
+html[data-theme="light"] input[type=range]::-webkit-slider-thumb{background:linear-gradient(135deg,#1976d2,#1565c0);box-shadow:0 0 14px rgba(21,101,192,.6)}
+html[data-theme="light"] .date-input{background:rgba(21,101,192,.07);border-color:rgba(21,101,192,.3);color:#1565c0}
+html[data-theme="light"] .date-input:focus{border-color:#1565c0;box-shadow:0 0 8px rgba(21,101,192,.3)}
+html[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(21,101,192,.3)}
+html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:rgba(21,101,192,.5)}
+html[data-theme="light"] .data-table th{background:rgba(21,101,192,.08);color:#1565c0;border-bottom-color:rgba(21,101,192,.2)}
+html[data-theme="light"] .data-table td{color:#0d1b3e}
+html[data-theme="light"] .data-table td:first-child{color:#4a6080}
+html[data-theme="light"] .data-table tr:hover td{background:rgba(21,101,192,.04)}
+html[data-theme="light"] .data-table .total-row td{color:#1565c0;background:rgba(21,101,192,.06)}
+html[data-theme="light"] .section-label{color:rgba(21,101,192,.6)}
+html[data-theme="light"] .section-label::after{background:linear-gradient(90deg,rgba(21,101,192,.25),transparent)}
+html[data-theme="light"] .chart-title{color:#1565c0}
+html[data-theme="light"] .slider-panel-title{color:#1565c0}
+html[data-theme="light"] .slider-panel::before{background:linear-gradient(90deg,#1565c0,#1976d2,#5e35b1)}
+html[data-theme="light"] .chart-card::before{background:linear-gradient(90deg,transparent,#1976d2,transparent)}
+html[data-theme="light"] .range-display{background:rgba(21,101,192,.06);border-color:rgba(21,101,192,.15)}
+html[data-theme="light"] .range-display .val{color:#1565c0}
+html[data-theme="light"] .heatmap-table th.row-label{color:#1565c0}
+html[data-theme="light"] .kpi-route-item.us .r-val{color:#0097a7}
+html[data-theme="light"] .kpi-route-item.eu .r-val{color:#e65100}
+
 #routeSection{display:none;margin-bottom:18px}
 @media(max-width:1200px){.kpi-grid,.kpi-grid-3{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}.chart-card.full-width{grid-column:auto}}
 @media(max-width:600px){.kpi-grid,.kpi-grid-3{grid-template-columns:1fr}.slider-row{flex-direction:column;gap:20px}}
@@ -204,7 +272,10 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
       <p>Shipping Volume Analytics Dashboard · 2017 – 2026</p>
     </div>
   </div>
-  <div class="header-badge">EXECUTIVE VIEW</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="theme-toggle" id="themeToggle">☀ 淺色模式</button>
+    <div class="header-badge">EXECUTIVE VIEW</div>
+  </div>
 </header>
 
 <!-- Slider -->
@@ -388,11 +459,41 @@ function fmtYM(y,m){return`${y}年 ${String(m).padStart(2,'0')}月`}
 function fmtYMs(y,m){return`${y}-${String(m).padStart(2,'0')}`}
 function fmt(n){return n.toLocaleString('zh-TW',{minimumFractionDigits:1,maximumFractionDigits:1})}
 function lerp(a,b,t){return a+(b-a)*t}
+function isLight(){return document.documentElement.dataset.theme==='light';}
 function heatColor(t){
+  if(isLight()){
+    if(t<=.5){const s=t*2;return`rgb(${Math.round(lerp(227,100,s))},${Math.round(lerp(242,181,s))},${Math.round(lerp(253,246,s))})`}
+    const s=(t-.5)*2;return`rgb(${Math.round(lerp(100,21,s))},${Math.round(lerp(181,101,s))},${Math.round(lerp(246,192,s))})`;
+  }
   if(t<=.5){const s=t*2;return`rgb(${Math.round(lerp(13,0,s))},${Math.round(lerp(43,121,s))},${Math.round(lerp(110,172,s))})`}
   const s=(t-.5)*2;return`rgb(0,${Math.round(lerp(121,229,s))},${Math.round(lerp(172,255,s))})`;
 }
-function textOnHeat(t){return t>.55?'#050b18':'#e8f0fe'}
+function textOnHeat(t){return isLight()?(t>.5?'#fff':'#0d1b3e'):(t>.55?'#050b18':'#e8f0fe')}
+
+// Theme-aware chart colors
+function TC(){
+  const L=isLight();
+  return{
+    grid:L?'rgba(21,101,192,.1)':'rgba(0,229,255,.06)',
+    gridAlt:L?'rgba(25,118,210,.09)':'rgba(41,121,255,.08)',
+    tick:L?'#4a6080':'#8faabe',
+    legend:L?'#0d1b3e':'#e8f0fe',
+    ttBg:L?'rgba(248,252,255,.97)':'rgba(5,11,24,.95)',
+    ttBord:L?'rgba(21,101,192,.3)':'rgba(0,229,255,.3)',
+    ttTitle:L?'#1565c0':'#00e5ff',
+    ttBody:L?'#0d1b3e':'#e8f0fe',
+    trend:L?'#1565c0':'#00e5ff',
+    trendFill0:L?'rgba(21,101,192,.25)':'rgba(0,229,255,.25)',
+    trendFill1:L?'rgba(21,101,192,0)':'rgba(0,229,255,0)',
+    ptBg:L?'#fff':'#050b18',
+    usLine:L?'#0097a7':'#40c4ff',
+    euLine:L?'#e65100':'#ff6d00',
+    barBlue:L?'rgba(21,101,192,.65)':'rgba(41,121,255,.25)',
+    barBlueBd:L?'#1565c0':'#2979ff',
+    growth:L?'#00897b':'#00e676',
+    growthFill:L?'rgba(0,137,123,.1)':'rgba(0,230,118,.1)',
+  };
+}
 const MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
 let allData=[],charts={};
@@ -509,25 +610,26 @@ function updateTrendChart(data){
   }
 
   const ctx=document.getElementById('trendChart').getContext('2d');
-  const gT=ctx.createLinearGradient(0,0,0,300);gT.addColorStop(0,'rgba(0,229,255,.25)');gT.addColorStop(1,'rgba(0,229,255,0)');
-  const gU=ctx.createLinearGradient(0,0,0,300);gU.addColorStop(0,'rgba(0,200,220,.15)');gU.addColorStop(1,'rgba(0,200,220,0)');
-  const gE=ctx.createLinearGradient(0,0,0,300);gE.addColorStop(0,'rgba(255,109,0,.2)');gE.addColorStop(1,'rgba(255,109,0,0)');
+  const t=TC();
+  const gT=ctx.createLinearGradient(0,0,0,300);gT.addColorStop(0,t.trendFill0);gT.addColorStop(1,t.trendFill1);
+  const gU=ctx.createLinearGradient(0,0,0,300);gU.addColorStop(0,'rgba(0,151,167,.18)');gU.addColorStop(1,'rgba(0,151,167,0)');
+  const gE=ctx.createLinearGradient(0,0,0,300);gE.addColorStop(0,'rgba(230,81,0,.2)');gE.addColorStop(1,'rgba(230,81,0,0)');
 
   const pt=data.length>60?0:3;
   charts.trend=new Chart(ctx,{
     type:'line',
     data:{labels:lbl,datasets:[
-      {label:'合計',data:tot,borderColor:'#00e5ff',backgroundColor:gT,borderWidth:2.5,pointRadius:pt,pointHoverRadius:7,pointBackgroundColor:'#00e5ff',pointBorderColor:'#050b18',pointBorderWidth:2,tension:.3,fill:true,order:1},
-      {label:'美線（采丁美）',data:us,borderColor:'#40c4ff',backgroundColor:gU,borderWidth:1.8,pointRadius:pt,pointHoverRadius:6,pointBackgroundColor:'#40c4ff',pointBorderColor:'#050b18',pointBorderWidth:1.5,tension:.3,fill:false,borderDash:[5,3],spanGaps:false,order:2},
-      {label:'歐洲線',data:eu,borderColor:'#ff6d00',backgroundColor:gE,borderWidth:1.8,pointRadius:pt,pointHoverRadius:6,pointBackgroundColor:'#ff6d00',pointBorderColor:'#050b18',pointBorderWidth:1.5,tension:.3,fill:false,borderDash:[5,3],spanGaps:false,order:3}
+      {label:'合計',data:tot,borderColor:t.trend,backgroundColor:gT,borderWidth:2.5,pointRadius:pt,pointHoverRadius:7,pointBackgroundColor:t.trend,pointBorderColor:t.ptBg,pointBorderWidth:2,tension:.3,fill:true,order:1},
+      {label:'美線（采丁美）',data:us,borderColor:t.usLine,backgroundColor:gU,borderWidth:1.8,pointRadius:pt,pointHoverRadius:6,pointBackgroundColor:t.usLine,pointBorderColor:t.ptBg,pointBorderWidth:1.5,tension:.3,fill:false,borderDash:[5,3],spanGaps:false,order:2},
+      {label:'歐洲線',data:eu,borderColor:t.euLine,backgroundColor:gE,borderWidth:1.8,pointRadius:pt,pointHoverRadius:6,pointBackgroundColor:t.euLine,pointBorderColor:t.ptBg,pointBorderWidth:1.5,tension:.3,fill:false,borderDash:[5,3],spanGaps:false,order:3}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'rgba(5,11,24,.97)',borderColor:'rgba(0,229,255,.4)',borderWidth:1,
-          titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},padding:12,
+          backgroundColor:t.ttBg,borderColor:t.ttBord,borderWidth:1,
+          titleColor:t.ttTitle,bodyColor:t.ttBody,titleFont:{size:13},bodyFont:{size:13},padding:12,
           mode:'index',intersect:false,
           filter:item=>item.parsed.y!==null,
           callbacks:{
@@ -542,8 +644,8 @@ function updateTrendChart(data){
         }
       },
       scales:{
-        x:{ticks:{color:'#8faabe',font:{size:12},maxTicksLimit:24,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.1)'}},
-        y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)',dash:[4,4]}}
+        x:{ticks:{color:t.tick,font:{size:12},maxTicksLimit:24,maxRotation:45},grid:{color:'rgba(128,128,128,.08)'},border:{color:'rgba(128,128,128,.15)'}},
+        y:{ticks:{color:t.tick,font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:t.grid},border:{color:'rgba(128,128,128,.15)',dash:[4,4]}}
       },
       interaction:{mode:'index',intersect:false}
     }
@@ -595,7 +697,8 @@ function updateMonthRank(data){
   const bg=vals.map(v=>heatColor((v-mn)/(mx-mn||1))+'cc'),bd=vals.map(v=>heatColor((v-mn)/(mx-mn||1)));
   if(charts.mR){charts.mR.data.labels=lbl;charts.mR.data.datasets[0].data=vals;charts.mR.data.datasets[0].backgroundColor=bg;charts.mR.data.datasets[0].borderColor=bd;charts.mR.update('none');return;}
   const ctx=document.getElementById('monthRankChart').getContext('2d');
-  charts.mR=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`平均 ${c.parsed.x.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#e8f0fe',font:{size:13,weight:'600'}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}}}}});
+  const tM=TC();
+  charts.mR=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:tM.ttBg,borderColor:tM.ttBord,borderWidth:1,titleColor:tM.ttTitle,bodyColor:tM.ttBody,titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`平均 ${c.parsed.x.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:tM.tick,font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:tM.grid},border:{color:'rgba(128,128,128,.15)'}},y:{ticks:{color:tM.legend,font:{size:13,weight:'600'}},grid:{display:false},border:{color:'rgba(128,128,128,.15)'}}}}});
 }
 
 /* ── Top5 ── */
@@ -603,7 +706,8 @@ function updateTop5(sorted){
   const lbl=sorted.map(r=>fmtYMs(r.year,r.month)),vals=sorted.map(r=>r.quantity_mt);
   if(charts.t5){charts.t5.data.labels=lbl;charts.t5.data.datasets[0].data=vals;charts.t5.update('none');return;}
   const ctx=document.getElementById('top5Chart').getContext('2d');
-  charts.t5=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:RC.map(c=>c+'33'),borderColor:RC,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}}}});
+  const tT=TC();
+  charts.t5=new Chart(ctx,{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:RC.map(c=>c+'33'),borderColor:RC,borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:tT.ttBg,borderColor:tT.ttBord,borderWidth:1,titleColor:tT.ttTitle,bodyColor:tT.ttBody,titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:tT.tick,font:{size:12}},grid:{display:false},border:{color:'rgba(128,128,128,.15)'}},y:{ticks:{color:tT.tick,font:{size:12},callback:v=>v.toLocaleString('zh-TW')},grid:{color:tT.grid},border:{color:'rgba(128,128,128,.15)'}}}}});
 }
 
 /* ── CAGR ── */
@@ -614,10 +718,11 @@ function updateCAGR(data){
   let ct='';if(yrs.length>=2){const n=yrs.length-1,cagr=(Math.pow(tots[n]/tots[0],1/n)-1)*100;ct=`整體CAGR: ${cagr>=0?'+':''}${cagr.toFixed(1)}%`;}
   if(charts.cagr){charts.cagr.data.labels=yrs.map(String);charts.cagr.data.datasets[0].data=tots;charts.cagr.data.datasets[1].data=yoy;charts.cagr.options.plugins.title.text=ct;charts.cagr.update('none');return;}
   const ctx=document.getElementById('cagrChart').getContext('2d');
+  const tC=TC();
   charts.cagr=new Chart(ctx,{type:'bar',data:{labels:yrs.map(String),datasets:[
-    {label:'年度合計(公噸)',data:tots,backgroundColor:'rgba(41,121,255,.25)',borderColor:'#2979ff',borderWidth:2,borderRadius:6,yAxisID:'y',order:2},
-    {label:'年增率(%)',data:yoy,type:'line',borderColor:'#00e676',backgroundColor:'rgba(0,230,118,.1)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#00e676',pointBorderColor:'#050b18',pointBorderWidth:2,tension:.3,yAxisID:'y2',order:1,spanGaps:true}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8faabe',font:{size:12},boxWidth:14},position:'top'},title:{display:true,text:ct,color:'#00e676',font:{size:13,weight:'600'},padding:{bottom:8}},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>c.datasetIndex===0?`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`:c.parsed.y!=null?`${c.parsed.y>=0?'+':''}${c.parsed.y.toFixed(1)}%`:'N/A'}}},scales:{x:{ticks:{color:'#8faabe',font:{size:12}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(41,121,255,.08)'},border:{color:'rgba(255,255,255,.1)'},title:{display:true,text:'公噸',color:'#8faabe',font:{size:12}}},y2:{position:'right',ticks:{color:'#00e676',font:{size:12},callback:v=>v!=null?v.toFixed(0)+'%':''},grid:{display:false},border:{color:'rgba(0,230,118,.2)'},title:{display:true,text:'年增率',color:'#00e676',font:{size:12}}}}}});
+    {label:'年度合計(公噸)',data:tots,backgroundColor:tC.barBlue,borderColor:tC.barBlueBd,borderWidth:2,borderRadius:6,yAxisID:'y',order:2},
+    {label:'年增率(%)',data:yoy,type:'line',borderColor:tC.growth,backgroundColor:tC.growthFill,borderWidth:2.5,pointRadius:5,pointBackgroundColor:tC.growth,pointBorderColor:tC.ptBg,pointBorderWidth:2,tension:.3,yAxisID:'y2',order:1,spanGaps:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tC.tick,font:{size:12},boxWidth:14},position:'top'},title:{display:true,text:ct,color:tC.growth,font:{size:13,weight:'600'},padding:{bottom:8}},tooltip:{backgroundColor:tC.ttBg,borderColor:tC.ttBord,borderWidth:1,titleColor:tC.ttTitle,bodyColor:tC.ttBody,titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>c.datasetIndex===0?`${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`:c.parsed.y!=null?`${c.parsed.y>=0?'+':''}${c.parsed.y.toFixed(1)}%`:'N/A'}}},scales:{x:{ticks:{color:tC.tick,font:{size:12}},grid:{display:false},border:{color:'rgba(128,128,128,.15)'}},y:{ticks:{color:tC.tick,font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:tC.gridAlt},border:{color:'rgba(128,128,128,.15)'},title:{display:true,text:'公噸',color:tC.tick,font:{size:12}}},y2:{position:'right',ticks:{color:tC.growth,font:{size:12},callback:v=>v!=null?v.toFixed(0)+'%':''},grid:{display:false},border:{color:tC.growthFill},title:{display:true,text:'年增率',color:tC.growth,font:{size:12}}}}}});
 }
 
 /* ── Route Bar ── */
@@ -626,20 +731,20 @@ function updateRouteBar(rData){
   const yrs=Object.keys(yt).sort(),us=yrs.map(y=>yt[y].us),eu=yrs.map(y=>yt[y].eu);
   if(charts.rBar){charts.rBar.data.labels=yrs;charts.rBar.data.datasets[0].data=us;charts.rBar.data.datasets[1].data=eu;charts.rBar.update('none');return;}
   const ctx=document.getElementById('routeBarChart').getContext('2d');
+  const tRB=TC();
   charts.rBar=new Chart(ctx,{
     type:'bar',
-    plugins:[ChartDataLabels],
     data:{labels:yrs,datasets:[
-      {label:'美線（采丁美）',data:us,backgroundColor:'rgba(0,229,255,.42)',borderColor:'#00e5ff',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'},
-      {label:'歐洲線',data:eu,backgroundColor:'rgba(255,109,0,.42)',borderColor:'#ff6d00',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'}
+      {label:'美線（采丁美）',data:us,backgroundColor:isLight()?'rgba(0,151,167,.55)':'rgba(0,229,255,.42)',borderColor:isLight()?'#0097a7':'#00e5ff',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'},
+      {label:'歐洲線',data:eu,backgroundColor:isLight()?'rgba(230,81,0,.5)':'rgba(255,109,0,.42)',borderColor:tRB.euLine,borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'top'},
         tooltip:{
-          backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,
-          titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},
+          backgroundColor:tRB.ttBg,borderColor:tRB.ttBord,borderWidth:1,
+          titleColor:tRB.ttTitle,bodyColor:tRB.ttBody,titleFont:{size:13},bodyFont:{size:13},
           callbacks:{
             label:c=>{
               const i=c.dataIndex,total=(us[i]||0)+(eu[i]||0);
@@ -648,20 +753,11 @@ function updateRouteBar(rData){
             }
           }
         },
-        datalabels:{
-          color:'#050b18',
-          font:{size:12,weight:'bold'},
-          anchor:'center',align:'center',
-          formatter:(v,ctx)=>{
-            const i=ctx.dataIndex,total=(us[i]||0)+(eu[i]||0);
-            if(!total||v<50)return'';
-            return Math.round(v/total*100)+'%';
-          }
-        }
+
       },
       scales:{
-        x:{ticks:{color:'#8faabe',font:{size:13}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},
-        y:{stacked:true,ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}
+        x:{ticks:{color:tRB.tick,font:{size:13}},grid:{display:false},border:{color:'rgba(128,128,128,.15)'}},
+        y:{stacked:true,ticks:{color:tRB.tick,font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:tRB.grid},border:{color:'rgba(128,128,128,.15)'}}
       }
     }
   });
@@ -672,7 +768,8 @@ function updateRouteDonut(rData){
   const tU=rData.reduce((s,r)=>s+(r.us_line_mt||0),0),tE=rData.reduce((s,r)=>s+(r.eu_line_mt||0),0);
   if(charts.rD){charts.rD.data.datasets[0].data=[tU,tE];charts.rD.update('none');return;}
   const ctx=document.getElementById('routeDonutChart').getContext('2d');
-  charts.rD=new Chart(ctx,{type:'doughnut',data:{labels:['美線（采丁美）','歐洲線'],datasets:[{data:[tU,tE],backgroundColor:['rgba(0,229,255,.45)','rgba(255,109,0,.45)'],borderColor:['#00e5ff','#ff6d00'],borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'bottom'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return`${c.label}: ${fmt(c.parsed)} 噸 (${(c.parsed/t*100).toFixed(1)}%)`;}}}}}});
+  const tD=TC();
+  charts.rD=new Chart(ctx,{type:'doughnut',data:{labels:['美線（采丁美）','歐洲線'],datasets:[{data:[tU,tE],backgroundColor:[isLight()?'rgba(0,151,167,.55)':'rgba(0,229,255,.45)',isLight()?'rgba(230,81,0,.5)':'rgba(255,109,0,.45)'],borderColor:[isLight()?'#0097a7':'#00e5ff',tD.euLine],borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{labels:{color:tD.legend,font:{size:13},boxWidth:14},position:'bottom'},tooltip:{backgroundColor:TC().ttBg,borderColor:TC().ttBord,borderWidth:1,titleColor:TC().ttTitle,bodyColor:TC().ttBody,titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return`${c.label}: ${fmt(c.parsed)} 噸 (${(c.parsed/t*100).toFixed(1)}%)`;}}}}}});
 }
 
 /* ── Table ── */
@@ -839,6 +936,18 @@ function zipBytes(files){
   return out;
 }
 
+/* ── Theme Toggle ── */
+function toggleTheme(){
+  const L=isLight();
+  document.documentElement.dataset.theme=L?'dark':'light';
+  localStorage.setItem('dashTheme',L?'dark':'light');
+  document.getElementById('themeToggle').textContent=L?'☀ 淺色模式':'🌙 深色模式';
+  // Destroy all charts and re-render with new colors
+  Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});
+  charts={};
+  updateDashboard(curSI,curEI);
+}
+
 /* ── Slider & Date Input ── */
 function updateLabels(si,ei){
   const s=idxToYM(si),e=idxToYM(ei);
@@ -922,6 +1031,11 @@ async function init(){
   updateLabels(0,111);
   setupDateInput('startInput',true);
   setupDateInput('endInput',false);
+  // Restore theme
+  const saved=localStorage.getItem('dashTheme')||'dark';
+  document.documentElement.dataset.theme=saved;
+  document.getElementById('themeToggle').textContent=saved==='light'?'🌙 深色模式':'☀ 淺色模式';
+  document.getElementById('themeToggle').addEventListener('click',toggleTheme);
   document.getElementById('exportBtn').addEventListener('click',exportExcel);
 
   // Table cell route tooltip
