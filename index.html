@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>出貨量分析 Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root{
   --bg:#050b18;--card:rgba(10,20,40,.88);--card2:rgba(6,15,32,.92);
@@ -245,21 +246,21 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 
     <div class="kpi-icon">🔺</div>
     <div class="kpi-label">最高出貨量</div>
     <div class="kpi-value"><span id="kpiMaxVal">—</span><span class="kpi-unit">公噸</span></div>
-    <div class="kpi-sub">年月：<span id="kpiMaxDate">—</span></div>
+    <div class="kpi-sub" id="kpiMaxDate">—</div>
     <div class="kpi-route" id="kpiMaxRoute"></div>
   </div>
   <div class="kpi-card min">
     <div class="kpi-icon">🔻</div>
     <div class="kpi-label">最低出貨量</div>
     <div class="kpi-value"><span id="kpiMinVal">—</span><span class="kpi-unit">公噸</span></div>
-    <div class="kpi-sub">年月：<span id="kpiMinDate">—</span></div>
+    <div class="kpi-sub" id="kpiMinDate">—</div>
     <div class="kpi-route" id="kpiMinRoute"></div>
   </div>
   <div class="kpi-card avg">
     <div class="kpi-icon">〜</div>
     <div class="kpi-label">平均月出貨量</div>
     <div class="kpi-value"><span id="kpiAvgVal">—</span><span class="kpi-unit">公噸</span></div>
-    <div class="kpi-sub">總出貨：<span id="kpiTotal">—</span> 公噸</div>
+    <div class="kpi-sub">總出貨 <span id="kpiTotal">—</span> 公噸</div>
     <div class="kpi-route" id="kpiAvgRoute"></div>
   </div>
 </div>
@@ -432,6 +433,7 @@ function updateDashboard(si,ei){
   document.getElementById('kpiMinVal').textContent=fmt(minR.quantity_mt);
   document.getElementById('kpiMinDate').textContent=fmtYM(minR.year,minR.month);
   document.getElementById('kpiMinRoute').innerHTML=routeHTML(minR.us_line_mt,minR.eu_line_mt);
+
 
   document.getElementById('kpiAvgVal').textContent=fmt(avg);
   document.getElementById('kpiTotal').textContent=fmt(total);
@@ -624,10 +626,45 @@ function updateRouteBar(rData){
   const yrs=Object.keys(yt).sort(),us=yrs.map(y=>yt[y].us),eu=yrs.map(y=>yt[y].eu);
   if(charts.rBar){charts.rBar.data.labels=yrs;charts.rBar.data.datasets[0].data=us;charts.rBar.data.datasets[1].data=eu;charts.rBar.update('none');return;}
   const ctx=document.getElementById('routeBarChart').getContext('2d');
-  charts.rBar=new Chart(ctx,{type:'bar',data:{labels:yrs,datasets:[
-    {label:'美線（采丁美）',data:us,backgroundColor:'rgba(0,229,255,.4)',borderColor:'#00e5ff',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'},
-    {label:'歐洲線',data:eu,backgroundColor:'rgba(255,109,0,.4)',borderColor:'#ff6d00',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'top'},tooltip:{backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 公噸`}}},scales:{x:{ticks:{color:'#8faabe',font:{size:13}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},y:{stacked:true,ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}}}});
+  charts.rBar=new Chart(ctx,{
+    type:'bar',
+    plugins:[ChartDataLabels],
+    data:{labels:yrs,datasets:[
+      {label:'美線（采丁美）',data:us,backgroundColor:'rgba(0,229,255,.42)',borderColor:'#00e5ff',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'},
+      {label:'歐洲線',data:eu,backgroundColor:'rgba(255,109,0,.42)',borderColor:'#ff6d00',borderWidth:2,borderRadius:{topLeft:6,topRight:6},stack:'r'}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#e8f0fe',font:{size:13},boxWidth:14},position:'top'},
+        tooltip:{
+          backgroundColor:'rgba(5,11,24,.95)',borderColor:'rgba(0,229,255,.3)',borderWidth:1,
+          titleColor:'#00e5ff',bodyColor:'#e8f0fe',titleFont:{size:13},bodyFont:{size:13},
+          callbacks:{
+            label:c=>{
+              const i=c.dataIndex,total=(us[i]||0)+(eu[i]||0);
+              const pct=total?Math.round(c.parsed.y/total*100):0;
+              return`${c.dataset.label}: ${c.parsed.y.toLocaleString('zh-TW',{minimumFractionDigits:1})} 噸 (${pct}%)`;
+            }
+          }
+        },
+        datalabels:{
+          color:'#050b18',
+          font:{size:12,weight:'bold'},
+          anchor:'center',align:'center',
+          formatter:(v,ctx)=>{
+            const i=ctx.dataIndex,total=(us[i]||0)+(eu[i]||0);
+            if(!total||v<50)return'';
+            return Math.round(v/total*100)+'%';
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#8faabe',font:{size:13}},grid:{display:false},border:{color:'rgba(255,255,255,.1)'}},
+        y:{stacked:true,ticks:{color:'#8faabe',font:{size:12},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(0,229,255,.06)'},border:{color:'rgba(255,255,255,.1)'}}
+      }
+    }
+  });
 }
 
 /* ── Route Donut ── */
@@ -669,73 +706,137 @@ function updateTable(data){
   document.getElementById('tableBody').innerHTML=rows;
 }
 
-/* ── Excel Export (pure JS, SpreadsheetML / no library) ── */
+/* ── Excel Export: pure-JS real .xlsx (OOXML + ZIP, no library) ── */
 function exportExcel(){
   try{
     const data=getFiltered(curSI,curEI);
     const years=[...new Set(data.map(r=>r.year))].sort();
     const lk={};data.forEach(r=>{lk[`${r.year}-${r.month}`]=r;});
+    const R1=n=>Math.round(n*10)/10;
 
-    function x(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-    function sc(v){return`<Cell><Data ss:Type="String">${x(v)}</Data></Cell>`;}
-    function nc(v){return(v===''||v==null)?'<Cell/>':(`<Cell><Data ss:Type="Number">${+v}</Data></Cell>`);}
-    function r2(...cells){return`<Row>${cells.join('')}</Row>`;}
-    function round1(n){return Math.round(n*10)/10;}
-
-    // ── Sheet 1: Monthly summary ──
-    const yt={};years.forEach(y=>{yt[y]={total:0,us:0,eu:0};});
-    let s1='';
-    s1+=r2(sc('月份'),...years.map(y=>sc(String(y))),sc('月均值'));
+    // Build sheet rows: null=empty, string=text, number=number
+    const yt={};years.forEach(y=>{yt[y]={t:0,u:0,e:0};});
+    const s1rows=[['月份',...years.map(String),'月均值']];
     for(let m=1;m<=12;m++){
-      const vals=[];const cells=[sc(`${m}月`)];
+      const row=[`${m}月`],vals=[];
       years.forEach(y=>{
         const rec=lk[`${y}-${m}`];
-        if(rec){cells.push(nc(rec.quantity_mt));vals.push(rec.quantity_mt);yt[y].total+=rec.quantity_mt;if(rec.us_line_mt)yt[y].us+=rec.us_line_mt;if(rec.eu_line_mt)yt[y].eu+=rec.eu_line_mt;}
-        else cells.push('<Cell/>');
+        if(rec){row.push(rec.quantity_mt);vals.push(rec.quantity_mt);yt[y].t+=rec.quantity_mt;if(rec.us_line_mt)yt[y].u+=rec.us_line_mt;if(rec.eu_line_mt)yt[y].e+=rec.eu_line_mt;}
+        else row.push(null);
       });
-      cells.push(vals.length?nc(round1(vals.reduce((a,b)=>a+b,0)/vals.length)):'<Cell/>');
-      s1+=r2(...cells);
+      row.push(vals.length?R1(vals.reduce((a,b)=>a+b,0)/vals.length):null);
+      s1rows.push(row);
     }
-    s1+=r2(sc('年合計'),...years.map(y=>nc(round1(yt[y].total))),'<Cell/>');
-    s1+=r2(sc(''));
-    s1+=r2(sc('美線合計（采丁美）'),...years.map(y=>yt[y].us>0?nc(round1(yt[y].us)):'<Cell/>'),'<Cell/>');
-    s1+=r2(sc('歐線合計'),...years.map(y=>yt[y].eu>0?nc(round1(yt[y].eu)):'<Cell/>'),'<Cell/>');
+    s1rows.push(['年合計',...years.map(y=>R1(yt[y].t)),null]);
+    s1rows.push([null]);
+    s1rows.push(['美線合計（采丁美）',...years.map(y=>yt[y].u>0?R1(yt[y].u):null),null]);
+    s1rows.push(['歐線合計',...years.map(y=>yt[y].e>0?R1(yt[y].e):null),null]);
 
-    // ── Sheet 2: Route detail ──
     const rData=data.filter(r=>r.year>=2021&&r.us_line_mt!=null);
-    let s2xml='';
-    if(rData.length){
-      let s2=r2(sc('年月'),sc('合計(公噸)'),sc('美線-采丁美(公噸)'),sc('歐洲線(公噸)'),sc('美線佔比(%)'),sc('歐線佔比(%)'));
-      rData.forEach(rec=>{
-        s2+=r2(
-          sc(fmtYMs(rec.year,rec.month)),
-          nc(rec.quantity_mt),
-          nc(rec.us_line_mt??''),
-          nc(rec.eu_line_mt??''),
-          rec.us_line_mt?nc(round1(rec.us_line_mt/rec.quantity_mt*100)):'<Cell/>',
-          rec.eu_line_mt?nc(round1(rec.eu_line_mt/rec.quantity_mt*100)):'<Cell/>'
-        );
-      });
-      s2xml=`<Worksheet ss:Name="美線歐線明細"><Table>${s2}</Table></Worksheet>`;
-    }
+    const s2rows=rData.length?[
+      ['年月','合計(公噸)','美線-采丁美(公噸)','歐洲線(公噸)','美線佔比(%)','歐線佔比(%)'],
+      ...rData.map(r=>[fmtYMs(r.year,r.month),r.quantity_mt,r.us_line_mt??null,r.eu_line_mt??null,
+        r.us_line_mt?R1(r.us_line_mt/r.quantity_mt*100):null,
+        r.eu_line_mt?R1(r.eu_line_mt/r.quantity_mt*100):null])
+    ]:null;
 
-    const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:x="urn:schemas-microsoft-com:office:excel"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:html="http://www.w3.org/TR/REC-html40">
-<Worksheet ss:Name="出貨量統計"><Table>${s1}</Table></Worksheet>
-${s2xml}
-</Workbook>`;
+    const sheets=[{name:'出貨量統計',rows:s1rows}];
+    if(s2rows)sheets.push({name:'美線歐線明細',rows:s2rows});
 
-    const blob=new Blob(['﻿'+xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+    const blob=new Blob([buildXlsx(sheets)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url;a.download='出貨量統計表.xls';
+    a.href=url;a.download='出貨量統計表.xlsx';
     document.body.appendChild(a);a.click();
     setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
   }catch(e){console.error(e);alert('匯出失敗：'+e.message);}
+}
+
+/* ── buildXlsx: create real .xlsx bytes (ZIP + OOXML) ── */
+function buildXlsx(sheets){
+  function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function colLetter(n){let s='';n++;while(n>0){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26);}return s;}
+
+  // Shared strings registry
+  const strs=[],sm={};
+  function si(v){const s=String(v??'');if(!(s in sm)){sm[s]=strs.length;strs.push(s);}return sm[s];}
+
+  // Build worksheet XML (also populates shared strings)
+  const wsXmls=sheets.map(sh=>{
+    let x='<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+    sh.rows.forEach((row,ri)=>{
+      if(!row||!row.length)return;
+      let rowXml='';
+      row.forEach((v,ci)=>{
+        if(v===null||v===undefined)return;
+        const ref=colLetter(ci)+(ri+1);
+        if(typeof v==='number') rowXml+=`<c r="${ref}"><v>${v}</v></c>`;
+        else rowXml+=`<c r="${ref}" t="s"><v>${si(v)}</v></c>`;
+      });
+      if(rowXml)x+=`<row r="${ri+1}">${rowXml}</row>`;
+    });
+    return x+'</sheetData></worksheet>';
+  });
+
+  const n=sheets.length;
+  const files=[
+    {p:'[Content_Types].xml',d:
+      `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>`+
+      sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')+
+      `<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`
+    },
+    {p:'_rels/.rels',d:
+      `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`
+    },
+    {p:'xl/workbook.xml',d:
+      `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>`+
+      sheets.map((s,i)=>`<sheet name="${esc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')+
+      `</sheets></workbook>`
+    },
+    {p:'xl/_rels/workbook.xml.rels',d:
+      `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`+
+      sheets.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')+
+      `<Relationship Id="rIdSS" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`+
+      `<Relationship Id="rIdSt" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`
+    },
+    {p:'xl/styles.xml',d:
+      `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs></styleSheet>`
+    },
+    ...wsXmls.map((d,i)=>({p:`xl/worksheets/sheet${i+1}.xml`,d}))
+  ];
+  // Shared strings must come after worksheet XMLs (so all strings are collected)
+  files.push({p:'xl/sharedStrings.xml',d:
+    `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${strs.length}" uniqueCount="${strs.length}">`+
+    strs.map(s=>`<si><t xml:space="preserve">${esc(s)}</t></si>`).join('')+`</sst>`
+  });
+
+  return zipBytes(files);
+}
+
+/* ── zipBytes: uncompressed ZIP writer ── */
+function zipBytes(files){
+  const enc=new TextEncoder();
+  // CRC-32 table
+  const T=new Uint32Array(256);
+  for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;T[i]=c;}
+  function crc32(b){let c=0xffffffff;for(const v of b)c=T[(c^v)&0xff]^(c>>>8);return(c^0xffffffff)>>>0;}
+  function u16(n){return[n&0xff,(n>>8)&0xff];}
+  function u32(n){return[n>>>0&0xff,(n>>>8)&0xff,(n>>>16)&0xff,(n>>>24)&0xff];}
+
+  const locals=[],dirs=[];
+  let off=0;
+  for(const f of files){
+    const nm=enc.encode(f.p),dat=enc.encode(f.d),crc=crc32(dat);
+    const lh=new Uint8Array([0x50,0x4b,0x03,0x04,0x14,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,...u32(crc),...u32(dat.length),...u32(dat.length),...u16(nm.length),0x00,0x00,...nm]);
+    const cd=new Uint8Array([0x50,0x4b,0x01,0x02,0x14,0x00,0x14,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,...u32(crc),...u32(dat.length),...u32(dat.length),...u16(nm.length),0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,...u32(off),...nm]);
+    locals.push(lh,dat);dirs.push(cd);
+    off+=lh.length+dat.length;
+  }
+  const cdSize=dirs.reduce((s,d)=>s+d.length,0);
+  const eocd=new Uint8Array([0x50,0x4b,0x05,0x06,0x00,0x00,0x00,0x00,...u16(files.length),...u16(files.length),...u32(cdSize),...u32(off),0x00,0x00]);
+  const all=[...locals,...dirs,eocd],tot=all.reduce((s,a)=>s+a.length,0),out=new Uint8Array(tot);
+  let pos=0;for(const a of all){out.set(a,pos);pos+=a.length;}
+  return out;
 }
 
 /* ── Slider & Date Input ── */
