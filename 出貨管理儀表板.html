@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出貨管理儀表板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif; background: #f0f2f5; color: #1a1a2e; font-size: 15px; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 20px 36px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+  .header .subtitle { font-size: 14px; color: #aab4c8; margin-top: 4px; }
+  .header-right { text-align: right; font-size: 14px; color: #aab4c8; }
+  .tabs { background: white; border-bottom: 2px solid #e0e4ea; padding: 0 36px; display: flex; gap: 0; }
+  .tab { padding: 16px 32px; cursor: pointer; font-size: 16px; font-weight: 600; color: #6b7280; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+  .tab:hover { color: #1a1a2e; background: #f9fafb; }
+  .tab.active { color: #e63946; border-bottom-color: #e63946; }
+  .content { display: none; padding: 28px 36px; max-width: 1400px; margin: 0 auto; }
+  .content.active { display: block; }
+  .section-title { font-size: 17px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e0e4ea; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; display: inline-block; width: 5px; height: 20px; background: #e63946; border-radius: 2px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 26px; }
+  .kpi-card { background: white; border-radius: 14px; padding: 24px 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-left: 6px solid #e0e4ea; }
+  .kpi-card.green { border-left-color: #22c55e; } .kpi-card.yellow { border-left-color: #f59e0b; } .kpi-card.red { border-left-color: #ef4444; } .kpi-card.blue { border-left-color: #3b82f6; }
+  .kpi-label { font-size: 14px; color: #6b7280; font-weight: 600; letter-spacing: 0.5px; }
+  .kpi-main { display: flex; align-items: baseline; gap: 14px; margin-top: 10px; }
+  .kpi-rate { font-size: 48px; font-weight: 800; }
+  .kpi-card.green .kpi-rate { color: #16a34a; } .kpi-card.yellow .kpi-rate { color: #d97706; } .kpi-card.red .kpi-rate { color: #dc2626; } .kpi-card.blue .kpi-rate { color: #1d4ed8; }
+  .kpi-detail { font-size: 14px; color: #6b7280; line-height: 2; }
+  .kpi-bar-bg { background: #f3f4f6; border-radius: 4px; height: 8px; margin-top: 12px; }
+  .kpi-bar { height: 8px; border-radius: 4px; }
+  .kpi-card.green .kpi-bar { background: #22c55e; } .kpi-card.yellow .kpi-bar { background: #f59e0b; } .kpi-card.red .kpi-bar { background: #ef4444; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 26px; }
+  .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; margin-bottom: 26px; }
+  .grid-chart-table { display: grid; grid-template-columns: 300px 1fr; gap: 22px; margin-bottom: 26px; }
+  .card { background: white; border-radius: 14px; padding: 24px 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .mb-section { margin-bottom: 26px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: #1a1a2e; color: white; padding: 11px 14px; text-align: center; font-weight: 600; font-size: 13px; }
+  th.yellow-header { background: #f59e0b; color: #1a1a2e; } th.green-header { background: #16a34a; color: white; } th.red-header { background: #e63946; color: white; }
+  td { padding: 10px 14px; text-align: center; border-bottom: 1px solid #f3f4f6; }
+  tr:last-child td { border-bottom: none; } tr:hover td { background: #f9fafb; }
+  .subtotal td { background: #fef3c7; font-weight: 700; color: #92400e; }
+  .total td { background: #1a1a2e; color: #fbbf24; font-weight: 700; }
+  td.num { font-family: 'Courier New', monospace; font-weight: 600; }
+  td.customer { text-align: left; font-weight: 600; }
+  td.rate-good { color: #16a34a; font-weight: 800; font-size: 16px; }
+  td.rate-bad { color: #dc2626; font-weight: 800; font-size: 16px; }
+  td.reason-sub { text-align: left; color: #6b7280; padding-left: 22px; font-size: 13px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+  .badge-green { background: #dcfce7; color: #166534; } .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; } .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-orange { background: #ffedd5; color: #9a3412; } .badge-purple { background: #ede9fe; color: #5b21b6; }
+  /* 快照 KPI */
+  .so-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 14px; }
+  .so-item { background: #f9fafb; border-radius: 10px; padding: 18px; text-align: center; border: 1px solid #e5e7eb; }
+  .so-item .so-val { font-size: 32px; font-weight: 800; color: #1a1a2e; }
+  .so-item .so-lbl { font-size: 13px; color: #6b7280; margin-top: 6px; }
+  .so-item.highlight { background: #1a1a2e; border-color: #1a1a2e; }
+  .so-item.highlight .so-val { color: #fbbf24; } .so-item.highlight .so-lbl { color: #aab4c8; }
+  .so-item.good { background: #f0fdf4; border-color: #86efac; }
+  .so-item.good .so-val { color: #16a34a; }
+  .so-item.warn { background: #fff7ed; border-color: #fdba74; }
+  .so-item.warn .so-val { color: #d97706; }
+  /* 棧板卡片（月報用） */
+  .pallet-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+  .pallet-card { background: #f9fafb; border-radius: 10px; padding: 16px; text-align: center; border: 1px solid #e5e7eb; }
+  .pallet-card .pc-val { font-size: 30px; font-weight: 800; color: #1a1a2e; }
+  .pallet-card .pc-lbl { font-size: 13px; color: #6b7280; margin-top: 5px; }
+  .pallet-card.total { background: #fef3c7; border-color: #f59e0b; }
+  .pallet-card.total .pc-val { color: #b45309; }
+  /* 月份切換 */
+  .month-selector { display: flex; gap: 10px; margin-bottom: 22px; }
+  .month-btn { padding: 8px 22px; border-radius: 20px; border: 2px solid #e0e4ea; background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: #6b7280; transition: all 0.2s; font-family: inherit; }
+  .month-btn.active { background: #1a1a2e; color: #fbbf24; border-color: #1a1a2e; }
+  .month-btn:hover:not(.active) { border-color: #1a1a2e; color: #1a1a2e; }
+  .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #6b7280; margin-top: 12px; }
+  .print-btn { background: #1a1a2e; color: white; border: none; padding: 9px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  /* SO 週別明細 */
+  .so-week-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+  .so-week-item { background: #f9fafb; border-radius: 10px; padding: 16px; border: 1px solid #e5e7eb; text-align: center; }
+  .so-week-item .w-val { font-size: 26px; font-weight: 800; color: #3b82f6; }
+  .so-week-item .w-date { font-size: 13px; color: #6b7280; font-weight: 700; margin-bottom: 6px; }
+  .so-week-item .w-tag { font-size: 12px; color: white; background: #6b7280; border-radius: 4px; padding: 2px 8px; margin-top: 6px; display: inline-block; }
+  .so-week-item.zero .w-val { color: #d1d5db; }
+  /* ── 進度條 ── */
+  .progress-bar-wrap { margin-top: 20px; }
+  .progress-bar-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #6b7280; }
+  .progress-bar-track { height: 38px; border-radius: 10px; background: #f3f4f6; overflow: hidden; display: flex; }
+  .progress-seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; transition: width 0.6s ease; white-space: nowrap; overflow: hidden; }
+  .progress-legend { display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap; }
+  .progress-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; }
+  .progress-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+  /* ── 預計量調降瀑布 ── */
+  .cascade-wrap { display: flex; align-items: center; gap: 0; overflow-x: auto; padding: 10px 0 16px; }
+  .cascade-card { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 14px; padding: 18px 22px; text-align: center; min-width: 150px; flex-shrink: 0; }
+  .cascade-card.latest { background: #1a1a2e; border-color: #1a1a2e; }
+  .cascade-card.latest .cc-tons { color: #fbbf24; }
+  .cascade-card.latest .cc-date { color: #aab4c8; }
+  .cascade-card.latest .cc-sub { color: #9ca3af; }
+  .cc-date { font-size: 13px; font-weight: 700; color: #6b7280; margin-bottom: 8px; }
+  .cc-tons { font-size: 34px; font-weight: 800; color: #1a1a2e; line-height: 1; }
+  .cc-unit { font-size: 14px; font-weight: 400; color: #6b7280; }
+  .cc-sub { font-size: 12px; color: #6b7280; margin-top: 6px; line-height: 1.6; }
+  .cascade-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 12px; flex-shrink: 0; }
+  .cascade-arrow .arr-delta { font-size: 14px; font-weight: 700; color: #ef4444; white-space: nowrap; }
+  .cascade-arrow .arr-icon { font-size: 22px; color: #d1d5db; }
+  /* ── 棧板比較卡 ── */
+  .pallet-compare-wrap { display: flex; gap: 16px; align-items: stretch; }
+  .pallet-compare-col { flex: 1; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 14px; padding: 20px; }
+  .pallet-compare-col.current { background: #eff6ff; border-color: #93c5fd; }
+  .pcc-date { font-size: 13px; font-weight: 700; color: #6b7280; margin-bottom: 14px; text-align: center; }
+  .pallet-compare-col.current .pcc-date { color: #1d4ed8; }
+  .pcc-total { text-align: center; padding-bottom: 14px; border-bottom: 1px solid #e5e7eb; margin-bottom: 14px; }
+  .pcc-total-num { font-size: 46px; font-weight: 800; color: #1a1a2e; line-height: 1; }
+  .pallet-compare-col.current .pcc-total-num { color: #1d4ed8; }
+  .pcc-total-lbl { font-size: 13px; color: #6b7280; margin-top: 4px; }
+  .pcc-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+  .pcc-row:last-child { border-bottom: none; }
+  .pcc-row .lbl { color: #374151; font-weight: 600; }
+  .pcc-row .val { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+  .pallet-compare-arrow { display: flex; align-items: center; justify-content: center; font-size: 30px; color: #d1d5db; flex-shrink: 0; padding: 0 6px; }
+  .pcc-delta-col { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; min-width: 70px; }
+  .delta-chip { text-align: center; padding: 6px 10px; border-radius: 8px; font-size: 14px; font-weight: 800; }
+  .delta-chip.up { background: #dcfce7; color: #166534; }
+  .delta-chip.down { background: #fee2e2; color: #991b1b; }
+  .delta-chip.zero { background: #f3f4f6; color: #6b7280; }
+  @media print { .tabs, .month-selector { display: none; } .content { display: block !important; } }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     ★ 每週更新區域 ★
+     每次收到新週報，只需更新下方 DATA 物件中對應月份的 weekly 陣列
+     以及 pallets 陣列，其餘版面自動渲染。
+     ================================================================ -->
+<script>
+const DATA = {
+
+  // ── 05月資料 ──────────────────────────────────────────────────────
+  '05': {
+    label: '115年/05月',
+    monthly: {
+      // 月底達成率（115.05.31 PDF）
+      achievement: [
+        { name: '采釘美', target: 420.5, actual: 433.7, rate: 1.03 },
+        { name: '歐洲線', target: 1092.0, actual: 877.2, rate: 0.80 },
+        { name: '合計',   target: 1512.5, actual: 1310.9, rate: 0.87 }
+      ],
+      // 下月計劃表（06月）
+      nextPlan: {
+        month: '06',
+        rows: [
+          { name:'采釘美', prevRem:111.8, newOrders:705.8, cannotPrev:17.9, cannotCurr:0.0, shouldPrev:93.9, shouldCurr:705.8, subtotal:800 },
+          { name:'歐洲線', prevRem:367.9, newOrders:875.8, cannotPrev:63.0, cannotCurr:214.3, shouldPrev:304.9, shouldCurr:661.5, subtotal:966 }
+        ],
+        totalOrders: 2061, totalCannot: 295, totalShould: 1766
+      },
+      // E庫棧板（月底）
+      palletMonthEnd: { date:'5/29', tsai:412, europe:401, total:813 },
+      // 未出原因
+      unshippedReasons: [
+        { reason:'已完成包裝－延至06月出',     c04:137.0, c05:103.2, h05:26.5,  nextShip:'06月' },
+        { reason:'已完成包裝－延至07月出',     c04:0.8,   c05:0.6,   h05:0,     nextShip:'07月' },
+        { reason:'已完成包裝－暫未確定',       c04:20.2,  c05:0,     h05:0,     nextShip:'未定' },
+        { reason:'未完成包裝－延至06月出',     c04:56.3,  c05:64.7,  h05:5.6,   nextShip:'06月' },
+        { reason:'未完成包裝－延至07月出',     c04:0,     c05:18.5,  h05:0,     nextShip:'07月' },
+        { reason:'未完成包裝－暫未確定',       c04:0,     c05:15.0,  h05:0,     nextShip:'未定' },
+        { reason:'頭部烤漆未完成－延至06月出', c04:2.6,   c05:1.2,   h05:6.4,   nextShip:'06月' },
+        { reason:'HT+電鍍未完成－暫未確定',   c04:2.6,   c05:1.2,   h05:2.6,   nextShip:'未定' },
+        { reason:'客戶通知暫緩生產',           c04:5.3,   c05:1.6,   h05:0,     nextShip:'客戶暫緩' },
+        { reason:'客戶尚未確認可生產',         c04:3.0,   c05:0,     h05:0,     nextShip:'待確認' },
+        { reason:'螺絲攻速不佳暫不可包裝',     c04:0,     c05:0,     h05:13.0,  nextShip:'產線問題' }
+      ],
+      clientTotal: 430.0, hxTotal: 48.9, grandTotal: 478.9
+    },
+    // 週報快照（每週一筆）
+    weekly: [
+      { date:'4/30 (月初)', forecast:1470, actual:null, soObtained:null, soPending:null, manageable:null },
+      { date:'5/8',         forecast:1462.1, actual:null, soObtained:null, soPending:null, manageable:null },
+      { date:'5/15',        forecast:1394, actual:null, soObtained:null, soPending:null, manageable:null },
+      { date:'5/20',        forecast:1303, actual:902.3, soObtained:387.1, soPending:14.0, manageable:1289.4,
+        soDetail:[
+          { week:'5/25~5/29', tons:387.1, note:'' }
+        ]
+      }
+    ],
+    // E庫棧板週趨勢
+    pallets: [
+      { date:'5/8',  tsai:221, europe:492, total:713 },
+      { date:'5/15', tsai:509, europe:464, total:973 },
+      { date:'5/20', tsai:381, europe:468, total:849 }
+    ]
+  },
+
+  // ── 06月資料 ──────────────────────────────────────────────────────
+  '06': {
+    label: '115年/06月',
+    monthly: null,   // 月底資料尚未產生
+    // 週報快照
+    weekly: [
+      // 月初基準（來自05月底計劃表）
+      { date:'5/29 (月初)', forecast:1766, actual:null, soObtained:null, soPending:null, manageable:null },
+      // ★ 6/5 更新 ★
+      { date:'6/5', forecast:1713.0, actual:299.6, soObtained:532.4, soPending:881.3, manageable:832.0,
+        totalForecast:1713.3,
+        soDetail:[
+          { week:'6/8~6/12',  tons:309.8, note:'EEX3' },
+          { week:'6/15~6/18', tons:133.9, note:'EEX1' },
+          { week:'6/22~6/26', tons:88.7,  note:'EEX2' },
+          { week:'6/29~6/30', tons:0.0,   note:'' }
+        ]
+      }
+      // ↓ 後續每週在此新增一筆
+    ],
+    // E庫棧板週趨勢
+    pallets: [
+      { date:'5/29', tsai:412, europe:401, total:813 },
+      // ★ 6/5 更新 ★
+      { date:'6/5', tsai:450, europe:444, total:894 }
+      // ↓ 後續每週在此新增一筆
+    ]
+  }
+
+  // ↓ 07月起，在此繼續新增月份物件
+};
+
+// 當前顯示月份
+let currentWeeklyMonth = '06';
+</script>
+
+<div class="header">
+  <div>
+    <h1>📦 出貨管理儀表板</h1>
+    <div class="subtitle">Production Control · Shipping Analytics · 115年</div>
+  </div>
+  <div class="header-right">
+    <div>製表人：林淑梅</div>
+    <div id="lastUpdate" style="margin-top:4px;"></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('monthly',this)">📊 月底報告（董事長會議）</div>
+  <div class="tab" onclick="switchTab('weekly',this)">📅 週報追蹤（每週進度）</div>
+</div>
+
+<!-- ===================== 月底報告 ===================== -->
+<div id="tab-monthly" class="content active">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; margin-top:8px;">
+    <div style="font-size:18px; font-weight:700;">115年/05月 月結報告
+      <span style="font-size:13px; font-weight:400; color:#6b7280;">｜開會日期：115/06/02（週一）</span>
+    </div>
+    <button class="print-btn" onclick="window.print()">🖨 列印報告</button>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-row mb-section" id="monthly-kpi"></div>
+
+  <!-- 未出原因圓餅 + 明細 -->
+  <div class="grid-chart-table mb-section">
+    <div class="card">
+      <div class="section-title">未出貨責任歸屬</div>
+      <div style="position:relative; height:190px;"><canvas id="reasonPieChart"></canvas></div>
+      <div style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div style="background:#fee2e2; border-radius:8px; padding:12px; text-align:center;">
+          <div style="font-size:22px; font-weight:800; color:#dc2626;">430.0<small style="font-size:12px;"> 噸</small></div>
+          <div style="font-size:11px; color:#6b7280; margin-top:2px;">客戶問題</div>
+        </div>
+        <div style="background:#fef3c7; border-radius:8px; padding:12px; text-align:center;">
+          <div style="font-size:22px; font-weight:800; color:#d97706;">48.9<small style="font-size:12px;"> 噸</small></div>
+          <div style="font-size:11px; color:#6b7280; margin-top:2px;">華興問題</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:10px; font-size:13px; color:#6b7280;">
+        未出總計：<strong style="color:#1a1a2e; font-size:16px;">478.9 噸</strong>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">05月前訂單未出原因明細</div>
+      <div id="unshipped-table"></div>
+    </div>
+  </div>
+
+  <!-- 未出原因圖 -->
+  <div class="card mb-section">
+    <div class="section-title">未出原因分類圖表（單位：噸）</div>
+    <div style="height:210px;"><canvas id="reasonBarChart"></canvas></div>
+  </div>
+
+  <!-- 06月計劃 + 棧板 -->
+  <div class="grid-3-1 mb-section">
+    <div class="card">
+      <div class="section-title">115年/06月 預計出貨量計劃表</div>
+      <div id="next-plan-table"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">5/29 E庫完成棧板數</div>
+      <div class="pallet-row">
+        <div class="pallet-card"><div class="pc-val">412</div><div class="pc-lbl">采釘美 PLT</div></div>
+        <div class="pallet-card"><div class="pc-val">401</div><div class="pc-lbl">歐洲線 PLT</div></div>
+        <div class="pallet-card total"><div class="pc-val">813</div><div class="pc-lbl">合計 PLT</div></div>
+      </div>
+      <div style="margin-top:18px;">
+        <div class="section-title" style="font-size:13px;">05月達成率摘要</div>
+        <table>
+          <thead><tr><th style="text-align:left;">項目</th><th>目標/噸</th><th>實際/噸</th><th>達成率</th></tr></thead>
+          <tbody id="monthly-achieve-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 週報追蹤 ===================== -->
+<div id="tab-weekly" class="content">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; margin-top:8px;">
+    <div style="font-size:18px; font-weight:700;">週報追蹤</div>
+    <div style="font-size:12px; color:#6b7280; background:white; padding:6px 14px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">每週更新 ｜ 資料由 E 庫週報匯入</div>
+  </div>
+
+  <!-- 月份切換 -->
+  <div class="month-selector" id="month-selector"></div>
+
+  <!-- 當前快照 KPI -->
+  <div class="card mb-section" id="weekly-snapshot"></div>
+
+  <!-- SO 週別明細 -->
+  <div class="card mb-section" id="weekly-so-detail"></div>
+
+  <!-- 月底達成率預測區間 -->
+  <div class="card mb-section" id="weekly-forecast-range"></div>
+
+  <!-- 預計量調降瀑布 + 棧板比較 -->
+  <div class="grid-2 mb-section">
+    <div class="card">
+      <div class="section-title" id="forecast-chart-title">預計出貨量週間調降歷程</div>
+      <div id="forecast-cascade"></div>
+    </div>
+    <div class="card">
+      <div class="section-title" id="pallet-chart-title">E庫已完成棧板數</div>
+      <div id="pallet-compare"></div>
+    </div>
+  </div>
+
+  <!-- 週報統計表 -->
+  <div class="card mb-section">
+    <div class="section-title" id="weekly-table-title">訂單出貨量統計表（週間更新紀錄）</div>
+    <div id="weekly-detail-table"></div>
+  </div>
+</div>
+
+<script>
+// ── 工具函式 ─────────────────────────────────────────────
+function fmt(v, dec=1) {
+  if (v === null || v === undefined) return '—';
+  return Number(v).toLocaleString('zh-TW', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function rateBadge(r) {
+  if (r >= 1)    return `<span style="color:#16a34a;font-weight:800;font-size:15px;">${Math.round(r*100)}%</span>`;
+  if (r >= 0.85) return `<span style="color:#d97706;font-weight:800;font-size:15px;">${Math.round(r*100)}%</span>`;
+  return `<span style="color:#dc2626;font-weight:800;font-size:15px;">${Math.round(r*100)}%</span>`;
+}
+function nextShipBadge(s) {
+  const m = { '06月':'badge-blue','07月':'badge-orange','未定':'badge-red','客戶暫緩':'badge-red','待確認':'badge-red','產線問題':'badge-red' };
+  return `<span class="badge ${m[s]||'badge-yellow'}">${s}</span>`;
+}
+
+// ── 月底報告渲染 ──────────────────────────────────────────
+function renderMonthly() {
+  const d = DATA['05'];
+  const m = d.monthly;
+
+  // KPI Cards
+  const colors = ['green','red','yellow'];
+  const kpiEl = document.getElementById('monthly-kpi');
+  kpiEl.innerHTML = m.achievement.map((a,i) => `
+    <div class="kpi-card ${colors[i]}">
+      <div class="kpi-label">${a.name} 達成率</div>
+      <div class="kpi-main">
+        <div class="kpi-rate">${Math.round(a.rate*100)}%</div>
+        <div class="kpi-detail">目標 ${fmt(a.target)} 噸<br>實際 ${fmt(a.actual)} 噸<br>
+          ${a.actual >= a.target ? '超標' : '缺口'} <strong>${a.actual >= a.target ? '+':'-'}${fmt(Math.abs(a.actual-a.target))} 噸</strong>
+        </div>
+      </div>
+      <div class="kpi-bar-bg"><div class="kpi-bar" style="width:${Math.min(a.rate,1)*100}%;"></div></div>
+    </div>`).join('');
+
+  // 達成率小表
+  const ach = m.achievement;
+  document.getElementById('monthly-achieve-table').innerHTML = ach.map((a,i) => `
+    <tr ${i===ach.length-1?'class="total"':''}>
+      <td class="customer">${a.name}</td>
+      <td class="num">${fmt(a.target)}</td>
+      <td class="num">${fmt(a.actual)}</td>
+      <td>${rateBadge(a.rate)}</td>
+    </tr>`).join('');
+
+  // 未出原因表
+  const ur = m.unshippedReasons;
+  document.getElementById('unshipped-table').innerHTML = `
+    <table>
+      <thead><tr>
+        <th style="text-align:left;width:180px;">未出原因</th>
+        <th>客戶<br>04月前/噸</th><th>客戶<br>05月/噸</th><th>華興<br>05月/噸</th>
+        <th>小計/噸</th><th>預計出貨</th>
+      </tr></thead>
+      <tbody>
+        ${ur.map(r => {
+          const sub = r.c04+r.c05+r.h05;
+          return `<tr>
+            <td class="reason-sub">${r.reason}</td>
+            <td class="num">${r.c04?fmt(r.c04):'—'}</td>
+            <td class="num">${r.c05?fmt(r.c05):'—'}</td>
+            <td class="num">${r.h05?fmt(r.h05):'—'}</td>
+            <td class="num" style="font-weight:700;">${fmt(sub)}</td>
+            <td>${nextShipBadge(r.nextShip)}</td>
+          </tr>`;
+        }).join('')}
+        <tr class="subtotal">
+          <td style="text-align:left;font-weight:700;">合計</td>
+          <td class="num">225.2</td><td class="num">204.8</td><td class="num">48.9</td>
+          <td class="num" style="font-size:15px;">478.9</td><td></td>
+        </tr>
+      </tbody>
+    </table>`;
+
+  // 06月計劃表
+  const np = m.nextPlan;
+  document.getElementById('next-plan-table').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2" style="text-align:left;">項目</th>
+          <th rowspan="2">前月餘量<br>/噸</th>
+          <th rowspan="2">${np.month}月單量<br>/噸</th>
+          <th colspan="2" class="yellow-header">${np.month}月無法排出貨量</th>
+          <th colspan="2" class="green-header">${np.month}月應出貨量</th>
+          <th rowspan="2" class="red-header">小計/噸</th>
+        </tr>
+        <tr>
+          <th class="yellow-header">前月/噸</th><th class="yellow-header">當月/噸</th>
+          <th class="green-header">前月/噸</th><th class="green-header">當月/噸</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${np.rows.map(r=>`
+        <tr>
+          <td class="customer">${r.name}</td>
+          <td class="num">${fmt(r.prevRem)}</td><td class="num">${fmt(r.newOrders)}</td>
+          <td class="num" style="background:#fef9c3;">${fmt(r.cannotPrev)}</td>
+          <td class="num" style="background:#fef9c3;">${fmt(r.cannotCurr)}</td>
+          <td class="num" style="background:#dcfce7;">${fmt(r.shouldPrev)}</td>
+          <td class="num" style="background:#dcfce7;">${fmt(r.shouldCurr)}</td>
+          <td class="num" style="background:#fee2e2;font-weight:800;color:#dc2626;">${r.subtotal}</td>
+        </tr>`).join('')}
+        <tr class="subtotal">
+          <td style="text-align:left;">小計</td>
+          <td class="num">479.7</td><td class="num">1,581.6</td>
+          <td class="num">80.9</td><td class="num">214.3</td>
+          <td class="num">398.8</td><td class="num">1,367.3</td><td></td>
+        </tr>
+        <tr class="total">
+          <td style="text-align:left;">合計</td>
+          <td colspan="2" class="num">${fmt(np.totalOrders,0)}</td>
+          <td colspan="2" class="num">${fmt(np.totalCannot,0)}</td>
+          <td colspan="2" class="num">${fmt(np.totalShould,0)}</td><td></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:12px;color:#6b7280;">
+      📌 ${np.month}月應出貨 <strong style="color:#1a1a2e;">${fmt(np.totalShould,0)} 噸</strong>
+      ｜ 無法排出 <span style="color:#ef4444;">${fmt(np.totalCannot,0)} 噸</span>
+      （${Math.round(np.totalCannot/np.totalOrders*100)}%）
+    </div>`;
+}
+
+// ── 週報渲染 ──────────────────────────────────────────────
+function renderWeekly(monthKey) {
+  currentWeeklyMonth = monthKey;
+  const d = DATA[monthKey];
+  const label = d.label;
+  const weeks = d.weekly;
+  const pallets = d.pallets;
+  const latest = weeks[weeks.length - 1];
+  const initial = weeks[0];
+
+  // 月份按鈕
+  document.getElementById('month-selector').innerHTML = Object.keys(DATA).map(k =>
+    `<button class="month-btn ${k===monthKey?'active':''}" onclick="renderWeekly('${k}')">${DATA[k].label}</button>`
+  ).join('');
+
+  document.getElementById('forecast-chart-title').textContent = `${label} 預計出貨量週間調降歷程`;
+  document.getElementById('pallet-chart-title').textContent = `${label} E庫已完成棧板數`;
+  document.getElementById('weekly-table-title').textContent = `${label} 訂單出貨量統計表`;
+  document.getElementById('lastUpdate').textContent = `最後更新：${latest.date}`;
+
+  const initForecast = initial.forecast;
+  const drop = initForecast - latest.forecast;
+  const manageRate = latest.manageable ? (latest.manageable / latest.forecast * 100).toFixed(1) : null;
+
+  // ── 快照 KPI ──
+  document.getElementById('weekly-snapshot').innerHTML = `
+    <div class="section-title">${latest.date} 出貨狀況快照</div>
+    <div class="so-grid">
+      <div class="so-item">
+        <div class="so-val">${fmt(latest.actual)}</div>
+        <div class="so-lbl">本月至今實際出貨/噸</div>
+      </div>
+      <div class="so-item good">
+        <div class="so-val">${fmt(latest.soObtained)}</div>
+        <div class="so-lbl">S.O 已取得/噸</div>
+      </div>
+      <div class="so-item warn">
+        <div class="so-val">${fmt(latest.soPending)}</div>
+        <div class="so-lbl">S.O 尚未取得/噸</div>
+      </div>
+      <div class="so-item highlight">
+        <div class="so-val">${fmt(latest.manageable)}</div>
+        <div class="so-lbl">當前可掌握/噸</div>
+      </div>
+    </div>
+
+    ${latest.manageable ? (() => {
+      const target = initForecast;
+      const actualPct  = (latest.actual / target * 100).toFixed(1);
+      const soPct      = (latest.soObtained / target * 100).toFixed(1);
+      const pendPct    = (latest.soPending / target * 100).toFixed(1);
+      const dropPct    = Math.max(0, (drop / target * 100)).toFixed(1);
+      return `
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-label-row">
+          <span>月初目標 <strong>${fmt(initForecast)} 噸</strong></span>
+          <span>已掌握 <strong style="color:#16a34a;">${manageRate}%</strong>　未確認 <strong style="color:#f59e0b;">${pendPct}%</strong></span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-seg" style="width:${actualPct}%;background:#16a34a;" title="已出貨 ${fmt(latest.actual)}噸">
+            ${Number(actualPct) >= 8 ? `已出 ${actualPct}%` : ''}
+          </div>
+          <div class="progress-seg" style="width:${soPct}%;background:#3b82f6;" title="SO已取得 ${fmt(latest.soObtained)}噸">
+            ${Number(soPct) >= 8 ? `SO確認 ${soPct}%` : ''}
+          </div>
+          <div class="progress-seg" style="width:${pendPct}%;background:#f59e0b;color:#1a1a2e;" title="SO未取得 ${fmt(latest.soPending)}噸">
+            ${Number(pendPct) >= 8 ? `SO未確認 ${pendPct}%` : ''}
+          </div>
+          ${Number(dropPct) > 0 ? `<div class="progress-seg" style="width:${dropPct}%;background:#d1d5db;color:#6b7280;" title="調降 ${fmt(drop)}噸">
+            ${Number(dropPct) >= 4 ? `▼${dropPct}%` : ''}
+          </div>` : ''}
+        </div>
+        <div class="progress-legend">
+          <div class="progress-legend-item"><div class="progress-dot" style="background:#16a34a;"></div> 已出貨 ${fmt(latest.actual)} 噸</div>
+          <div class="progress-legend-item"><div class="progress-dot" style="background:#3b82f6;"></div> SO已確認 ${fmt(latest.soObtained)} 噸</div>
+          <div class="progress-legend-item"><div class="progress-dot" style="background:#f59e0b;"></div> SO未確認 ${fmt(latest.soPending)} 噸</div>
+          ${Number(dropPct) > 0 ? `<div class="progress-legend-item"><div class="progress-dot" style="background:#d1d5db;"></div> 計劃調降 ${fmt(drop)} 噸</div>` : ''}
+        </div>
+      </div>`;
+    })() : ''}
+
+    <div style="display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;">
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:26px;">✅</span>
+        <div>
+          <div style="font-size:13px;color:#166534;font-weight:700;">當前可掌握（實際 + SO已取）</div>
+          <div style="font-size:28px;font-weight:800;color:#16a34a;line-height:1.2;">${fmt(latest.manageable)} 噸</div>
+          <div style="font-size:13px;color:#6b7280;">佔本月預計出貨 ${manageRate}%</div>
+        </div>
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:26px;">⚠️</span>
+        <div>
+          <div style="font-size:13px;color:#9a3412;font-weight:700;">月初擬定目標（${initial.date}）</div>
+          <div style="font-size:28px;font-weight:800;color:#d97706;line-height:1.2;">${fmt(initForecast)} 噸</div>
+          <div style="font-size:13px;color:#6b7280;">本次預計 ${fmt(latest.forecast)} 噸，已調降 <strong style="color:#dc2626;">▼ ${fmt(drop)} 噸</strong></div>
+        </div>
+      </div>
+      ${latest.totalForecast ? `
+      <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:26px;">📦</span>
+        <div>
+          <div style="font-size:13px;color:#1e40af;font-weight:700;">預計總出貨量（含SO未取）</div>
+          <div style="font-size:28px;font-weight:800;color:#1d4ed8;line-height:1.2;">${fmt(latest.totalForecast)} 噸</div>
+          <div style="font-size:13px;color:#6b7280;">達成率 <strong>${(latest.totalForecast/initForecast*100).toFixed(1)}%</strong>（vs 月初目標）</div>
+        </div>
+      </div>` : ''}
+    </div>`;
+
+  // ── SO 週別明細 ──
+  let soDetailHtml = '';
+  if (latest.soDetail && latest.soDetail.length > 0) {
+    soDetailHtml = `
+      <div class="section-title">S.O 週別取得明細（${latest.date}更新）</div>
+      <div class="so-week-row">
+        ${latest.soDetail.map(s => `
+          <div class="so-week-item ${s.tons===0?'zero':''}">
+            <div class="w-date">${s.week}</div>
+            <div class="w-val">${fmt(s.tons)}<span style="font-size:15px;font-weight:400;"> 噸</span></div>
+            ${s.note ? `<div class="w-tag">${s.note}</div>` : ''}
+          </div>`).join('')}
+      </div>
+      <div class="info-box">
+        S.O 已取得合計：<strong style="font-size:16px;">${fmt(latest.soObtained)} 噸</strong>
+        　｜　S.O 尚未取得：<strong style="font-size:16px;color:#ef4444;">${fmt(latest.soPending)} 噸</strong>
+      </div>`;
+  }
+  document.getElementById('weekly-so-detail').innerHTML = soDetailHtml ||
+    `<div class="section-title">S.O 週別取得明細</div><div style="color:#6b7280;font-size:14px;">本週尚無 SO 明細資料</div>`;
+
+  // ── 月底達成率預測區間 ──
+  if (latest.manageable && latest.soPending !== null) {
+    const target = initForecast;
+    const bestCase  = latest.totalForecast || (latest.manageable + latest.soPending);
+    const worstCase = latest.manageable;
+    const bestRate  = (bestCase  / target * 100).toFixed(1);
+    const worstRate = (worstCase / target * 100).toFixed(1);
+    const midRate   = latest.totalForecast ? (latest.totalForecast / target * 100).toFixed(1) : bestRate;
+
+    function scenarioColor(rate) {
+      if (rate >= 95) return { bg:'#f0fdf4', border:'#86efac', text:'#166534', label:'bg-green' };
+      if (rate >= 80) return { bg:'#fff7ed', border:'#fdba74', text:'#9a3412', label:'bg-yellow' };
+      return { bg:'#fef2f2', border:'#fca5a5', text:'#991b1b', label:'bg-red' };
+    }
+    const bestC  = scenarioColor(bestRate);
+    const worstC = scenarioColor(worstRate);
+    const midC   = scenarioColor(midRate);
+
+    document.getElementById('weekly-forecast-range').innerHTML = `
+      <div class="section-title">月底達成率情境預測（vs 月初目標 ${fmt(target)} 噸）</div>
+      <div style="display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr;gap:0;align-items:stretch;">
+
+        <!-- 最樂觀 -->
+        <div style="background:${bestC.bg};border:2px solid ${bestC.border};border-radius:14px;padding:22px 20px;text-align:center;">
+          <div style="font-size:13px;font-weight:700;color:#6b7280;margin-bottom:12px;">🟢 最樂觀情境</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:6px;">SO 全部順利取得</div>
+          <div style="font-size:56px;font-weight:800;color:${bestC.text};line-height:1;">${bestRate}%</div>
+          <div style="font-size:15px;color:#6b7280;margin-top:8px;">${fmt(bestCase)} 噸</div>
+          <div style="margin-top:16px;background:white;border-radius:8px;padding:10px 14px;font-size:13px;color:#374151;">
+            已確認 ${fmt(latest.manageable)} 噸<br>
+            + SO 全取得 ${fmt(latest.soPending)} 噸
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:22px;">─</div>
+
+        <!-- 目前預計 -->
+        <div style="background:#1a1a2e;border:2px solid #1a1a2e;border-radius:14px;padding:22px 20px;text-align:center;position:relative;">
+          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#e63946;color:white;font-size:12px;font-weight:700;padding:3px 14px;border-radius:10px;white-space:nowrap;">📍 目前預計</div>
+          <div style="font-size:13px;font-weight:700;color:#aab4c8;margin-bottom:12px;margin-top:10px;">依現有資料推估</div>
+          <div style="font-size:13px;color:#9ca3af;margin-bottom:6px;">含 SO 未取得量</div>
+          <div style="font-size:56px;font-weight:800;color:#fbbf24;line-height:1;">${midRate}%</div>
+          <div style="font-size:15px;color:#aab4c8;margin-top:8px;">${fmt(latest.totalForecast||bestCase)} 噸</div>
+          <div style="margin-top:16px;background:rgba(255,255,255,0.08);border-radius:8px;padding:10px 14px;font-size:13px;color:#9ca3af;">
+            可掌握 ${fmt(latest.manageable)} 噸<br>
+            + SO未確認 ${fmt(latest.soPending)} 噸
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:22px;">─</div>
+
+        <!-- 最悲觀 -->
+        <div style="background:${worstC.bg};border:2px solid ${worstC.border};border-radius:14px;padding:22px 20px;text-align:center;">
+          <div style="font-size:13px;font-weight:700;color:#6b7280;margin-bottom:12px;">🔴 最悲觀情境</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:6px;">SO 未取得量全部落空</div>
+          <div style="font-size:56px;font-weight:800;color:${worstC.text};line-height:1;">${worstRate}%</div>
+          <div style="font-size:15px;color:#6b7280;margin-top:8px;">${fmt(worstCase)} 噸</div>
+          <div style="margin-top:16px;background:white;border-radius:8px;padding:10px 14px;font-size:13px;color:#374151;">
+            僅實際已出 ${fmt(latest.actual)} 噸<br>
+            + SO已取得 ${fmt(latest.soObtained)} 噸
+          </div>
+        </div>
+
+      </div>
+      <div class="info-box" style="margin-top:14px;font-size:14px;">
+        ⚡ 達成率區間：<strong style="color:${worstC.text}">${worstRate}%</strong>（悲觀）
+        ～ <strong style="color:${bestC.text}">${bestRate}%</strong>（樂觀），
+        關鍵在 <strong style="color:#e63946;">S.O 未確認的 ${fmt(latest.soPending)} 噸</strong>（佔目標 ${(latest.soPending/target*100).toFixed(1)}%）能否順利取得。
+      </div>`;
+  } else {
+    document.getElementById('weekly-forecast-range').innerHTML =
+      `<div class="section-title">月底達成率情境預測</div>
+       <div style="color:#6b7280;font-size:14px;">需有 SO 資料後才能產生情境預測。</div>`;
+  }
+
+  // ── 預計量調降瀑布卡片 ──
+  const cascadeHtml = `
+    <div class="cascade-wrap">
+      ${weeks.map((w, i) => {
+        const isLatest = i === weeks.length - 1;
+        const prev = i > 0 ? weeks[i-1] : null;
+        const delta = prev ? (w.forecast - prev.forecast) : null;
+        const arrowHtml = prev ? `
+          <div class="cascade-arrow">
+            <div class="arr-delta">${delta >= 0 ? '▲+' : '▼'}${fmt(Math.abs(delta))} 噸</div>
+            <div class="arr-icon">→</div>
+          </div>` : '';
+        const subHtml = w.manageable
+          ? `<div class="cc-sub">可掌握<br><strong>${fmt(w.manageable)}</strong> 噸</div>`
+          : (i === 0 ? `<div class="cc-sub">月初基準</div>` : `<div class="cc-sub">更新中</div>`);
+        return `
+          ${arrowHtml}
+          <div class="cascade-card ${isLatest?'latest':''}">
+            <div class="cc-date">${w.date}</div>
+            <div class="cc-tons">${fmt(w.forecast)}<span class="cc-unit"> 噸</span></div>
+            ${subHtml}
+          </div>`;
+      }).join('')}
+    </div>
+    <div class="info-box">
+      月初目標 <strong>${fmt(initForecast)} 噸</strong>　→　本週預計 <strong>${fmt(latest.forecast)} 噸</strong>
+      　累計調降 <strong style="color:#dc2626;">▼ ${fmt(drop)} 噸（${(drop/initForecast*100).toFixed(1)}%）</strong>
+    </div>`;
+  document.getElementById('forecast-cascade').innerHTML = cascadeHtml;
+
+  // ── 棧板前後比較 ──
+  const prev = pallets.length >= 2 ? pallets[pallets.length - 2] : null;
+  const curr = pallets[pallets.length - 1];
+  const deltaTotal = prev ? curr.total - prev.total : null;
+  const deltaTsai  = prev ? curr.tsai  - prev.tsai  : null;
+  const deltaEu    = prev ? curr.europe - prev.europe : null;
+  function deltaChip(v) {
+    if (v === null) return '';
+    const cls = v > 0 ? 'up' : v < 0 ? 'down' : 'zero';
+    return `<div class="delta-chip ${cls}">${v > 0?'+':''}${v} PLT</div>`;
+  }
+  document.getElementById('pallet-compare').innerHTML = `
+    <div class="pallet-compare-wrap">
+      ${prev ? `
+      <div class="pallet-compare-col">
+        <div class="pcc-date">📅 ${prev.date}</div>
+        <div class="pcc-total">
+          <div class="pcc-total-num">${prev.total}</div>
+          <div class="pcc-total-lbl">合計 PLT</div>
+        </div>
+        <div class="pcc-row"><span class="lbl">采釘美</span><span class="val">${prev.tsai}</span></div>
+        <div class="pcc-row"><span class="lbl">歐洲線</span><span class="val">${prev.europe}</span></div>
+      </div>
+      <div class="pallet-compare-arrow">→</div>
+      <div class="pcc-delta-col" style="justify-content:center;padding-top:60px;">
+        ${deltaChip(deltaTotal)}
+        <div style="height:20px;"></div>
+        ${deltaChip(deltaTsai)}
+        ${deltaChip(deltaEu)}
+      </div>
+      <div class="pallet-compare-arrow">→</div>` : ''}
+      <div class="pallet-compare-col current">
+        <div class="pcc-date">📅 ${curr.date}（本週）</div>
+        <div class="pcc-total">
+          <div class="pcc-total-num">${curr.total}</div>
+          <div class="pcc-total-lbl">合計 PLT</div>
+        </div>
+        <div class="pcc-row"><span class="lbl">采釘美</span><span class="val">${curr.tsai}</span></div>
+        <div class="pcc-row"><span class="lbl">歐洲線</span><span class="val">${curr.europe}</span></div>
+      </div>
+    </div>`;
+
+  // 週報統計表
+  const hasActual = weeks.some(w => w.actual !== null);
+  document.getElementById('weekly-detail-table').innerHTML = `
+    <table>
+      <thead><tr>
+        <th style="text-align:left;">項目</th>
+        ${weeks.map(w=>`<th>${w.date}</th>`).join('')}
+        <th>增減</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="customer">${label.replace('115年/','').replace('年','')}預計出貨量/噸</td>
+          ${weeks.map(w=>`<td class="num">${fmt(w.forecast)}</td>`).join('')}
+          <td style="color:#ef4444;font-weight:700;">▼ ${fmt(initial.forecast - latest.forecast)} 噸</td>
+        </tr>
+        ${hasActual ? `
+        <tr>
+          <td class="customer">本月累計實際出貨/噸</td>
+          ${weeks.map(w=>`<td class="num">${w.actual?fmt(w.actual):'—'}</td>`).join('')}
+          <td></td>
+        </tr>
+        <tr>
+          <td class="customer">S.O 已取得/噸</td>
+          ${weeks.map(w=>`<td class="num">${w.soObtained?fmt(w.soObtained):'—'}</td>`).join('')}
+          <td></td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td class="customer" style="color:#16a34a;font-weight:700;">當前可掌握預計出貨量/噸</td>
+          ${weeks.map(w=>`<td class="num" style="color:#16a34a;font-weight:700;">${w.manageable?fmt(w.manageable):'—'}</td>`).join('')}
+          <td></td>
+        </tr>
+        <tr>
+          <td class="customer" style="color:#ef4444;">S.O 尚未取得/噸</td>
+          ${weeks.map(w=>`<td class="num" style="color:#ef4444;">${w.soPending?fmt(w.soPending):'—'}</td>`).join('')}
+          <td></td>
+        </tr>
+        <tr class="total">
+          <td style="text-align:left;">預計總出貨量/噸</td>
+          ${weeks.map(w=>`<td class="num">${w.totalForecast?fmt(w.totalForecast):(w.manageable&&w.soPending?fmt(w.manageable+w.soPending):'—')}</td>`).join('')}
+          <td style="color:#fbbf24;font-weight:700;">達成率 ${latest.totalForecast ? (latest.totalForecast/initForecast*100).toFixed(1)+'%' : '—'}</td>
+        </tr>` : ''}
+      </tbody>
+    </table>`;
+}
+
+// ── 月底專用圖表 ──────────────────────────────────────────
+function renderMonthlyCharts() {
+  const d = DATA['05'].monthly;
+  new Chart(document.getElementById('reasonPieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['客戶問題 (430.0噸)', '華興問題 (48.9噸)'],
+      datasets: [{ data:[430.0,48.9], backgroundColor:['#ef4444','#f59e0b'], borderWidth:0, hoverOffset:8 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend:{position:'bottom',labels:{padding:14,font:{size:12}}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} 噸 (${Math.round(ctx.raw/478.9*100)}%)`}}
+      },
+      cutout:'60%'
+    }
+  });
+
+  // 長條圖
+  const labels = d.unshippedReasons.map(r => r.reason.length > 12 ? r.reason.substring(0,12)+'…' : r.reason);
+  const clientData = d.unshippedReasons.map(r => r.c04 + r.c05);
+  const hxData = d.unshippedReasons.map(r => r.h05);
+  new Chart(document.getElementById('reasonBarChart'), {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        { label:'客戶問題', data:clientData, backgroundColor:'#ef4444', borderRadius:4 },
+        { label:'華興問題', data:hxData, backgroundColor:'#f59e0b', borderRadius:4 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw} 噸`}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>v+' 噸'}}}
+    }
+  });
+}
+
+// ── Tab 切換 ──────────────────────────────────────────────
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (el) el.classList.add('active');
+  else document.querySelectorAll('.tab')[name==='monthly'?0:1].classList.add('active');
+}
+
+// ── 初始化 ────────────────────────────────────────────────
+Chart.defaults.font = { family:"'Microsoft JhengHei','PingFang TC',sans-serif", size:12 };
+renderMonthly();
+renderMonthlyCharts();
+renderWeekly('06');  // 週報預設顯示最新月份
+</script>
+</body>
+</html>
