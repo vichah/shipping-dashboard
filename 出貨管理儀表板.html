@@ -103,6 +103,7 @@
   .cc-tons { font-size: 34px; font-weight: 800; color: #1a1a2e; line-height: 1; }
   .cc-unit { font-size: 14px; font-weight: 400; color: #6b7280; }
   .cc-sub { font-size: 12px; color: #6b7280; margin-top: 6px; line-height: 1.6; }
+  .cc-note { font-size: 11px; color: #f59e0b; margin-top: 5px; line-height: 1.4; }
   .cascade-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 12px; flex-shrink: 0; }
   .cascade-arrow .arr-delta { font-size: 14px; font-weight: 700; color: #ef4444; white-space: nowrap; }
   .cascade-arrow .arr-icon { font-size: 22px; color: #d1d5db; }
@@ -212,14 +213,25 @@ const DATA = {
           { week:'6/22~6/26', tons:88.7,  note:'EEX2' },
           { week:'6/29~6/30', tons:0.0,   note:'' }
         ]
+      },
+      // ★ 6/12 更新 ★
+      { date:'6/12', forecast:1766.0, actual:621.8, soObtained:400.0, soPending:744.7,
+        manageable:1021.8, totalForecast:1766.5,
+        forecastNote:'6/1~6/8→美線增加148噸',
+        soDetail:[
+          { week:'6/15~6/18', tons:184.3, note:'EEX1' },
+          { week:'6/22~6/26', tons:184.4, note:'EEX2' },
+          { week:'6/29~6/30', tons:31.3,  note:'' }
+        ]
       }
       // ↓ 後續每週在此新增一筆
     ],
     // E庫棧板週趨勢
     pallets: [
       { date:'5/29', tsai:412, europe:401, total:813 },
-      // ★ 6/5 更新 ★
-      { date:'6/5', tsai:450, europe:444, total:894 }
+      { date:'6/5', tsai:450, europe:444, total:894 },
+      // ★ 6/12 更新 ★
+      { date:'6/12', tsai:381, europe:454, total:835 }
       // ↓ 後續每週在此新增一筆
     ]
   }
@@ -697,12 +709,15 @@ function renderWeekly(monthKey) {
         const subHtml = w.manageable
           ? `<div class="cc-sub">可掌握<br><strong>${fmt(w.manageable)}</strong> 噸</div>`
           : (i === 0 ? `<div class="cc-sub">月初基準</div>` : `<div class="cc-sub">更新中</div>`);
+        const noteHtml = w.forecastNote
+          ? `<div class="cc-note">${w.forecastNote}</div>` : '';
         return `
           ${arrowHtml}
           <div class="cascade-card ${isLatest?'latest':''}">
             <div class="cc-date">${w.date}</div>
             <div class="cc-tons">${fmt(w.forecast)}<span class="cc-unit"> 噸</span></div>
             ${subHtml}
+            ${noteHtml}
           </div>`;
       }).join('')}
     </div>
