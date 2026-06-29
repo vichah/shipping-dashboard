@@ -93,20 +93,24 @@
   .progress-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; }
   .progress-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
   /* ── 預計量調降瀑布 ── */
-  .cascade-wrap { display: flex; align-items: center; gap: 0; padding: 10px 0 16px; }
-  .cascade-card { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 14px; padding: 16px 12px; text-align: center; flex: 1; min-width: 0; }
+  .cascade-wrap { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 0 16px; align-items: stretch; }
+  .cascade-card { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 14px; padding: 14px 12px; text-align: center; flex: 1 1 150px; min-width: 0; }
   .cascade-card.latest { background: #1a1a2e; border-color: #1a1a2e; }
   .cascade-card.latest .cc-tons { color: #fbbf24; }
   .cascade-card.latest .cc-date { color: #aab4c8; }
   .cascade-card.latest .cc-sub { color: #9ca3af; }
-  .cc-date { font-size: 13px; font-weight: 700; color: #6b7280; margin-bottom: 8px; }
+  .cc-delta { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-block; margin-bottom: 6px; }
+  .cc-delta.down { color: #ef4444; background: #fee2e2; }
+  .cc-delta.up { color: #16a34a; background: #dcfce7; }
+  .cc-delta.neutral { color: #9ca3af; background: #f3f4f6; }
+  .cascade-card.latest .cc-delta.down { background: rgba(239,68,68,0.2); }
+  .cascade-card.latest .cc-delta.up { background: rgba(22,163,74,0.2); }
+  .cascade-card.latest .cc-delta.neutral { background: rgba(156,163,175,0.2); color: #aab4c8; }
+  .cc-date { font-size: 13px; font-weight: 700; color: #6b7280; margin-bottom: 6px; }
   .cc-tons { font-size: 28px; font-weight: 800; color: #1a1a2e; line-height: 1; }
   .cc-unit { font-size: 14px; font-weight: 400; color: #6b7280; }
   .cc-sub { font-size: 12px; color: #6b7280; margin-top: 6px; line-height: 1.6; }
   .cc-note { font-size: 11px; color: #f59e0b; margin-top: 5px; line-height: 1.4; }
-  .cascade-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 6px; flex-shrink: 0; }
-  .cascade-arrow .arr-delta { font-size: 12px; font-weight: 700; color: #ef4444; white-space: nowrap; }
-  .cascade-arrow .arr-icon { font-size: 18px; color: #d1d5db; }
   /* ── 棧板比較卡 ── */
   .pallet-compare-wrap { display: flex; gap: 16px; align-items: stretch; }
   .pallet-compare-col { flex: 1; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 14px; padding: 20px; }
@@ -234,8 +238,8 @@ const DATA = {
         ]
       },
       // ★ 6/26 更新 ★
-      { date:'6/26', forecast:1411.0, actual:1314.5, soObtained:96.8, soPending:0.0,
-        manageable:1411.3, totalForecast:1411.3,
+      { date:'6/26', forecast:1413.0, actual:1314.5, soObtained:96.8, soPending:1.3,
+        manageable:1411.3, totalForecast:1412.6,
         forecastNote:'原預計6月出→移至7月出貨262.2噸',
         soDetail:[
           { week:'6/29~6/30', tons:96.8, note:'' }
@@ -733,19 +737,17 @@ function renderWeekly(monthKey) {
         const isLatest = i === weeks.length - 1;
         const prev = i > 0 ? weeks[i-1] : null;
         const delta = prev ? (w.forecast - prev.forecast) : null;
-        const arrowHtml = prev ? `
-          <div class="cascade-arrow">
-            <div class="arr-delta">${delta >= 0 ? '▲+' : '▼'}${fmt(Math.abs(delta))} 噸</div>
-            <div class="arr-icon">→</div>
-          </div>` : '';
+        const deltaHtml = delta !== null
+          ? `<div><span class="cc-delta ${delta >= 0 ? 'up' : 'down'}">${delta >= 0 ? '▲+' : '▼'}${fmt(Math.abs(delta))} 噸</span></div>`
+          : `<div><span class="cc-delta neutral">月初基準</span></div>`;
         const subHtml = w.manageable
           ? `<div class="cc-sub">可掌握<br><strong>${fmt(w.manageable)}</strong> 噸</div>`
-          : (i === 0 ? `<div class="cc-sub">月初基準</div>` : `<div class="cc-sub">更新中</div>`);
+          : `<div class="cc-sub">&nbsp;</div>`;
         const noteHtml = w.forecastNote
           ? `<div class="cc-note">${w.forecastNote}</div>` : '';
         return `
-          ${arrowHtml}
           <div class="cascade-card ${isLatest?'latest':''}">
+            ${deltaHtml}
             <div class="cc-date">${w.date}</div>
             <div class="cc-tons">${fmt(w.forecast)}<span class="cc-unit"> 噸</span></div>
             ${subHtml}
@@ -755,7 +757,7 @@ function renderWeekly(monthKey) {
     </div>
     <div class="info-box">
       月初目標 <strong>${fmt(initForecast)} 噸</strong>　→　本週預計 <strong>${fmt(latest.forecast)} 噸</strong>
-      　累計調降 <strong style="color:#dc2626;">▼ ${fmt(drop)} 噸（${(drop/initForecast*100).toFixed(1)}%）</strong>
+      　${drop > 0 ? `累計調降 <strong style="color:#dc2626;">▼ ${fmt(drop)} 噸（${(drop/initForecast*100).toFixed(1)}%）</strong>` : '尚無調降'}
     </div>`;
   document.getElementById('forecast-cascade').innerHTML = cascadeHtml;
 
