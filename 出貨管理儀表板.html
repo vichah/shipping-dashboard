@@ -232,25 +232,47 @@ const DATA = {
           { week:'6/22~6/26', tons:324.0, note:'EEX2' },
           { week:'6/29~6/30', tons:48.8,  note:'' }
         ]
+      },
+      // ★ 6/26 更新 ★
+      { date:'6/26', forecast:1411.0, actual:1314.5, soObtained:96.8, soPending:0.0,
+        manageable:1411.3, totalForecast:1411.3,
+        forecastNote:'原預計6月出→移至7月出貨262.2噸',
+        soDetail:[
+          { week:'6/29~6/30', tons:96.8, note:'' }
+        ]
       }
-      // ↓ 後續每週在此新增一筆
     ],
     // E庫棧板週趨勢
     pallets: [
       { date:'5/29', tsai:412, europe:401, total:813 },
       { date:'6/5', tsai:450, europe:444, total:894 },
       { date:'6/12', tsai:381, europe:454, total:835 },
-      // ★ 6/18 更新 ★
-      { date:'6/18', tsai:483, europe:512, total:995 }
+      { date:'6/18', tsai:483, europe:512, total:995 },
+      // ★ 6/26 更新 ★
+      { date:'6/26', tsai:2047, europe:456, total:2503 }
+    ]
+  },
+
+  // ── 07月 ──
+  '07': {
+    label: '115年/07月',
+    monthly: null,
+    weekly: [
+      // 月初基準（來自06月底計劃表小計欄）
+      { date:'6/26 (月初)', forecast:2279, actual:null, soObtained:null, soPending:null, manageable:null }
+      // ↓ 後續每週在此新增一筆
+    ],
+    pallets: [
+      { date:'6/26', tsai:2047, europe:456, total:2503 }
       // ↓ 後續每週在此新增一筆
     ]
   }
 
-  // ↓ 07月起，在此繼續新增月份物件
+  // ↓ 08月起，在此繼續新增月份物件
 };
 
 // 當前顯示月份
-let currentWeeklyMonth = '06';
+let currentWeeklyMonth = '07';
 </script>
 
 <div class="header">
@@ -877,7 +899,7 @@ function switchTab(name, el) {
 Chart.defaults.font = { family:"'Microsoft JhengHei','PingFang TC',sans-serif", size:12 };
 renderMonthly();
 renderMonthlyCharts();
-renderWeekly('06');  // 週報預設顯示最新月份
+renderWeekly('07');  // 週報預設顯示最新月份
 </script>
 </body>
 </html>
