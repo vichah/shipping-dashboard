@@ -92,25 +92,26 @@
   .progress-legend { display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap; }
   .progress-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; }
   .progress-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
-  /* ── 預計量調降瀑布 ── */
-  .cascade-wrap { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 0 16px; align-items: stretch; }
-  .cascade-card { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 14px; padding: 14px 12px; text-align: center; flex: 1 1 150px; min-width: 0; }
-  .cascade-card.latest { background: #1a1a2e; border-color: #1a1a2e; }
-  .cascade-card.latest .cc-tons { color: #fbbf24; }
-  .cascade-card.latest .cc-date { color: #aab4c8; }
-  .cascade-card.latest .cc-sub { color: #9ca3af; }
-  .cc-delta { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-block; margin-bottom: 6px; }
-  .cc-delta.down { color: #ef4444; background: #fee2e2; }
-  .cc-delta.up { color: #16a34a; background: #dcfce7; }
-  .cc-delta.neutral { color: #9ca3af; background: #f3f4f6; }
-  .cascade-card.latest .cc-delta.down { background: rgba(239,68,68,0.2); }
-  .cascade-card.latest .cc-delta.up { background: rgba(22,163,74,0.2); }
-  .cascade-card.latest .cc-delta.neutral { background: rgba(156,163,175,0.2); color: #aab4c8; }
-  .cc-date { font-size: 13px; font-weight: 700; color: #6b7280; margin-bottom: 6px; }
-  .cc-tons { font-size: 28px; font-weight: 800; color: #1a1a2e; line-height: 1; }
-  .cc-unit { font-size: 14px; font-weight: 400; color: #6b7280; }
-  .cc-sub { font-size: 12px; color: #6b7280; margin-top: 6px; line-height: 1.6; }
-  .cc-note { font-size: 11px; color: #f59e0b; margin-top: 5px; line-height: 1.4; }
+  /* ── 預計量調降時間軸 ── */
+  .tl-wrap { display: flex; flex-direction: column; gap: 6px; padding: 8px 0 14px; }
+  .tl-row { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 12px; background: #f9fafb; border: 2px solid #e5e7eb; transition: background 0.2s; }
+  .tl-row.tl-latest { background: #1a1a2e; border-color: #1a1a2e; }
+  .tl-date { font-size: 13px; font-weight: 700; color: #6b7280; width: 100px; flex-shrink: 0; }
+  .tl-forecast { font-size: 26px; font-weight: 800; color: #1a1a2e; width: 130px; flex-shrink: 0; line-height: 1; }
+  .tl-unit { font-size: 12px; font-weight: 400; color: #9ca3af; }
+  .tl-delta { flex-shrink: 0; }
+  .tl-chip { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-block; white-space: nowrap; }
+  .tl-chip.down { color: #ef4444; background: #fee2e2; }
+  .tl-chip.up { color: #16a34a; background: #dcfce7; }
+  .tl-chip.neutral { color: #9ca3af; background: #f3f4f6; }
+  .tl-sub { font-size: 12px; color: #6b7280; flex: 1; }
+  .tl-note { font-size: 11px; color: #f59e0b; text-align: right; flex-shrink: 0; max-width: 180px; line-height: 1.3; }
+  .tl-row.tl-latest .tl-forecast { color: #fbbf24; }
+  .tl-row.tl-latest .tl-date { color: #aab4c8; }
+  .tl-row.tl-latest .tl-sub { color: #9ca3af; }
+  .tl-row.tl-latest .tl-chip.down { background: rgba(239,68,68,0.2); }
+  .tl-row.tl-latest .tl-chip.up { background: rgba(22,163,74,0.2); }
+  .tl-row.tl-latest .tl-chip.neutral { background: rgba(156,163,175,0.15); }
   /* ── 棧板比較卡 ── */
   .pallet-compare-wrap { display: flex; gap: 16px; align-items: stretch; }
   .pallet-compare-col { flex: 1; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 14px; padding: 20px; }
@@ -730,28 +731,28 @@ function renderWeekly(monthKey) {
        <div style="color:#6b7280;font-size:14px;">需有 SO 資料後才能產生情境預測。</div>`;
   }
 
-  // ── 預計量調降瀑布卡片 ──
+  // ── 預計量時間軸 ──
   const cascadeHtml = `
-    <div class="cascade-wrap">
+    <div class="tl-wrap">
       ${weeks.map((w, i) => {
         const isLatest = i === weeks.length - 1;
         const prev = i > 0 ? weeks[i-1] : null;
         const delta = prev ? (w.forecast - prev.forecast) : null;
-        const deltaHtml = delta !== null
-          ? `<div><span class="cc-delta ${delta >= 0 ? 'up' : 'down'}">${delta >= 0 ? '▲+' : '▼'}${fmt(Math.abs(delta))} 噸</span></div>`
-          : `<div><span class="cc-delta neutral">月初基準</span></div>`;
-        const subHtml = w.manageable
-          ? `<div class="cc-sub">可掌握<br><strong>${fmt(w.manageable)}</strong> 噸</div>`
-          : `<div class="cc-sub">&nbsp;</div>`;
-        const noteHtml = w.forecastNote
-          ? `<div class="cc-note">${w.forecastNote}</div>` : '';
+        const chip = delta !== null
+          ? `<span class="tl-chip ${delta >= 0 ? 'up' : 'down'}">${delta >= 0 ? '▲+' : '▼'}${fmt(Math.abs(delta))} 噸</span>`
+          : `<span class="tl-chip neutral">月初基準</span>`;
+        const sub = w.manageable
+          ? `可掌握 <strong>${fmt(w.manageable)}</strong> 噸`
+          : '&nbsp;';
+        const note = w.forecastNote
+          ? `<div class="tl-note">${w.forecastNote}</div>` : '';
         return `
-          <div class="cascade-card ${isLatest?'latest':''}">
-            ${deltaHtml}
-            <div class="cc-date">${w.date}</div>
-            <div class="cc-tons">${fmt(w.forecast)}<span class="cc-unit"> 噸</span></div>
-            ${subHtml}
-            ${noteHtml}
+          <div class="tl-row ${isLatest ? 'tl-latest' : ''}">
+            <div class="tl-date">${w.date}</div>
+            <div class="tl-forecast">${fmt(w.forecast)}<span class="tl-unit"> 噸</span></div>
+            <div class="tl-delta">${chip}</div>
+            <div class="tl-sub">${sub}</div>
+            ${note}
           </div>`;
       }).join('')}
     </div>
