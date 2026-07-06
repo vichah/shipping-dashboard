@@ -169,6 +169,11 @@ const DATA = {
       // E庫棧板（月底）
       palletMonthEnd: { date:'5/29', tsai:412, europe:401, total:813 },
       // 未出原因
+      reasonColumns: [
+        { key:'c04', label:'客戶<br>04月前/噸', group:'client' },
+        { key:'c05', label:'客戶<br>05月/噸',   group:'client' },
+        { key:'h05', label:'華興<br>05月/噸',   group:'hx' }
+      ],
       unshippedReasons: [
         { reason:'已完成包裝－延至06月出',     c04:137.0, c05:103.2, h05:26.5,  nextShip:'06月' },
         { reason:'已完成包裝－延至07月出',     c04:0.8,   c05:0.6,   h05:0,     nextShip:'07月' },
@@ -206,7 +211,48 @@ const DATA = {
   // ── 06月資料 ──────────────────────────────────────────────────────
   '06': {
     label: '115年/06月',
-    monthly: null,   // 月底資料尚未產生
+    monthly: {
+      achievement: [
+        { name: '采釘美', target: 800.0, actual: 751.0, rate: 0.94 },
+        { name: '歐洲線', target: 966.0, actual: 662.7, rate: 0.69 },
+        { name: '合計',   target: 1766.0, actual: 1413.7, rate: 0.80 }
+      ],
+      nextPlan: {
+        month: '07',
+        rows: [
+          { name:'采釘美', prevRem:207.9, newOrders:848.2, cannotPrev:0.0, cannotCurr:0.0, shouldPrev:207.9, shouldCurr:848.2, subtotal:1056 },
+          { name:'歐洲線', prevRem:587.8, newOrders:861.3, cannotPrev:176.1, cannotCurr:113.0, shouldPrev:411.7, shouldCurr:748.3, subtotal:1160 }
+        ],
+        totalOrders: 2505, totalCannot: 289, totalShould: 2216
+      },
+      palletMonthEnd: { date:'6/30', tsai:216, europe:456, total:672 },
+      reasonColumns: [
+        { key:'cPrev', label:'客戶<br>05月前/噸', group:'client' },
+        { key:'cCurr', label:'客戶<br>06月/噸',   group:'client' },
+        { key:'hPrev', label:'華興<br>05月前/噸',  group:'hx' },
+        { key:'hCurr', label:'華興<br>06月/噸',    group:'hx' }
+      ],
+      unshippedReasons: [
+        { reason:'陷入財務危機－暫無法排出',       cPrev:23.4, cCurr:4.1,   hPrev:0,    hCurr:0,    nextShip:'未定' },
+        { reason:'客戶通知－暫緩生產',             cPrev:3.0,  cCurr:0,     hPrev:0,    hCurr:0,    nextShip:'客戶暫緩' },
+        { reason:'已完成包裝－暫未確定出貨日',     cPrev:76.5, cCurr:0.4,   hPrev:0,    hCurr:0,    nextShip:'未定' },
+        { reason:'已完成包裝－延至07月出',         cPrev:61.8, cCurr:230.2, hPrev:0,    hCurr:0,    nextShip:'07月' },
+        { reason:'已完成包裝－延至08月出',         cPrev:1.5,  cCurr:0,     hPrev:0,    hCurr:0,    nextShip:'08月' },
+        { reason:'未完成包裝－暫未確定出貨日',     cPrev:0,    cCurr:4.2,   hPrev:0,    hCurr:0,    nextShip:'未定' },
+        { reason:'未完成包裝－待客戶提供標千',     cPrev:1.0,  cCurr:9.2,   hPrev:0,    hCurr:0,    nextShip:'未定' },
+        { reason:'未完成包裝－客戶併貨廠7月排出', cPrev:0,    cCurr:0,     hPrev:12.7, hCurr:0,    nextShip:'07月' },
+        { reason:'未完成包裝－延至07月出',         cPrev:18.3, cCurr:208.6, hPrev:0,    hCurr:0,    nextShip:'07月' },
+        { reason:'未完成包裝－延至08月出',         cPrev:0,    cCurr:4.0,   hPrev:0,    hCurr:0,    nextShip:'08月' },
+        { reason:'未完成包裝－螺絲彎曲',           cPrev:0,    cCurr:0,     hPrev:14.2, hCurr:55.0, nextShip:'產線問題' },
+        { reason:'未完成包裝－螺絲生鏽',           cPrev:0,    cCurr:0,     hPrev:0,    hCurr:0.5,  nextShip:'產線問題' },
+        { reason:'HT/電鍍未完成－半品損耗補生產', cPrev:0,    cCurr:0,     hPrev:0,    hCurr:0.1,  nextShip:'產線問題' },
+        { reason:'HT/電鍍未完成－電鍍不良重電',   cPrev:0,    cCurr:0,     hPrev:0,    hCurr:1.5,  nextShip:'產線問題' },
+        { reason:'HT/電鍍未完成－客戶取消待結案', cPrev:0,    cCurr:1.3,   hPrev:0,    hCurr:0,    nextShip:'未定' },
+        { reason:'HT/電鍍未完成－缺包材',         cPrev:0,    cCurr:47.8,  hPrev:0,    hCurr:0,    nextShip:'未定' },
+        { reason:'半品延交－造成HT來不及',         cPrev:0,    cCurr:0,     hPrev:0,    hCurr:15.7, nextShip:'產線問題' }
+      ],
+      clientTotal: 695.3, hxTotal: 99.7, grandTotal: 795.0
+    },
     // 週報快照
     weekly: [
       // 月初基準（來自05月底計劃表）
@@ -255,8 +301,9 @@ const DATA = {
       { date:'6/5', tsai:450, europe:444, total:894 },
       { date:'6/12', tsai:381, europe:454, total:835 },
       { date:'6/18', tsai:483, europe:512, total:995 },
-      // ★ 6/26 更新 ★
-      { date:'6/26', tsai:2047, europe:456, total:2503 }
+      { date:'6/26', tsai:2047, europe:456, total:2503 },
+      // ★ 6/30 月底 ★
+      { date:'6/30', tsai:216, europe:456, total:672 }
     ]
   },
 
@@ -266,11 +313,23 @@ const DATA = {
     monthly: null,
     weekly: [
       // 月初基準（來自06月底計劃表小計欄）
-      { date:'6/26 (月初)', forecast:2279, actual:null, soObtained:null, soPending:null, manageable:null }
+      { date:'6/30 (月初)', forecast:2216, actual:null, soObtained:null, soPending:null, manageable:null },
+      // ★ 7/3 更新 ★
+      { date:'7/3', forecast:2205.3, actual:317.9, soObtained:487.2, soPending:1400.2,
+        manageable:805.1, totalForecast:2205.3,
+        soDetail:[
+          { week:'7/6~7/10',  tons:150.7, note:'EEX1' },
+          { week:'7/13~7/17', tons:217.2, note:'EEX3' },
+          { week:'7/20~7/24', tons:119.3, note:'EEX3' },
+          { week:'7/27~7/31', tons:0.0,   note:'EEX1' }
+        ]
+      }
       // ↓ 後續每週在此新增一筆
     ],
     pallets: [
-      { date:'6/26', tsai:2047, europe:456, total:2503 }
+      { date:'6/30', tsai:216, europe:456, total:672 },
+      // ★ 7/3 更新 ★
+      { date:'7/3', tsai:129, europe:245, total:374 }
       // ↓ 後續每週在此新增一筆
     ]
   }
@@ -300,11 +359,12 @@ let currentWeeklyMonth = '07';
 
 <!-- ===================== 月底報告 ===================== -->
 <div id="tab-monthly" class="content active">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; margin-top:8px;">
-    <div style="font-size:18px; font-weight:700;">115年/05月 月結報告
-      <span style="font-size:13px; font-weight:400; color:#6b7280;">｜開會日期：115/06/02（週一）</span>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; margin-top:8px;">
+    <div id="monthly-title" style="font-size:18px; font-weight:700;"></div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <div class="month-selector" id="monthly-month-selector"></div>
+      <button class="print-btn" onclick="window.print()">🖨 列印報告</button>
     </div>
-    <button class="print-btn" onclick="window.print()">🖨 列印報告</button>
   </div>
 
   <!-- KPI -->
@@ -315,22 +375,10 @@ let currentWeeklyMonth = '07';
     <div class="card">
       <div class="section-title">未出貨責任歸屬</div>
       <div style="position:relative; height:190px;"><canvas id="reasonPieChart"></canvas></div>
-      <div style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <div style="background:#fee2e2; border-radius:8px; padding:12px; text-align:center;">
-          <div style="font-size:22px; font-weight:800; color:#dc2626;">430.0<small style="font-size:12px;"> 噸</small></div>
-          <div style="font-size:11px; color:#6b7280; margin-top:2px;">客戶問題</div>
-        </div>
-        <div style="background:#fef3c7; border-radius:8px; padding:12px; text-align:center;">
-          <div style="font-size:22px; font-weight:800; color:#d97706;">48.9<small style="font-size:12px;"> 噸</small></div>
-          <div style="font-size:11px; color:#6b7280; margin-top:2px;">華興問題</div>
-        </div>
-      </div>
-      <div style="text-align:center; margin-top:10px; font-size:13px; color:#6b7280;">
-        未出總計：<strong style="color:#1a1a2e; font-size:16px;">478.9 噸</strong>
-      </div>
+      <div id="monthly-pie-summary"></div>
     </div>
     <div class="card">
-      <div class="section-title">05月前訂單未出原因明細</div>
+      <div class="section-title" id="unshipped-title"></div>
       <div id="unshipped-table"></div>
     </div>
   </div>
@@ -341,27 +389,13 @@ let currentWeeklyMonth = '07';
     <div style="height:210px;"><canvas id="reasonBarChart"></canvas></div>
   </div>
 
-  <!-- 06月計劃 + 棧板 -->
+  <!-- 下月計劃 + 棧板 -->
   <div class="grid-3-1 mb-section">
     <div class="card">
-      <div class="section-title">115年/06月 預計出貨量計劃表</div>
+      <div class="section-title" id="next-plan-title"></div>
       <div id="next-plan-table"></div>
     </div>
-    <div class="card">
-      <div class="section-title">5/29 E庫完成棧板數</div>
-      <div class="pallet-row">
-        <div class="pallet-card"><div class="pc-val">412</div><div class="pc-lbl">采釘美 PLT</div></div>
-        <div class="pallet-card"><div class="pc-val">401</div><div class="pc-lbl">歐洲線 PLT</div></div>
-        <div class="pallet-card total"><div class="pc-val">813</div><div class="pc-lbl">合計 PLT</div></div>
-      </div>
-      <div style="margin-top:18px;">
-        <div class="section-title" style="font-size:13px;">05月達成率摘要</div>
-        <table>
-          <thead><tr><th style="text-align:left;">項目</th><th>目標/噸</th><th>實際/噸</th><th>達成率</th></tr></thead>
-          <tbody id="monthly-achieve-table"></tbody>
-        </table>
-      </div>
-    </div>
+    <div class="card" id="monthly-sidebar"></div>
   </div>
 </div>
 
@@ -420,9 +454,20 @@ function nextShipBadge(s) {
 }
 
 // ── 月底報告渲染 ──────────────────────────────────────────
-function renderMonthly() {
-  const d = DATA['05'];
+let currentMonthlyMonth = '06';
+function renderMonthly(monthKey) {
+  currentMonthlyMonth = monthKey;
+  const d = DATA[monthKey];
   const m = d.monthly;
+
+  // 月份切換按鈕
+  const monthlyMonths = Object.keys(DATA).filter(k => DATA[k].monthly);
+  document.getElementById('monthly-month-selector').innerHTML = monthlyMonths.map(k =>
+    `<button class="month-btn ${k===monthKey?'active':''}" onclick="renderMonthly('${k}');renderMonthlyCharts('${k}')">${DATA[k].label}</button>`
+  ).join('');
+
+  // 標題
+  document.getElementById('monthly-title').innerHTML = `${d.label} 月結報告`;
 
   // KPI Cards
   const colors = ['green','red','yellow'];
@@ -439,47 +484,60 @@ function renderMonthly() {
       <div class="kpi-bar-bg"><div class="kpi-bar" style="width:${Math.min(a.rate,1)*100}%;"></div></div>
     </div>`).join('');
 
-  // 達成率小表
-  const ach = m.achievement;
-  document.getElementById('monthly-achieve-table').innerHTML = ach.map((a,i) => `
-    <tr ${i===ach.length-1?'class="total"':''}>
-      <td class="customer">${a.name}</td>
-      <td class="num">${fmt(a.target)}</td>
-      <td class="num">${fmt(a.actual)}</td>
-      <td>${rateBadge(a.rate)}</td>
-    </tr>`).join('');
+  // 圓餅摘要
+  document.getElementById('monthly-pie-summary').innerHTML = `
+    <div style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div style="background:#fee2e2; border-radius:8px; padding:12px; text-align:center;">
+        <div style="font-size:22px; font-weight:800; color:#dc2626;">${fmt(m.clientTotal)}<small style="font-size:12px;"> 噸</small></div>
+        <div style="font-size:11px; color:#6b7280; margin-top:2px;">客戶問題</div>
+      </div>
+      <div style="background:#fef3c7; border-radius:8px; padding:12px; text-align:center;">
+        <div style="font-size:22px; font-weight:800; color:#d97706;">${fmt(m.hxTotal)}<small style="font-size:12px;"> 噸</small></div>
+        <div style="font-size:11px; color:#6b7280; margin-top:2px;">華興問題</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:10px; font-size:13px; color:#6b7280;">
+      未出總計：<strong style="color:#1a1a2e; font-size:16px;">${fmt(m.grandTotal)} 噸</strong>
+    </div>`;
 
-  // 未出原因表
+  // 未出原因標題
+  document.getElementById('unshipped-title').textContent = `${monthKey}月前訂單未出原因明細`;
+
+  // 未出原因表（動態欄位）
   const ur = m.unshippedReasons;
+  const rc = m.reasonColumns;
+  const colKeys = rc.map(c => c.key);
   document.getElementById('unshipped-table').innerHTML = `
     <table>
       <thead><tr>
         <th style="text-align:left;width:180px;">未出原因</th>
-        <th>客戶<br>04月前/噸</th><th>客戶<br>05月/噸</th><th>華興<br>05月/噸</th>
+        ${rc.map(c => `<th>${c.label}</th>`).join('')}
         <th>小計/噸</th><th>預計出貨</th>
       </tr></thead>
       <tbody>
         ${ur.map(r => {
-          const sub = r.c04+r.c05+r.h05;
+          const sub = colKeys.reduce((s,k) => s + (r[k]||0), 0);
           return `<tr>
             <td class="reason-sub">${r.reason}</td>
-            <td class="num">${r.c04?fmt(r.c04):'—'}</td>
-            <td class="num">${r.c05?fmt(r.c05):'—'}</td>
-            <td class="num">${r.h05?fmt(r.h05):'—'}</td>
+            ${colKeys.map(k => `<td class="num">${r[k]?fmt(r[k]):'—'}</td>`).join('')}
             <td class="num" style="font-weight:700;">${fmt(sub)}</td>
             <td>${nextShipBadge(r.nextShip)}</td>
           </tr>`;
         }).join('')}
         <tr class="subtotal">
           <td style="text-align:left;font-weight:700;">合計</td>
-          <td class="num">225.2</td><td class="num">204.8</td><td class="num">48.9</td>
-          <td class="num" style="font-size:15px;">478.9</td><td></td>
+          ${colKeys.map(k => {
+            const t = ur.reduce((s,r) => s + (r[k]||0), 0);
+            return `<td class="num">${fmt(t)}</td>`;
+          }).join('')}
+          <td class="num" style="font-size:15px;">${fmt(m.grandTotal)}</td><td></td>
         </tr>
       </tbody>
     </table>`;
 
-  // 06月計劃表
+  // 下月計劃表
   const np = m.nextPlan;
+  document.getElementById('next-plan-title').textContent = `115年/${np.month}月 預計出貨量計劃表`;
   document.getElementById('next-plan-table').innerHTML = `
     <table>
       <thead>
@@ -505,13 +563,16 @@ function renderMonthly() {
           <td class="num" style="background:#fef9c3;">${fmt(r.cannotCurr)}</td>
           <td class="num" style="background:#dcfce7;">${fmt(r.shouldPrev)}</td>
           <td class="num" style="background:#dcfce7;">${fmt(r.shouldCurr)}</td>
-          <td class="num" style="background:#fee2e2;font-weight:800;color:#dc2626;">${r.subtotal}</td>
+          <td class="num" style="background:#fee2e2;font-weight:800;color:#dc2626;">${fmt(r.subtotal,0)}</td>
         </tr>`).join('')}
         <tr class="subtotal">
           <td style="text-align:left;">小計</td>
-          <td class="num">479.7</td><td class="num">1,581.6</td>
-          <td class="num">80.9</td><td class="num">214.3</td>
-          <td class="num">398.8</td><td class="num">1,367.3</td><td></td>
+          <td class="num">${fmt(np.rows.reduce((s,r)=>s+r.prevRem,0))}</td>
+          <td class="num">${fmt(np.rows.reduce((s,r)=>s+r.newOrders,0))}</td>
+          <td class="num">${fmt(np.rows.reduce((s,r)=>s+r.cannotPrev,0))}</td>
+          <td class="num">${fmt(np.rows.reduce((s,r)=>s+r.cannotCurr,0))}</td>
+          <td class="num">${fmt(np.rows.reduce((s,r)=>s+r.shouldPrev,0))}</td>
+          <td class="num">${fmt(np.rows.reduce((s,r)=>s+r.shouldCurr,0))}</td><td></td>
         </tr>
         <tr class="total">
           <td style="text-align:left;">合計</td>
@@ -525,6 +586,32 @@ function renderMonthly() {
       📌 ${np.month}月應出貨 <strong style="color:#1a1a2e;">${fmt(np.totalShould,0)} 噸</strong>
       ｜ 無法排出 <span style="color:#ef4444;">${fmt(np.totalCannot,0)} 噸</span>
       （${Math.round(np.totalCannot/np.totalOrders*100)}%）
+    </div>`;
+
+  // 側欄：月底棧板 + 達成率摘要
+  const pe = m.palletMonthEnd;
+  const ach = m.achievement;
+  document.getElementById('monthly-sidebar').innerHTML = `
+    <div class="section-title">${pe.date} E庫完成棧板數</div>
+    <div class="pallet-row">
+      <div class="pallet-card"><div class="pc-val">${pe.tsai}</div><div class="pc-lbl">采釘美 PLT</div></div>
+      <div class="pallet-card"><div class="pc-val">${pe.europe}</div><div class="pc-lbl">歐洲線 PLT</div></div>
+      <div class="pallet-card total"><div class="pc-val">${pe.total}</div><div class="pc-lbl">合計 PLT</div></div>
+    </div>
+    <div style="margin-top:18px;">
+      <div class="section-title" style="font-size:13px;">${d.label} 達成率摘要</div>
+      <table>
+        <thead><tr><th style="text-align:left;">項目</th><th>目標/噸</th><th>實際/噸</th><th>達成率</th></tr></thead>
+        <tbody>
+          ${ach.map((a,i) => `
+          <tr ${i===ach.length-1?'class="total"':''}>
+            <td class="customer">${a.name}</td>
+            <td class="num">${fmt(a.target)}</td>
+            <td class="num">${fmt(a.actual)}</td>
+            <td>${rateBadge(a.rate)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
     </div>`;
 }
 
@@ -854,29 +941,42 @@ function renderWeekly(monthKey) {
 }
 
 // ── 月底專用圖表 ──────────────────────────────────────────
-function renderMonthlyCharts() {
-  const d = DATA['05'].monthly;
-  new Chart(document.getElementById('reasonPieChart'), {
+let pieChart, barChart;
+function renderMonthlyCharts(monthKey) {
+  const d = DATA[monthKey].monthly;
+  if (pieChart) pieChart.destroy();
+  if (barChart) barChart.destroy();
+
+  // 重建 canvas（避免 Chart.js 殘留）
+  const pieWrap = document.getElementById('reasonPieChart').parentElement;
+  pieWrap.innerHTML = '<canvas id="reasonPieChart"></canvas>';
+  const barWrap = document.getElementById('reasonBarChart').parentElement;
+  barWrap.innerHTML = '<canvas id="reasonBarChart"></canvas>';
+
+  pieChart = new Chart(document.getElementById('reasonPieChart'), {
     type: 'doughnut',
     data: {
-      labels: ['客戶問題 (430.0噸)', '華興問題 (48.9噸)'],
-      datasets: [{ data:[430.0,48.9], backgroundColor:['#ef4444','#f59e0b'], borderWidth:0, hoverOffset:8 }]
+      labels: [`客戶問題 (${fmt(d.clientTotal)}噸)`, `華興問題 (${fmt(d.hxTotal)}噸)`],
+      datasets: [{ data:[d.clientTotal, d.hxTotal], backgroundColor:['#ef4444','#f59e0b'], borderWidth:0, hoverOffset:8 }]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
       plugins: {
         legend:{position:'bottom',labels:{padding:14,font:{size:12}}},
-        tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} 噸 (${Math.round(ctx.raw/478.9*100)}%)`}}
+        tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} 噸 (${Math.round(ctx.raw/d.grandTotal*100)}%)`}}
       },
       cutout:'60%'
     }
   });
 
-  // 長條圖
+  // 長條圖（動態欄位）
+  const rCols = d.reasonColumns;
+  const clientKeys = rCols.filter(c => c.group==='client').map(c => c.key);
+  const hxKeys = rCols.filter(c => c.group==='hx').map(c => c.key);
   const labels = d.unshippedReasons.map(r => r.reason.length > 12 ? r.reason.substring(0,12)+'…' : r.reason);
-  const clientData = d.unshippedReasons.map(r => r.c04 + r.c05);
-  const hxData = d.unshippedReasons.map(r => r.h05);
-  new Chart(document.getElementById('reasonBarChart'), {
+  const clientData = d.unshippedReasons.map(r => clientKeys.reduce((s,k) => s + (r[k]||0), 0));
+  const hxData = d.unshippedReasons.map(r => hxKeys.reduce((s,k) => s + (r[k]||0), 0));
+  barChart = new Chart(document.getElementById('reasonBarChart'), {
     type:'bar',
     data:{
       labels,
@@ -904,8 +1004,8 @@ function switchTab(name, el) {
 
 // ── 初始化 ────────────────────────────────────────────────
 Chart.defaults.font = { family:"'Microsoft JhengHei','PingFang TC',sans-serif", size:12 };
-renderMonthly();
-renderMonthlyCharts();
+renderMonthly('06');
+renderMonthlyCharts('06');
 renderWeekly('07');  // 週報預設顯示最新月份
 </script>
 </body>
