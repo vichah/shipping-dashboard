@@ -633,7 +633,8 @@ function renderWeekly(monthKey) {
   document.getElementById('forecast-chart-title').textContent = `${label} 預計出貨量週間調降歷程`;
   document.getElementById('pallet-chart-title').textContent = `${label} E庫已完成棧板數`;
   document.getElementById('weekly-table-title').textContent = `${label} 訂單出貨量統計表`;
-  document.getElementById('lastUpdate').textContent = `最後更新：${latest.date}`;
+  const globalLatest = Object.values(DATA).flatMap(m => m.weekly).filter(w => w.actual !== null).pop();
+  document.getElementById('lastUpdate').textContent = `最後更新：${globalLatest ? globalLatest.date : latest.date}`;
 
   const initForecast = initial.forecast;
   const drop = initForecast - latest.forecast;
