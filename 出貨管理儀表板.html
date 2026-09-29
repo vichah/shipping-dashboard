@@ -310,7 +310,22 @@ const DATA = {
   // ── 07月 ──
   '07': {
     label: '115年/07月',
-    monthly: null,
+    monthly: {
+      achievement: [
+        { name: '采釘美', target: 1056.0, actual: 1000.9, rate: 0.95 },
+        { name: '歐洲線', target: 1160.0, actual: 894.0, rate: 0.77 },
+        { name: '合計',   target: 2216.0, actual: 1894.9, rate: 0.86 }
+      ],
+      nextPlan: {
+        month: '08',
+        rows: [
+          { name:'采釘美', prevRem:215.6, newOrders:904.3, cannotPrev:19.6, cannotCurr:0.0, shouldPrev:196.0, shouldCurr:904.3, subtotal:1100 },
+          { name:'歐洲線', prevRem:459.0, newOrders:1073.0, cannotPrev:125.4, cannotCurr:118.2, shouldPrev:333.6, shouldCurr:954.8, subtotal:1288 }
+        ],
+        totalOrders: 2652, totalCannot: 263, totalShould: 2389
+      },
+      palletMonthEnd: { date:'7/31', tsai:409, europe:343, total:752 }
+    },
     weekly: [
       // 月初基準（來自06月底計劃表小計欄）
       { date:'6/30 (月初)', forecast:2216, actual:null, soObtained:null, soPending:null, manageable:null },
@@ -363,13 +378,144 @@ const DATA = {
       { date:'7/24', tsai:466, europe:355, total:821 }
       // ↓ 後續每週在此新增一筆
     ]
+  },
+
+  // ── 08月 ──
+  '08': {
+    label: '115年/08月',
+    monthly: {
+      achievement: [
+        { name: '采釘美', target: 1100.0, actual: 794.0, rate: 0.72 },
+        { name: '歐洲線', target: 1288.0, actual: 987.0, rate: 0.77 },
+        { name: '合計',   target: 2388.0, actual: 1781.0, rate: 0.75 }
+      ],
+      nextPlan: {
+        month: '09',
+        rows: [
+          { name:'采釘美', prevRem:393.4, newOrders:1398.0, cannotPrev:0.0, cannotCurr:0.0, shouldPrev:393.4, shouldCurr:1398.0, subtotal:1791 },
+          { name:'歐洲線', prevRem:573.0, newOrders:525.0, cannotPrev:111.0, cannotCurr:64.1, shouldPrev:462.0, shouldCurr:460.9, subtotal:923 }
+        ],
+        totalOrders: 2889, totalCannot: 175, totalShould: 2714
+      },
+      palletMonthEnd: { date:'8/31', tsai:324, europe:487, total:811 }
+    },
+    weekly: [
+      // 月初基準（來自07月底計劃表小計欄）
+      { date:'7/31 (月初)', forecast:2389, actual:null, soObtained:null, soPending:null, manageable:null },
+      // ★ 8/7 更新 ★
+      { date:'8/7', forecast:2352.0, actual:433.4, soObtained:602.0, soPending:1316.6,
+        manageable:1035.4, totalForecast:2352.0,
+        soDetail:[
+          { week:'8/10~8/14', tons:372.0, note:'EEX3/HDDX1' },
+          { week:'8/17~8/21', tons:175.0, note:'EEX3' },
+          { week:'8/24~8/28', tons:55.0,  note:'EEX2' },
+          { week:'8/31',      tons:0.0,   note:'' }
+        ]
+      },
+      // ★ 8/14 更新 ★
+      { date:'8/14', forecast:2222.0, actual:800.3, soObtained:411.3, soPending:1010.0,
+        manageable:1211.6, totalForecast:2221.6,
+        soDetail:[
+          { week:'8/17~8/21', tons:306.0, note:'EEX3/HDDX2' },
+          { week:'8/24~8/28', tons:102.0, note:'EEX2' },
+          { week:'8/31',      tons:3.3,   note:'' }
+        ]
+      },
+      // ★ 8/21 更新 ★
+      { date:'8/21', forecast:2308.0, actual:1248.8, soObtained:470.0, soPending:589.0,
+        manageable:1718.8, totalForecast:2307.8,
+        soDetail:[
+          { week:'8/24~8/28', tons:466.7, note:'EEX2/HDDX3' },
+          { week:'8/31',      tons:3.3,   note:'' }
+        ]
+      },
+      // ★ 8/28 更新 ★
+      { date:'8/28', forecast:1782.0, actual:1760.7, soObtained:21.6, soPending:0.0,
+        manageable:1782.3, totalForecast:1782.3,
+        soDetail:[
+          { week:'8/31', tons:21.6, note:'' }
+        ]
+      }
+      // ↓ 後續每週在此新增一筆
+    ],
+    pallets: [
+      { date:'7/31', tsai:409, europe:343, total:752 },
+      // ★ 8/7 更新 ★
+      { date:'8/7', tsai:480, europe:933, total:1413 },
+      // ★ 8/14 更新 ★
+      { date:'8/14', tsai:439, europe:606, total:1045 },
+      // ★ 8/21 更新 ★
+      { date:'8/21', tsai:431, europe:516, total:947 },
+      // ★ 8/28 更新 ★
+      { date:'8/28', tsai:324, europe:487, total:811 },
+      // ★ 8/31 月底 ★
+      { date:'8/31', tsai:324, europe:487, total:811 }
+      // ↓ 後續每週在此新增一筆
+    ]
+  },
+
+  // ── 09月 ──
+  '09': {
+    label: '115年/09月',
+    monthly: null,
+    weekly: [
+      // 月初基準（來自08月底計劃表小計欄）
+      { date:'8/31 (月初)', forecast:2714, actual:null, soObtained:null, soPending:null, manageable:null },
+      // ★ 9/4 更新 ★
+      { date:'9/4', forecast:2663.2, actual:377.3, soObtained:705.9, soPending:1580.0,
+        manageable:1083.2, totalForecast:2663.2,
+        soDetail:[
+          { week:'9/7~9/11',  tons:516.0, note:'EEX2/HDDX3' },
+          { week:'9/14~9/18', tons:108.9, note:'EEX1' },
+          { week:'9/21~9/25', tons:81.0,  note:'EEX1' },
+          { week:'9/28~9/30', tons:0.0,   note:'' }
+        ]
+      },
+      // ★ 9/11 更新 ★
+      { date:'9/11', forecast:2545.0, actual:860.0, soObtained:708.2, soPending:976.3,
+        manageable:1568.2, totalForecast:2544.5,
+        soDetail:[
+          { week:'9/14~9/18', tons:412.8, note:'EEX1' },
+          { week:'9/21~9/25', tons:260.0, note:'EEX1' },
+          { week:'9/28~9/30', tons:35.4,  note:'EEX22' }
+        ]
+      },
+      // ★ 9/18 更新 ★
+      { date:'9/18', forecast:2486.0, actual:1366.6, soObtained:446.4, soPending:672.7,
+        manageable:1813.0, totalForecast:2485.7,
+        soDetail:[
+          { week:'9/21~9/25', tons:339.4, note:'EEX1' },
+          { week:'9/28~9/30', tons:107.0, note:'EEX3' }
+        ]
+      },
+      // ★ 9/24 更新 ★
+      { date:'9/24', forecast:1925.0, actual:1700.6, soObtained:224.2, soPending:0.0,
+        manageable:1924.8, totalForecast:1924.8,
+        soDetail:[
+          { week:'9/28~9/30', tons:224.2, note:'EEX1' }
+        ]
+      }
+      // ↓ 後續每週在此新增一筆
+    ],
+    pallets: [
+      { date:'8/31', tsai:324, europe:487, total:811 },
+      // ★ 9/4 更新 ★
+      { date:'9/4', tsai:358, europe:574, total:932 },
+      // ★ 9/11 更新 ★
+      { date:'9/11', tsai:406, europe:379, total:785 },
+      // ★ 9/18 更新 ★
+      { date:'9/18', tsai:432, europe:386, total:818 },
+      // ★ 9/24 更新 ★
+      { date:'9/24', tsai:354, europe:354, total:708 }
+      // ↓ 後續每週在此新增一筆
+    ]
   }
 
   // ↓ 08月起，在此繼續新增月份物件
 };
 
 // 當前顯示月份
-let currentWeeklyMonth = '07';
+let currentWeeklyMonth = '09';
 </script>
 
 <div class="header">
@@ -402,7 +548,7 @@ let currentWeeklyMonth = '07';
   <div class="kpi-row mb-section" id="monthly-kpi"></div>
 
   <!-- 未出原因圓餅 + 明細 -->
-  <div class="grid-chart-table mb-section">
+  <div class="grid-chart-table mb-section" id="unshipped-section">
     <div class="card">
       <div class="section-title">未出貨責任歸屬</div>
       <div style="position:relative; height:190px;"><canvas id="reasonPieChart"></canvas></div>
@@ -415,7 +561,7 @@ let currentWeeklyMonth = '07';
   </div>
 
   <!-- 未出原因圖 -->
-  <div class="card mb-section">
+  <div class="card mb-section" id="unshipped-bar-section">
     <div class="section-title">未出原因分類圖表（單位：噸）</div>
     <div style="height:210px;"><canvas id="reasonBarChart"></canvas></div>
   </div>
@@ -485,7 +631,7 @@ function nextShipBadge(s) {
 }
 
 // ── 月底報告渲染 ──────────────────────────────────────────
-let currentMonthlyMonth = '06';
+let currentMonthlyMonth = '08';
 function renderMonthly(monthKey) {
   currentMonthlyMonth = monthKey;
   const d = DATA[monthKey];
@@ -515,6 +661,12 @@ function renderMonthly(monthKey) {
       <div class="kpi-bar-bg"><div class="kpi-bar" style="width:${Math.min(a.rate,1)*100}%;"></div></div>
     </div>`).join('');
 
+  // 未出原因區塊（無明細來源的月份則隱藏）
+  const hasReasons = !!m.unshippedReasons;
+  document.getElementById('unshipped-section').style.display = hasReasons ? '' : 'none';
+  document.getElementById('unshipped-bar-section').style.display = hasReasons ? '' : 'none';
+
+  if (hasReasons) {
   // 圓餅摘要
   document.getElementById('monthly-pie-summary').innerHTML = `
     <div style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -565,6 +717,7 @@ function renderMonthly(monthKey) {
         </tr>
       </tbody>
     </table>`;
+  }
 
   // 下月計劃表
   const np = m.nextPlan;
@@ -978,6 +1131,7 @@ function renderMonthlyCharts(monthKey) {
   const d = DATA[monthKey].monthly;
   if (pieChart) pieChart.destroy();
   if (barChart) barChart.destroy();
+  if (!d.unshippedReasons) return;
 
   // 重建 canvas（避免 Chart.js 殘留）
   const pieWrap = document.getElementById('reasonPieChart').parentElement;
@@ -1036,9 +1190,9 @@ function switchTab(name, el) {
 
 // ── 初始化 ────────────────────────────────────────────────
 Chart.defaults.font = { family:"'Microsoft JhengHei','PingFang TC',sans-serif", size:12 };
-renderMonthly('06');
-renderMonthlyCharts('06');
-renderWeekly('07');  // 週報預設顯示最新月份
+renderMonthly('08');
+renderMonthlyCharts('08');
+renderWeekly('09');  // 週報預設顯示最新月份
 </script>
 </body>
 </html>
