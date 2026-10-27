@@ -457,7 +457,22 @@ const DATA = {
   // ── 09月 ──
   '09': {
     label: '115年/09月',
-    monthly: null,
+    monthly: {
+      achievement: [
+        { name: '采釘美', target: 1791.0, actual: 1229.5, rate: 0.69 },
+        { name: '歐洲線', target: 923.0,  actual: 710.0,  rate: 0.77 },
+        { name: '合計',   target: 2714.0, actual: 1939.5, rate: 0.71 }
+      ],
+      nextPlan: {
+        month: '10',
+        rows: [
+          { name:'采釘美', prevRem:529.0, newOrders:1661.0, cannotPrev:0.0,   cannotCurr:0.0,   shouldPrev:529.0, shouldCurr:1661.0, subtotal:2190 },
+          { name:'歐洲線', prevRem:405.0, newOrders:1042.0, cannotPrev:172.0, cannotCurr:226.0, shouldPrev:233.0, shouldCurr:816.0,  subtotal:1049 }
+        ],
+        totalOrders: 3637, totalCannot: 398, totalShould: 3239
+      },
+      palletMonthEnd: { date:'9/30', tsai:301, europe:311, total:612 }
+    },
     weekly: [
       // 月初基準（來自08月底計劃表小計欄）
       { date:'8/31 (月初)', forecast:2714, actual:null, soObtained:null, soPending:null, manageable:null },
@@ -506,16 +521,45 @@ const DATA = {
       // ★ 9/18 更新 ★
       { date:'9/18', tsai:432, europe:386, total:818 },
       // ★ 9/24 更新 ★
-      { date:'9/24', tsai:354, europe:354, total:708 }
+      { date:'9/24', tsai:354, europe:354, total:708 },
+      // ★ 9/30 月底 ★
+      { date:'9/30', tsai:301, europe:311, total:612 }
+      // ↓ 後續每週在此新增一筆
+    ]
+  },
+
+  // ── 10月 ──
+  '10': {
+    label: '115年/10月',
+    monthly: null,
+    weekly: [
+      // 月初基準（來自09月底計劃表小計欄）
+      { date:'9/30 (月初)', forecast:3239, actual:null, soObtained:null, soPending:null, manageable:null },
+      // ★ 10/2 更新 ★
+      { date:'10/2', forecast:3243.0, actual:25.3, soObtained:993.0, soPending:2250.0,
+        manageable:993.0, totalForecast:3243.0,
+        soDetail:[
+          { week:'10/5~10/8',   tons:444.0, note:'EEX5' },
+          { week:'10/12~10/16', tons:237.0, note:'EEX3' },
+          { week:'10/19~10/23', tons:160.0, note:'EEX5' },
+          { week:'10/27~10/30', tons:152.0, note:'EEX2' }
+        ]
+      }
+      // ↓ 後續每週在此新增一筆
+    ],
+    pallets: [
+      { date:'9/30', tsai:301, europe:311, total:612 },
+      // ★ 10/2 更新 ★
+      { date:'10/2', tsai:475, europe:468, total:943 }
       // ↓ 後續每週在此新增一筆
     ]
   }
 
-  // ↓ 08月起，在此繼續新增月份物件
+  // ↓ 11月起，在此繼續新增月份物件
 };
 
 // 當前顯示月份
-let currentWeeklyMonth = '09';
+let currentWeeklyMonth = '10';
 </script>
 
 <div class="header">
@@ -631,14 +675,14 @@ function nextShipBadge(s) {
 }
 
 // ── 月底報告渲染 ──────────────────────────────────────────
-let currentMonthlyMonth = '08';
+let currentMonthlyMonth = '09';
 function renderMonthly(monthKey) {
   currentMonthlyMonth = monthKey;
   const d = DATA[monthKey];
   const m = d.monthly;
 
   // 月份切換按鈕
-  const monthlyMonths = Object.keys(DATA).filter(k => DATA[k].monthly);
+  const monthlyMonths = Object.keys(DATA).sort().filter(k => DATA[k].monthly);
   document.getElementById('monthly-month-selector').innerHTML = monthlyMonths.map(k =>
     `<button class="month-btn ${k===monthKey?'active':''}" onclick="renderMonthly('${k}');renderMonthlyCharts('${k}')">${DATA[k].label}</button>`
   ).join('');
@@ -810,14 +854,14 @@ function renderWeekly(monthKey) {
   const initial = weeks[0];
 
   // 月份按鈕
-  document.getElementById('month-selector').innerHTML = Object.keys(DATA).map(k =>
+  document.getElementById('month-selector').innerHTML = Object.keys(DATA).sort().map(k =>
     `<button class="month-btn ${k===monthKey?'active':''}" onclick="renderWeekly('${k}')">${DATA[k].label}</button>`
   ).join('');
 
   document.getElementById('forecast-chart-title').textContent = `${label} 預計出貨量週間調降歷程`;
   document.getElementById('pallet-chart-title').textContent = `${label} E庫已完成棧板數`;
   document.getElementById('weekly-table-title').textContent = `${label} 訂單出貨量統計表`;
-  const globalLatest = Object.values(DATA).flatMap(m => m.weekly).filter(w => w.actual !== null).pop();
+  const globalLatest = Object.keys(DATA).sort().map(k => DATA[k]).flatMap(m => m.weekly).filter(w => w.actual !== null).pop();
   document.getElementById('lastUpdate').textContent = `最後更新：${globalLatest ? globalLatest.date : latest.date}`;
 
   const initForecast = initial.forecast;
@@ -895,7 +939,7 @@ function renderWeekly(monthKey) {
         <div>
           <div style="font-size:13px;color:#9a3412;font-weight:700;">月初擬定目標（${initial.date}）</div>
           <div style="font-size:28px;font-weight:800;color:#d97706;line-height:1.2;">${fmt(initForecast)} 噸</div>
-          <div style="font-size:13px;color:#6b7280;">本次預計 ${fmt(latest.forecast)} 噸，已調降 <strong style="color:#dc2626;">▼ ${fmt(drop)} 噸</strong></div>
+          <div style="font-size:13px;color:#6b7280;">本次預計 ${fmt(latest.forecast)} 噸，${drop >= 0 ? `已調降 <strong style="color:#dc2626;">▼ ${fmt(drop)} 噸</strong>` : `已調升 <strong style="color:#16a34a;">▲ ${fmt(-drop)} 噸</strong>`}</div>
         </div>
       </div>
       ${latest.totalForecast ? `
@@ -1190,9 +1234,9 @@ function switchTab(name, el) {
 
 // ── 初始化 ────────────────────────────────────────────────
 Chart.defaults.font = { family:"'Microsoft JhengHei','PingFang TC',sans-serif", size:12 };
-renderMonthly('08');
-renderMonthlyCharts('08');
-renderWeekly('09');  // 週報預設顯示最新月份
+renderMonthly('09');
+renderMonthlyCharts('09');
+renderWeekly('10');  // 週報預設顯示最新月份
 </script>
 </body>
 </html>
